@@ -486,6 +486,144 @@ body {
   background: #dce3ec;
 }
 
+/* ===== DB STATUS ===== */
+.db-status {
+  font-size: 0.72rem;
+  font-weight: 600;
+  margin-top: 6px;
+  padding: 2px 0;
+  letter-spacing: 0.3px;
+}
+.db-connecting { color: #f0c040; }
+.db-connected  { color: #4ade80; }
+.db-error      { color: #f87171; }
+
+/* ===== SIDEBAR DB PANEL ===== */
+#sidebar-db {
+  padding: 10px 12px;
+  border-bottom: 1px solid #2e3f5c;
+}
+#db-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.btn-db {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 7px;
+  border: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.18s;
+}
+.btn-db-new  { background: #1e4d8c; color: #fff; }
+.btn-db-new:hover { background: #163b6e; }
+.btn-db-save { background: #166534; color: #fff; }
+.btn-db-save:hover { background: #14532d; }
+.btn-db-list { background: #2e3f5c; color: #c0cfe0; }
+.btn-db-list:hover { background: #3a5070; color: #fff; }
+
+/* ===== PATIENT LIST ===== */
+#patient-list-panel {
+  margin-top: 10px;
+  border-top: 1px solid #2e3f5c;
+  padding-top: 8px;
+}
+#patient-list-search input {
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 6px;
+  border: 1.5px solid #3a5070;
+  background: #243450;
+  color: #fff;
+  font-size: 0.8rem;
+  margin-bottom: 8px;
+}
+#patient-list-search input::placeholder { color: #7a90a8; }
+#patient-list-search input:focus { outline: none; border-color: #7ec8e3; }
+
+#patient-list {
+  list-style: none;
+  max-height: 260px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.patient-list-item {
+  display: flex;
+  align-items: center;
+  border-radius: 7px;
+  background: #243450;
+  border: 1px solid #2e3f5c;
+  overflow: hidden;
+  transition: background 0.15s;
+}
+.patient-list-item:hover { background: #2e4a6e; }
+.patient-list-item.active { border-color: #7ec8e3; background: #1e4d8c; }
+.patient-list-info {
+  flex: 1;
+  padding: 8px 10px;
+  cursor: pointer;
+  min-width: 0;
+}
+.patient-list-info strong {
+  display: block;
+  font-size: 0.82rem;
+  color: #e8f0fe;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.patient-list-info span {
+  display: block;
+  font-size: 0.72rem;
+  color: #8aaac0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.patient-list-item .btn-remove {
+  background: transparent;
+  color: #7a90a8;
+  border-radius: 0;
+  padding: 8px 8px;
+  flex-shrink: 0;
+}
+.patient-list-item .btn-remove:hover { background: #b91c1c; color: #fff; }
+.patient-list-empty {
+  color: #7a90a8;
+  font-size: 0.8rem;
+  padding: 10px 4px;
+  text-align: center;
+}
+
+/* ===== TOAST ===== */
+#app-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: #1a2740;
+  color: #fff;
+  padding: 10px 22px;
+  border-radius: 24px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+  opacity: 0;
+  transition: opacity 0.25s, transform 0.25s;
+  pointer-events: none;
+  z-index: 9999;
+}
+#app-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
 /* ===== PRINT ===== */
 @media print {
   #sidebar, .btn-bg-image, .btn-row, .signature-actions, #sidebar-actions { display: none !important; }

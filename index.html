@@ -12,6 +12,9 @@
   <!-- Signature Pad -->
   <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
 
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
   <!-- Estilos propios -->
   <link rel="stylesheet" href="css/styles.css" />
 </head>
@@ -23,12 +26,29 @@
       <div id="sidebar-header">
         <h2>Chequeo Médico</h2>
         <p id="patient-name-display">Sin paciente</p>
+        <div id="db-status" class="db-status db-connecting">● Conectando...</div>
       </div>
+
+      <div id="sidebar-db">
+        <div id="db-actions">
+          <button onclick="dbNewRecord()" class="btn-db btn-db-new">＋ Nuevo paciente</button>
+          <button onclick="dbSaveRecord()" class="btn-db btn-db-save">💾 Guardar en BD</button>
+          <button onclick="togglePatientList()" class="btn-db btn-db-list">📋 Pacientes guardados</button>
+        </div>
+        <div id="patient-list-panel" style="display:none;">
+          <div id="patient-list-search">
+            <input type="text" id="patient-search-input" placeholder="Buscar paciente..." oninput="filterPatients()" />
+          </div>
+          <ul id="patient-list"></ul>
+        </div>
+      </div>
+
       <ul id="sheet-nav"></ul>
+
       <div id="sidebar-actions">
-        <button onclick="printReport()" class="btn-action">Imprimir / PDF</button>
-        <button onclick="saveData()" class="btn-action">Guardar</button>
-        <button onclick="loadData()" class="btn-action">Cargar</button>
+        <button onclick="printReport()" class="btn-action">🖨 Imprimir / PDF</button>
+        <button onclick="saveData()" class="btn-action">⬇ Exportar JSON</button>
+        <button onclick="loadData()" class="btn-action">⬆ Importar JSON</button>
       </div>
     </nav>
 
@@ -57,6 +77,7 @@
   <script src="js/sheets/sheet17.js"></script>
   <script src="js/sheets/sheet18.js"></script>
   <script src="js/sheets/sheet19.js"></script>
+  <script src="js/supabase-client.js"></script>
   <script src="js/app.js"></script>
 
 </body>

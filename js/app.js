@@ -17,6 +17,10 @@ function init() {
   loadFromStorage();
   buildNav();
   navigateTo(0);
+  // Restore current record ID from state
+  if (appState._recordId) currentRecordId = appState._recordId;
+  // Connect to Supabase
+  checkConnection();
 }
 
 /* ===== NAV ===== */
