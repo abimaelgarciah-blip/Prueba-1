@@ -1,3 +1,28 @@
+/* ===== AUTH ===== */
+const PASSWORD = 'empatia1042';
+const AUTH_KEY = 'cm-auth';
+
+function handleLogin(e) {
+  e.preventDefault();
+  const input = document.getElementById('login-password').value;
+  const err   = document.getElementById('login-error');
+  if (input === PASSWORD) {
+    sessionStorage.setItem(AUTH_KEY, '1');
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    initApp();
+  } else {
+    err.style.display = 'block';
+    document.getElementById('login-password').value = '';
+    document.getElementById('login-password').focus();
+  }
+}
+
+function handleLogout() {
+  sessionStorage.removeItem(AUTH_KEY);
+  location.reload();
+}
+
 /* ===== STATE ===== */
 let appState = {};
 const STORAGE_KEY = 'checqueo-medico-v1';
@@ -11,21 +36,68 @@ const sheets = [
 ];
 
 let currentSheetIndex = 0;
+let currentView = 'patients';
 
-/* ===== INIT ===== */
-function init() {
+/* ===== BOOT ===== */
+document.addEventListener('DOMContentLoaded', () => {
+  if (sessionStorage.getItem(AUTH_KEY) === '1') {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    initApp();
+  }
+  // Auto-focus password field
+  document.getElementById('login-password')?.focus();
+});
+
+function initApp() {
   loadFromStorage();
   buildNav();
-  navigateTo(0);
-  // Restore current record ID from state
-  if (appState._recordId) currentRecordId = appState._recordId;
-  // Connect to Supabase
   checkConnection();
+  showView('patients');
 }
 
-/* ===== NAV ===== */
+/* ===== VIEW SWITCHER ===== */
+function showView(view) {
+  currentView = view;
+  document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active-panel'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+  document.getElementById(`view-${view}`)?.classList.add('active-panel');
+  document.getElementById(`nav-${view}`)?.classList.add('active');
+
+  if (view === 'patients') loadPatientsView();
+  if (view === 'doctors')  loadDoctorsView();
+  if (view === 'dashboard') loadDashboard();
+}
+
+/* ===== PATIENT FORM NAV ===== */
+function startNewPatient() {
+  currentRecordId = null;
+  appState = {};
+  saveToStorage();
+  openFormView();
+  navigateTo(0);
+}
+
+function openPatientRecord(id) {
+  dbLoadRecord(id);
+}
+
+function openFormView() {
+  document.getElementById('patients-list-view').style.display = 'none';
+  document.getElementById('patients-form-view').style.display = 'block';
+}
+
+function backToPatientList() {
+  document.getElementById('patients-form-view').style.display = 'none';
+  document.getElementById('patients-list-view').style.display = 'block';
+  loadPatientsView();
+}
+
+/* ===== SHEET NAV ===== */
 function buildNav() {
   const nav = document.getElementById('sheet-nav');
+  if (!nav) return;
   nav.innerHTML = '';
   sheets.forEach((sheet, i) => {
     const li = document.createElement('li');
@@ -45,13 +117,11 @@ function navigateTo(index) {
   });
 
   const container = document.getElementById('sheet-container');
+  if (!container) return;
   container.innerHTML = sheet.render();
 
-  if (sheet.restore) {
-    setTimeout(() => sheet.restore(), 0);
-  }
-
-  document.getElementById('main-content').scrollTop = 0;
+  if (sheet.restore) setTimeout(() => sheet.restore(), 0);
+  document.getElementById('main-content')?.scrollTo(0, 0);
 }
 
 /* ===== FIELD STATE ===== */
@@ -65,9 +135,7 @@ function saveFieldState(id) {
 function restoreFields(ids) {
   ids.forEach(id => {
     const el = document.getElementById(id);
-    if (el && appState[id] !== undefined) {
-      el.value = appState[id];
-    }
+    if (el && appState[id] !== undefined) el.value = appState[id];
   });
 }
 
@@ -144,7 +212,7 @@ function renderStudyItem(study) {
 }
 
 function toggleStudy(id) {
-  const body = document.getElementById(`body-${id}`);
+  const body  = document.getElementById(`body-${id}`);
   const arrow = document.getElementById(`arrow-${id}`);
   if (!body) return;
   body.classList.toggle('open');
@@ -152,7 +220,7 @@ function toggleStudy(id) {
 }
 
 function toggleStudyCheck(id) {
-  const chk = document.getElementById(`chk-${id}`);
+  const chk  = document.getElementById(`chk-${id}`);
   const body = document.getElementById(`body-${id}`);
   if (!chk || !body) return;
   body.style.display = chk.checked ? '' : 'none';
@@ -164,7 +232,7 @@ function toggleStudyCheck(id) {
 
 function restoreStudies(studies) {
   studies.forEach(study => {
-    const chk = document.getElementById(`chk-${study.id}`);
+    const chk  = document.getElementById(`chk-${study.id}`);
     const body = document.getElementById(`body-${study.id}`);
     const saved = appState[`chk-${study.id}`];
     if (saved === 'false' && chk) {
@@ -192,18 +260,15 @@ function updateStatusStyle(idOrEl) {
 /* ===== PATIENT NAME ===== */
 function updatePatientName() {
   const name = document.getElementById('s1-patient')?.value || '';
-  document.getElementById('patient-name-display').textContent = name || 'Sin paciente';
+  const el = document.getElementById('patient-name-display');
+  if (el) el.textContent = name || 'Sin paciente';
   appState.patientName = name;
   saveToStorage();
 }
 
 /* ===== STORAGE ===== */
 function saveToStorage() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
-  } catch(e) {
-    console.warn('No se pudo guardar en localStorage:', e);
-  }
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appState)); } catch(e) {}
 }
 
 function loadFromStorage() {
@@ -211,35 +276,28 @@ function loadFromStorage() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       appState = JSON.parse(raw);
-      const name = appState.patientName || '';
-      document.getElementById('patient-name-display').textContent = name || 'Sin paciente';
+      if (appState._recordId) currentRecordId = appState._recordId;
     }
-  } catch(e) {
-    appState = {};
-  }
+  } catch(e) { appState = {}; }
 }
 
-/* ===== SAVE / LOAD FILE ===== */
+/* ===== EXPORT / IMPORT JSON ===== */
 function saveData() {
-  const data = JSON.stringify(appState, null, 2);
-  const blob = new Blob([data], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  const patient = appState['s1-patient'] || 'paciente';
-  const date = new Date().toISOString().split('T')[0];
-  a.href = url;
-  a.download = `chequeo-${patient}-${date}.json`;
-  a.click();
+  const data  = JSON.stringify(appState, null, 2);
+  const blob  = new Blob([data], { type: 'application/json' });
+  const url   = URL.createObjectURL(blob);
+  const a     = document.createElement('a');
+  const name  = appState['s1-patient'] || 'paciente';
+  const date  = new Date().toISOString().split('T')[0];
+  a.href = url; a.download = `chequeo-${name}-${date}.json`; a.click();
   URL.revokeObjectURL(url);
 }
 
 function loadData() {
   const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = '.json';
+  input.type = 'file'; input.accept = '.json';
   input.onchange = e => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const file = e.target.files[0]; if (!file) return;
     const reader = new FileReader();
     reader.onload = ev => {
       try {
@@ -247,11 +305,10 @@ function loadData() {
         saveToStorage();
         navigateTo(currentSheetIndex);
         const name = appState.patientName || appState['s1-patient'] || '';
-        document.getElementById('patient-name-display').textContent = name || 'Sin paciente';
-        alert('Datos cargados correctamente.');
-      } catch(err) {
-        alert('Error al cargar el archivo. Verifique que sea un archivo válido.');
-      }
+        const el = document.getElementById('patient-name-display');
+        if (el) el.textContent = name || 'Sin paciente';
+        showToast('Datos cargados correctamente.');
+      } catch { alert('Archivo inválido.'); }
     };
     reader.readAsText(file);
   };
@@ -259,9 +316,14 @@ function loadData() {
 }
 
 /* ===== PRINT ===== */
-function printReport() {
-  window.print();
-}
+function printReport() { window.print(); }
 
-/* ===== START ===== */
-document.addEventListener('DOMContentLoaded', init);
+/* ===== TOAST ===== */
+function showToast(msg) {
+  let t = document.getElementById('app-toast');
+  if (!t) { t = document.createElement('div'); t.id = 'app-toast'; document.body.appendChild(t); }
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timeout);
+  t._timeout = setTimeout(() => t.classList.remove('show'), 3000);
+}
