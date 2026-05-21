@@ -1,6 +1,7 @@
 {
   "outputDirectory": ".",
   "routes": [
-    { "src": "/herodoto", "dest": "/herodoto.html" }
+    { "src": "/herodoto", "dest": "/herodoto.html" },
+    { "src": "/chequeo",  "dest": "/chequeo.html"  }
   ]
 }
