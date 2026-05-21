@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heródoto — Todas las Historias</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Crimson Text',serif;background:#0a0804;color:#e8d5a3;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+header{background:linear-gradient(180deg,#1e150a 0%,#150e06 100%);border-bottom:1px solid #3d2b0f;padding:8px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;z-index:1000;position:relative;flex-wrap:wrap}
+header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#c9a227 20%,#e8d5a3 50%,#c9a227 80%,transparent)}
+h1{font-family:'Cinzel',serif;font-size:1.05rem;font-weight:900;color:#e8d5a3;letter-spacing:.15em;white-space:nowrap}
+.subtitle{font-size:.75rem;color:#7a5a2a;font-style:italic;white-space:nowrap}
+.search-wrap{position:relative;flex:1;max-width:220px}
+.search-wrap input{width:100%;background:rgba(255,255,255,.04);border:1px solid #3d2b0f;color:#e8d5a3;font-family:'Crimson Text',serif;font-size:.82rem;padding:5px 10px 5px 28px;border-radius:2px;outline:none;transition:border-color .2s}
+.search-wrap input:focus{border-color:#c9a227}
+.search-wrap input::placeholder{color:#5a3e1b}
+.search-icon{position:absolute;left:8px;top:50%;transform:translateY(-50%);color:#5a3e1b;font-size:.8rem;pointer-events:none}
+#search-results{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#150e06;border:1px solid #3d2b0f;z-index:9999;max-height:220px;overflow-y:auto;display:none}
+.sr-item{padding:6px 10px;font-size:.8rem;cursor:pointer;border-bottom:1px solid #1e150a;display:flex;gap:8px;align-items:center}
+.sr-item:hover{background:#1e150a}
+.sr-book{font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.1em;opacity:.6;flex-shrink:0}
+.stat{font-family:'Cinzel',serif;font-size:.65rem;letter-spacing:.1em;color:#7a5a2a;white-space:nowrap;padding:4px 10px;border:1px solid #3d2b0f;border-radius:2px}
+.stat span{color:#c9a227}
+.sidebar{position:absolute;top:0;left:0;bottom:0;width:220px;background:rgba(14,10,4,.95);border-right:1px solid #3d2b0f;z-index:900;display:flex;flex-direction:column;transition:transform .3s}
+.sidebar.closed{transform:translateX(-100%)}
+.sidebar-toggle{position:absolute;top:50%;right:-28px;transform:translateY(-50%);background:rgba(14,10,4,.95);border:1px solid #3d2b0f;border-left:none;color:#c9a227;font-size:.75rem;cursor:pointer;padding:8px 6px;writing-mode:vertical-rl;letter-spacing:.1em;font-family:'Cinzel',serif;z-index:901;white-space:nowrap}
+.sidebar-title{font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.15em;color:#7a5a2a;padding:10px 12px 6px;border-bottom:1px solid #3d2b0f;text-transform:uppercase}
+.filters{overflow-y:auto;flex:1}
+.book-filter{padding:7px 12px;border-bottom:1px solid #1e150a;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .15s}
+.book-filter:hover{background:#1e150a}
+.book-filter.inactive .bf-dot{opacity:.3}
+.book-filter.inactive .bf-label{opacity:.4}
+.bf-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.bf-label{font-family:'Cinzel',serif;font-size:.65rem;letter-spacing:.08em;color:#c9b08a;flex:1}
+.bf-count{font-size:.65rem;color:#5a3e1b}
+#map-wrap{flex:1;position:relative}
+#map{width:100%;height:100%;background:#0d1e2e}
+.leaflet-tile-pane{filter:sepia(.5) brightness(.6) saturate(.4) hue-rotate(8deg)}
+.leaflet-popup-content-wrapper{background:#100b04!important;border:1px solid #4a3310!important;border-radius:3px!important;padding:0!important;box-shadow:0 12px 40px rgba(0,0,0,.9)!important;min-width:250px;max-width:320px}
+.leaflet-popup-tip{background:#100b04!important}
+.leaflet-popup-content{margin:0!important;color:#e8d5a3;font-family:'Crimson Text',serif}
+.popup-header{padding:10px 14px 8px;border-bottom:1px solid #2a1e0a}
+.popup-books{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:5px}
+.popup-book-tag{font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:.12em;padding:2px 6px;border-radius:1px}
+.popup-name{font-family:'Cinzel',serif;font-size:1rem;font-weight:600;color:#e8d5a3;line-height:1.2}
+.popup-modern{font-size:.75rem;color:#8a6030;font-style:italic;margin-top:2px}
+.popup-body{padding:10px 14px}
+.popup-text{font-size:.88rem;line-height:1.55;color:#c0a070}
+.popup-quote{margin-top:8px;padding:6px 10px;border-left:2px solid #c9a227;font-style:italic;font-size:.82rem;color:#a08050;line-height:1.4}
+.bottom-bar{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);z-index:800;background:rgba(14,10,4,.9);border:1px solid #3d2b0f;border-top:2px solid #c9a227;padding:6px 20px;font-family:'Cinzel',serif;font-size:.65rem;letter-spacing:.12em;color:#7a5a2a;pointer-events:none;white-space:nowrap}
+.bottom-bar span{color:#e8d5a3}
+.leaflet-control-zoom a{background:#150e06!important;color:#c9a227!important;border-color:#3d2b0f!important}
+.leaflet-control-zoom a:hover{background:#1e150a!important}
+.leaflet-control-attribution{background:rgba(8,5,2,.85)!important;color:#4a3010!important;font-size:.58rem!important}
+.leaflet-control-attribution a{color:#7a5030!important}
+.leaflet-tooltip{background:rgba(14,10,4,.95)!important;border:1px solid #3d2b0f!important;color:#e8d5a3!important;font-family:'Cinzel',serif!important;font-size:.65rem!important;letter-spacing:.08em!important;padding:3px 7px!important;border-radius:2px!important;box-shadow:0 3px 10px rgba(0,0,0,.7)!important}
+.leaflet-tooltip::before{border-top-color:#3d2b0f!important}
+.river-label-icon,.lake-label-icon,.region-label-icon{background:transparent!important;border:none!important;box-shadow:none!important}
+.river-label{font-family:'Crimson Text',serif;font-style:italic;font-size:.62rem;color:#74c6f0;letter-spacing:.04em;text-shadow:0 0 5px #000,0 0 10px #000;white-space:nowrap;pointer-events:none}
+.lake-label{font-family:'Crimson Text',serif;font-style:italic;font-size:.64rem;color:#a8e0f5;text-shadow:0 0 5px #000,0 0 10px #000;white-space:pre-line;pointer-events:none;text-align:center;line-height:1.3}
+.rl-toggle{font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.1em;padding:4px 10px;background:rgba(74,198,240,.08);border:1px solid rgba(74,198,240,.3);color:#74c6f0;border-radius:2px;cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0}
+.rl-toggle:hover{background:rgba(74,198,240,.18)}
+.rl-toggle.off{opacity:.35;color:#5a3e1b;border-color:#3d2b0f;background:transparent}
+.region-toggle{font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.1em;padding:4px 10px;background:rgba(201,162,39,.08);border:1px solid rgba(201,162,39,.3);color:#c9a227;border-radius:2px;cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0}
+.region-toggle:hover{background:rgba(201,162,39,.18)}
+.region-toggle.off{opacity:.35;color:#5a3e1b;border-color:#3d2b0f;background:transparent}
+.leaflet-interactive{transition:fill-opacity .3s,stroke-opacity .3s}
+.download-btn{position:fixed;bottom:20px;right:20px;z-index:2000;background:#c9a227;color:#0a0804;border:none;padding:10px 16px;font-family:'Cinzel',serif;font-size:.75rem;font-weight:bold;letter-spacing:.1em;border-radius:4px;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,.5);transition:all .2s ease}
+.download-btn:hover{background:#e8d5a3;transform:translateY(-2px)}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Ἱστορίαι — Las Historias de Heródoto</h1>
+    <div class="subtitle">Todos los lugares mencionados · Siglo V a.C.</div>
+  </div>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="search" placeholder="Buscar lugar..." autocomplete="off">
+    <div id="search-results"></div>
+  </div>
+  <div class="stat">Visibles: <span id="cnt">0</span></div>
+  <div class="stat">Total: <span>130</span> lugares</div>
+  <button class="rl-toggle" id="rl-btn" onclick="toggleRiversLakes()">🌊 Ríos & Lagos</button>
+  <button class="region-toggle" id="reg-btn" onclick="toggleRegions()">🗺 Regiones</button>
+</header>
+<div id="map-wrap">
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-title">Filtrar por Libro</div>
+    <div class="filters" id="filters"></div>
+    <button class="sidebar-toggle" id="tog" onclick="toggleSidebar()">LIBROS ◀</button>
+  </div>
+  <div id="map"></div>
+  <div class="bottom-bar">📍 Mostrando <span id="cnt2">0</span> lugares · Haz clic en un marcador para más información</div>
+</div>
+<button class="download-btn" onclick="downloadHTML()">📥 Descargar HTML</button>
+<script>
+const BOOKS = {
+  1:{label:'Libro I · Clío',color:'#e07b39',short:'I'},
+  2:{label:'Libro II · Euterpe',color:'#27ae60',short:'II'},
+  3:{label:'Libro III · Talía',color:'#8e44ad',short:'III'},
+  4:{label:'Libro IV · Melpómene',color:'#2980b9',short:'IV'},
+  5:{label:'Libro V · Terpsícore',color:'#16a085',short:'V'},
+  6:{label:'Libro VI · Erato',color:'#d35400',short:'VI'},
+  7:{label:'Libro VII · Polimnia',color:'#c0392b',short:'VII'},
+  8:{label:'Libro VIII · Urania',color:'#e74c3c',short:'VIII'},
+  9:{label:'Libro IX · Calíope',color:'#f39c12',short:'IX'},
+};
+const PLACES = [
+{lat:37.9715,lng:23.7257,name:'Atenas',modern:'Atenas, Grecia',books:[1,5,6,7,8,9],region:'Grecia',
+ text:'Centro de la resistencia griega contra Persia. Los atenienses evacuaron la ciudad antes que rendirla a Jerjes en 480 a.C. Temístocles engañó a Jerjes para forzar la batalla de Salamina en el estrecho.',
+ quote:'"Los atenienses se convirtieron en el mayor pueblo de Grecia cuando más la necesitaban." — VII.139'},
+{lat:37.0819,lng:22.4265,name:'Esparta (Lacedemonia)',modern:'Esparta, Grecia',books:[1,5,6,7,8,9],region:'Grecia',
+ text:'Ciudad guerrera del Peloponeso. Leonidas lideró los 300 espartanos en las Termópilas. En Platea el general Pausanias logró la victoria terrestre definitiva contra Mardonio.',
+ quote:'"Forastero, ve a decir a los espartanos que aquí yacemos, obedeciendo sus leyes." — VII.228'},
+{lat:37.9360,lng:22.9280,name:'Corinto',modern:'Corinto, Grecia',books:[1,3,5,7,8,9],region:'Grecia',
+ text:'Importante ciudad comercial y aliada en las guerras. Heródoto narra el episodio del tirano Periandro y su hijo Lycofrón. Los corintios participaron en Salamina y Platea.'},
+{lat:38.3666,lng:23.3278,name:'Tebas (Beocia)',modern:'Tebas, Grecia',books:[5,7,8,9],region:'Grecia',
+ text:'Ciudad beocia que tomó partido por los persas (medismo). Fue sede del cuartel general persa de Mardonio antes de Platea. Heródoto la critica duramente por su colaboracionismo.',
+ quote:'"Los tebanos combatieron brillantemente del lado de los bárbaros." — IX.67'},
+{lat:38.4826,lng:22.5014,name:'Delfos',modern:'Delfos, Grecia',books:[1,2,3,4,5,6,7,8,9],region:'Grecia',
+ text:'El oráculo más importante del mundo griego. Todos los reyes lo consultaron: Creso, Darío, Jerjes. La Pitia predijo el "muro de madera" que Temístocles interpretó como la flota ateniense.',
+ quote:'"Oh tú, Creso, que gobernabas el gran reino de Lidia, si cruzas el Halis destruirás un gran imperio." — I.53'},
+{lat:38.1533,lng:23.9620,name:'Maratón',modern:'Marathonas, Grecia',books:[6],region:'Grecia',
+ text:'490 a.C. Los atenienses derrotaron solos al ejército persa. El corredor Filípides había viajado a Esparta para pedir ayuda. La victoria fue el símbolo de la resistencia griega.',
+ quote:'"Los atenienses fueron los primeros griegos que cargaron contra los persas al trote." — VI.112'},
+{lat:38.8000,lng:22.5333,name:'Termópilas',modern:'Termópilas, Grecia',books:[7],region:'Grecia',
+ text:'480 a.C. Leonidas con 300 espartanos y 7.000 aliados resistió tres días. Efialtes traicionó el paso secreto. El episodio se convirtió en símbolo eterno del sacrificio por la libertad.',
+ quote:'"Luchad con bravura, espartanos, este día o ahora o jamás." — VII.226'},
+{lat:37.9291,lng:23.5133,name:'Salamina',modern:'Isla de Salamina, Grecia',books:[8],region:'Grecia',
+ text:'480 a.C. Batalla naval decisiva. Jerjes observó desde un trono de oro la destrucción de su armada. Temístocles atrajo la flota persa al estrecho donde su número era una desventaja.',
+ quote:'"Jerjes contempló toda la batalla sentado al pie del monte Aigaleo." — VIII.90'},
+{lat:38.2200,lng:23.2700,name:'Platea',modern:'Platees, Grecia',books:[9],region:'Grecia',
+ text:'479 a.C. Batalla final terrestre. El regente espartano Pausanias lideró el ejército griego que aplastó a Mardonio y sus persas. Mardonio murió en combate. Fin de la invasión de Jerjes.',
+ quote:'"Esta fue la más gloriosa victoria que jamás hemos conocido." — IX.64'},
+{lat:37.6387,lng:22.7266,name:'Argos',modern:'Argos, Grecia',books:[1,6,7,9],region:'Grecia',
+ text:'Ciudad rival de Esparta que se mantuvo neutral durante las invasiones persas. Heródoto narra la profecía que les fue dada y su deliberada inacción. Su neutralidad fue muy criticada.'},
+{lat:38.4316,lng:24.0062,name:'Eretria',modern:'Eretria, Eubea',books:[5,6],region:'Grecia',
+ text:'Ciudad de Eubea que ayudó a la Revuelta Jónica. Los persas la destruyeron completamente en 490 a.C. y esclavizaron a su población, que fue deportada al interior de Persia.',
+ quote:'"Los persas quemaron los templos y los santuarios de Eretria." — VI.101'},
+{lat:37.7450,lng:23.4320,name:'Egina',modern:'Egina, Grecia',books:[5,6,7,8],region:'Grecia',
+ text:'Isla rival de Atenas, sospechosa de medismo. Pese a las tensiones, los eginetas combatieron con gran valor en Salamina y fueron reconocidos como los más valientes de la batalla.',
+ quote:'"Los eginetas ganaron la palma del valor en Salamina." — VIII.93'},
+{lat:37.7292,lng:22.7573,name:'Epidauro',modern:'Epidauro, Grecia',books:[5,8,9],region:'Grecia',
+ text:'Ciudad del Peloponeso famosa por el santuario de Asclepio. Participó en la alianza griega contra Persia con sus contingentes en Salamina y Platea.'},
+{lat:37.6397,lng:22.4133,name:'Tegea',modern:'Tegea, Grecia',books:[1,9],region:'Grecia',
+ text:'Ciudad arcadia. En Platea, espartanos y tegeos combatieron juntos en el ala derecha contra la guardia personal persa. También aparece en relatos sobre las guerras del Peloponeso.'},
+{lat:37.7792,lng:20.8874,name:'Olimpia',modern:'Olimpia, Grecia',books:[2,5,8],region:'Grecia',
+ text:'Santuario de Zeus y sede de los Juegos Olímpicos. Heródoto la menciona varias veces: los griegos prefirieron correr los Juegos antes que ir a la guerra, lo que fascinó a los persas.'},
+{lat:39.6400,lng:22.4100,name:'Valle del Tempe',modern:'Tempe, Grecia',books:[7],region:'Grecia',
+ text:'El estrecho desfiladero entre el Monte Olimpo y el Ossa. Los griegos consideraron defenderlo antes de optar por las Termópilas. El ejército de Jerjes cruzó este paso hacia el sur.',
+ quote:'"El ejército de Jerjes atravesó el desfiladero del Tempe hacia Tesalia." — VII.173'},
+{lat:37.7515,lng:26.9358,name:'Samos',modern:'Isla de Samos, Grecia',books:[1,2,3,4,5,6,8,9],region:'Islas Egeas',
+ text:'La más poderosa de las islas jonias. Policrates la gobernó durante un período de enorme prosperidad. Heródoto la admira y narra los tres logros de ingeniería más grandes del mundo griego.',
+ quote:'"Los samios son los autores de tres grandes obras, las mayores de todos los griegos." — III.60'},
+{lat:38.3680,lng:26.1360,name:'Quíos',modern:'Isla de Quíos, Grecia',books:[1,5,6,8],region:'Islas Egeas',
+ text:'Importante isla jónica. Participó en la Revuelta Jónica. Su flota combatió heroicamente en la batalla de Lade (494 a.C.) antes de la caída de Mileto.'},
+{lat:39.1000,lng:26.5500,name:'Lesbos',modern:'Isla de Lesbos, Grecia',books:[1,5,8,9],region:'Islas Egeas',
+ text:'La mayor de las islas eolias. Mitilene era su ciudad principal. Participó en la Revuelta Jónica. En Micale participó activamente en la liberación jónica.'},
+{lat:37.2156,lng:25.0757,name:'Naxos',modern:'Isla de Naxos, Grecia',books:[5,6,8],region:'Islas Egeas',
+ text:'La mayor de las Cícladas. La primera expedición persa de Aristágoras fracasó contra Naxos en 499 a.C., lo que desencadenó la Revuelta Jónica.',
+ quote:'"El fracaso ante Naxos fue la causa principal de la revuelta de Aristágoras." — V.30'},
+{lat:37.4472,lng:24.9276,name:'Paros',modern:'Isla de Paros, Grecia',books:[6],region:'Islas Egeas',
+ text:'Isla de mármol del Egeo. Milcíades intentó saquearla tras la victoria de Maratón y fracasó. Fue herido y murió poco después.',
+ quote:'"Milcíades atacó Paros con 70 naves pero no consiguió nada digno de mención." — VI.133'},
+{lat:37.4492,lng:25.3270,name:'Delos',modern:'Isla de Delos, Grecia',books:[2,6],region:'Islas Egeas',
+ text:'Isla sagrada de Apolo, centro religioso del Egeo. Heródoto menciona que un terremoto sacudió Delos antes de las guerras médicas, lo que fue interpretado como un presagio.',
+ quote:'"En Delos ocurrió un terremoto, el primero en mucho tiempo: presagio de los males venideros." — VI.98'},
+{lat:35.2401,lng:25.0007,name:'Creta',modern:'Isla de Creta, Grecia',books:[1,2,3,7],region:'Islas Egeas',
+ text:'La mayor isla del Egeo. Los cretenses no enviaron ayuda a los griegos en las Guerras Médicas, invocando una profecía del oráculo de Delfos.',
+ quote:'"Los cretenses, interrogados por el oráculo, no participaron en la guerra." — VII.169'},
+{lat:36.4490,lng:28.2235,name:'Rodas',modern:'Isla de Rodas, Grecia',books:[2,7],region:'Islas Egeas',
+ text:'Importante isla dórica del Egeo oriental. Participó en expediciones coloniales hacia Egipto. Heródoto la menciona en el contexto de los mercaderes griegos en el mundo mediterráneo.'},
+{lat:38.4883,lng:28.0403,name:'Sardes (Sardis)',modern:'Sart, Turquía',books:[1,2,3,5,6,7],region:'Lidia',
+ text:'Capital del reino de Lidia bajo Creso. Ciro la conquistó en 547 a.C. Los atenienses quemaron su santuario en 498 a.C., detonando la reacción persa que llevó a las Guerras Médicas.',
+ quote:'"Sardes era la ciudad más rica de Asia y la más codiciada por todos los reyes." — I.93'},
+{lat:37.9395,lng:27.3414,name:'Éfeso',modern:'Selçuk, Turquía',books:[1,2,5,6],region:'Lidia',
+ text:'Gran ciudad jónica famosa por el Templo de Artemisa, financiado por Creso. Los efesios no participaron activamente en la revuelta jónica.'},
+{lat:37.5306,lng:27.2761,name:'Mileto',modern:'Balat, Turquía',books:[1,2,5,6],region:'Caria',
+ text:'La ciudad jónica más poderosa. La Revuelta Jónica comenzó aquí (499 a.C.). Los persas la destruyeron completamente en 494 a.C. después de la batalla de Lade.',
+ quote:'"Los milesianos pagaron un terrible precio por su revuelta." — VI.18'},
+{lat:37.0379,lng:27.4241,name:'Halicarnaso',modern:'Bodrum, Turquía',books:[7,8],region:'Caria',
+ text:'Ciudad natal de Heródoto. Gobernada por la reina Artemisia durante las guerras persas, quien combatió en Salamina del lado persa con gran habilidad.',
+ quote:'"Artemisia me asombra: siendo mujer ha marchado a la guerra." — VII.99'},
+{lat:36.8720,lng:27.2760,name:'Cnido',modern:'Datça, Turquía',books:[1,2,3],region:'Caria',
+ text:'Ciudad dórica en la punta de la península anatólica. Intentó cortar el istmo para aislarse cuando llegaron los persas. El oráculo les dijo que si Zeus hubiera querido una isla, la habría hecho.'},
+{lat:36.6538,lng:29.1168,name:'Xanto (Licia)',modern:'Kınık, Turquía',books:[1],region:'Licia',
+ text:'Capital de Licia. Cuando Hárpago la conquistó para Ciro, los licios prefirieron quemar su ciudad y morir antes que rendirse. Heródoto lo describe como un acto de heroísmo extremo.',
+ quote:'"Los licios de Xanto se comportaron con un valor extraordinario." — I.176'},
+{lat:38.6680,lng:26.5515,name:'Focea',modern:'Foça, Turquía',books:[1],region:'Lidia',
+ text:'Ciudad jónica famosa por sus navegantes. Cuando los persas la conquistaron, sus habitantes emigraron masivamente, fundando Massalia (Marsella) y otras colonias de Occidente.',
+ quote:'"Los foceos fueron los primeros griegos que hicieron largos viajes por mar." — I.163'},
+{lat:37.5000,lng:27.2500,name:'Priene',modern:'Güllübahçe, Turquía',books:[1],region:'Caria',
+ text:'Ciudad jónica de la dodecápolis. Sede del sabio Bias de Priene, uno de los Siete Sabios de Grecia, quien aconsejó a los jonios emigrar ante la conquista persa.'},
+{lat:39.1453,lng:34.1608,name:'Pteria (Capadocia)',modern:'Boğazköy, Turquía',books:[1],region:'Anatolia',
+ text:'Ciudad de Capadocia donde se libró la batalla indecisa entre Creso y Ciro en 547 a.C. Tras la batalla Creso se retiró creyendo que la campaña había terminado: su error fatal.',
+ quote:'"Pteria era la ciudad más importante de esa región, y allí se enfrentaron Creso y Ciro." — I.76'},
+{lat:40.0482,lng:26.3013,name:'Helesponto (Dardanelos)',modern:'Çanakkale, Turquía',books:[4,7,8,9],region:'Tracia',
+ text:'El estrecho que separa Europa de Asia. Jerjes lo cruzó en 480 a.C. sobre un puente de 674 barcos. Cuando una tormenta lo destruyó, mandó azotar el mar con 300 latigazos.',
+ quote:'"Jerjes ordenó azotar el Helesponto con 300 latigazos y arrojar grilletes al agua." — VII.35'},
+{lat:40.1957,lng:26.4142,name:'Abidos',modern:'Çanakkale, Turquía',books:[7,9],region:'Tracia',
+ text:'Ciudad en la orilla asiática del Helesponto. Desde aquí Jerjes contempló su ejército cruzando el puente. Se dice que lloró al pensar que en 100 años todos estarían muertos.',
+ quote:'"Jerjes lloró viendo el ejército. Pensó en la brevedad de la vida humana." — VII.46'},
+{lat:40.0310,lng:26.2260,name:'Sestos',modern:'Eceabat, Turquía',books:[7,9],region:'Tracia',
+ text:'Ciudad en la orilla europea del Helesponto. Tras la victoria griega, los atenienses sitiaron y tomaron Sestos en 479 a.C. Con ello termina físicamente el relato de Heródoto.',
+ quote:'"La toma de Sestos marcó el final de la guerra." — IX.121'},
+{lat:40.9970,lng:28.9770,name:'Bizancio',modern:'Estambul, Turquía',books:[4,5,6,9],region:'Tracia',
+ text:'Ciudad griega en el Bósforo, fundada por los megarenses. Darío la usó como base en su campaña escita. Más tarde los atenienses la tomaron tras las Guerras Médicas.',
+ quote:'"Darío pasó por Bizancio y cruzó a Europa." — IV.85'},
+{lat:40.8220,lng:26.1140,name:'Eno',modern:'Enez, Grecia',books:[4,7],region:'Tracia',
+ text:'Ciudad griega en la costa tracia, cerca de la desembocadura del Hebros. El ejército de Jerjes atravesó la región en su marcha hacia Grecia siguiendo la costa egea.'},
+{lat:41.0750,lng:25.4013,name:'Abdera',modern:'Ávdira, Grecia',books:[1,7,8],region:'Tracia',
+ text:'Ciudad griega de Tracia, fundada por los exiliados de Teos que huyeron de los persas. Jerjes se detuvo aquí en su avance y fue recibido con grandes honores.',
+ quote:'"Jerjes comió con los de Abdera y los regaló con la vajilla de oro del rey." — VIII.120'},
+{lat:40.8436,lng:24.9218,name:'Anfípolis (Ennea Hodoi)',modern:'Amfípolis, Grecia',books:[7],region:'Macedonia',
+ text:'Lugar estratégico en el río Estrimón. Heródoto lo llama "Nueve Caminos". Jerjes cruzó el río aquí y realizó sacrificios enterrando vivos a nueve jóvenes y doncellas.'},
+{lat:40.5000,lng:23.0600,name:'Monte Atos',modern:'Monte Athos, Grecia',books:[6,7],region:'Macedonia',
+ text:'Península y monte sagrado. La flota persa fue destruida aquí en 492 a.C. Para evitarlo en 480, Jerjes mandó excavar un canal a través del istmo de la península.',
+ quote:'"Jerjes mandó cavar el canal del Atos para evitar el desastre que sufrió Mardonio." — VII.22'},
+{lat:40.4764,lng:22.9441,name:'Terma (Tesalónica)',modern:'Tesalónica, Grecia',books:[7],region:'Macedonia',
+ text:'Ciudad del golfo Termaico. Jerjes acampó aquí durante su invasión. Heródoto describe cómo el rey persa admiró la desembocadura de los ríos y los montes Olimpo y Osa.',
+ quote:'"El ejército se congregó en Terma, en el golfo que lleva ese nombre." — VII.121'},
+{lat:41.3363,lng:23.6933,name:'Dorisco',modern:'Cerca de Alexandrúpolis, Grecia',books:[7],region:'Tracia',
+ text:'Llanura tracia donde Jerjes pasó revista a su ejército. Heródoto intenta calcular el número total de soldados: 1.700.000 infantes según su cálculo, aunque los modernos lo consideran exagerado.',
+ quote:'"En Dorisco Jerjes contó su ejército: 1.700.000 infantes y 80.000 jinetes." — VII.60'},
+{lat:39.9573,lng:26.2389,name:'Troya (Ilión)',modern:'Hisarlik, Turquía',books:[1,2,7],region:'Tróade',
+ text:'La mítica ciudad de la guerra de Troya. Jerjes se detuvo aquí y realizó sacrificios a la Atenea de Ilión. Heródoto comienza su obra discutiendo el conflicto entre Europa y Asia.',
+ quote:'"Jerjes subió a la ciudadela de Príamo y contempló el lugar con deleite." — VII.43'},
+{lat:29.9356,lng:52.8892,name:'Persépolis',modern:'Shiraz, Irán',books:[3,7],region:'Persia',
+ text:'Ciudad ceremonial del Imperio Aqueménide. Recibía tributos de 20 naciones. Heródoto describe la riqueza del rey persa y los ceremoniales de la corte en la capital del mundo.',
+ quote:'"Todos los años el rey recibía el tributo de sus satrapías: la riqueza era inmensa." — III.89'},
+{lat:32.1909,lng:48.2556,name:'Susa',modern:'Shush, Irán',books:[3,5,6,7,8,9],region:'Persia',
+ text:'Capital administrativa de los reyes persas. Desde aquí Darío y Jerjes organizaron las invasiones de Grecia. El palacio de Darío era legendario por su riqueza.',
+ quote:'"En Susa residía el Gran Rey durante el invierno." — V.53'},
+{lat:34.8046,lng:48.5179,name:'Ecbatana',modern:'Hamadán, Irán',books:[1,3,7],region:'Media',
+ text:'Capital de Media y capital de verano de los reyes persas. Heródoto la describe con siete murallas concéntricas de colores distintos: blanco, negro, escarlata, azul, naranja, plata y oro.',
+ quote:'"Deíoces mandó construir una ciudad llamada Ecbatana con siete murallas circulares." — I.98'},
+{lat:30.1940,lng:53.1672,name:'Pasargadae',modern:'Fars, Irán',books:[1],region:'Persia',
+ text:'Primera capital del Imperio Persa, fundada por Ciro el Grande. La tumba de Ciro se conserva casi intacta con su famosa inscripción: "Soy Ciro, el rey del mundo".'},
+{lat:32.5419,lng:44.4209,name:'Babilonia',modern:'Al Hillah, Iraq',books:[1,3,4],region:'Babilonia',
+ text:'La mayor ciudad del mundo antiguo. Heródoto le dedica páginas asombrosas: murallas de 25 metros, jardines colgantes, el templo de Marduk. Ciro la conquistó en 539 a.C.',
+ quote:'"Babilonia supera en magnificencia a todas las ciudades que conocemos." — I.178'},
+{lat:36.3579,lng:43.1583,name:'Nínive',modern:'Mosul, Iraq',books:[1,2],region:'Asiria',
+ text:'Antigua capital asiria. Heródoto menciona su caída como antecedente del poder medo. Los medos y babilonios la destruyeron en 612 a.C., abriendo el camino al Imperio Persa.'},
+{lat:29.8493,lng:31.2558,name:'Menfis',modern:'Mit Rahina, Egipto',books:[2,3],region:'Egipto',
+ text:'Capital del Bajo Egipto, sede del dios Ptah. Heródoto la visitó y describe el gran templo. Cambises profanó el templo y mató al toro sagrado Apis según la tradición.',
+ quote:'"Menfis es la ciudad más hermosa de Egipto y tiene el templo más grandioso." — II.3'},
+{lat:30.0626,lng:31.2497,name:'Heliópolis',modern:'El Cairo (Heliópolis), Egipto',books:[2],region:'Egipto',
+ text:'Ciudad del sol en el Bajo Egipto. Heródoto la visitó y dice que sus sacerdotes fueron los más instruidos en historia antigua. Aquí aprendió mucho sobre la historia de Egipto.',
+ quote:'"Los sacerdotes de Heliópolis son los más eruditos de Egipto." — II.3'},
+{lat:30.9697,lng:31.1668,name:'Sais',modern:'Sa el-Hagar, Egipto',books:[2],region:'Egipto',
+ text:'Capital de la XXVI Dinastía, donde gobernó Amasis. Heródoto narra historias fascinantes sobre Amasis: antes de ser rey era un borracho que robaba estatuas para hacerlas ídolos.',
+ quote:'"Amasis fue un hombre de origen humilde pero de extraordinaria habilidad política." — II.172'},
+{lat:29.9753,lng:31.1325,name:'Giza',modern:'Giza, Egipto',books:[2],region:'Egipto',
+ text:'Sede de las pirámides, que Heródoto describe con asombro. Habla de la pirámide de Keops como la obra de un faraón tiránico que obligó a todos los egipcios a trabajar en su construcción.',
+ quote:'"La pirámide tiene 8 estadios de longitud en cada lado y la misma altura." — II.124'},
+{lat:25.7019,lng:32.6329,name:'Tebas (Egipto)',modern:'Luxor, Egipto',books:[2],region:'Egipto',
+ text:'Capital del Alto Egipto, ciudad de Amón. Heródoto describe sus 100 puertas y sus majestuosos templos. La compara con la Tebas griega para explicar el origen del nombre.',
+ quote:'"Los egipcios llaman a esta ciudad No-Amón, los griegos la llaman Tebas." — II.42'},
+{lat:24.0889,lng:32.8998,name:'Elefantina',modern:'Asuán, Egipto',books:[2],region:'Egipto',
+ text:'Ciudad en la primera catarata del Nilo. Heródoto la visita y describe sus famosas cataratas. La ciudad marcaba la frontera entre Egipto y Etiopía (Nubia).',
+ quote:'"El Nilo al sur de Elefantina tiene muchos islotes y cataratas." — II.17'},
+{lat:31.1152,lng:32.0724,name:'Pelusio',modern:'Tell el-Farama, Egipto',books:[2,3],region:'Egipto',
+ text:'Ciudad fronteriza en el delta oriental del Nilo. Cambises derrotó al ejército egipcio aquí en 525 a.C. Heródoto describe que los persas usaron gatos sagrados como escudos.',
+ quote:'"Cambises venció en Pelusio y conquistó Egipto." — III.10'},
+{lat:33.2721,lng:35.2033,name:'Tiro',modern:'Sur, Líbano',books:[2,7],region:'Fenicia',
+ text:'La gran ciudad fenicia, poderosa y comercialmente dominante. Heródoto la visita y describe el antiguo templo de Hércules (Melqart). Los fenicios eran los mejores marinos de la flota persa.',
+ quote:'"Tiro tiene el templo más antiguo de Hércules, fundado hace 2300 años." — II.44'},
+{lat:33.5620,lng:35.3700,name:'Sidón',modern:'Saida, Líbano',books:[7,8],region:'Fenicia',
+ text:'Segunda ciudad fenicia. Sus trirremes eran los mejores de la flota de Jerjes. La reina Artemisia de Halicarnaso fue superada en honores sólo por los sidonios en la flota persa.',
+ quote:'"Los sidonios eran los mejores marineros de toda la flota persa." — VII.100'},
+{lat:31.7683,lng:35.2137,name:'Gaza (Cadytis)',modern:'Gaza, Palestina',books:[2,3],region:'Fenicia',
+ text:'Ciudad importante de la región. Heródoto la llama Cadytis y la compara con Sardis en tamaño. Fue conquistada por el faraón Necao después de la batalla de Megido.',
+ quote:'"Cadytis, ciudad no menor que Sardes, la conquistó Necao de Egipto." — II.159'},
+{lat:46.4825,lng:30.7233,name:'Olbia (Borístenitas)',modern:'Mykolaiv, Ucrania',books:[4],region:'Escitia',
+ text:'Ciudad griega en la desembocadura del Dniéper. Principal puerto griego del Mar Negro. Heródoto la visitó probablemente y la usa como base para describir Escitia.',
+ quote:'"El Borísthenes (Dniéper) es el más útil de los ríos escitas, después del Nilo." — IV.53'},
+{lat:45.5000,lng:33.6000,name:'Quersoneso Táurico',modern:'Crimea, Ucrania',books:[4],region:'Escitia',
+ text:'La península de Crimea. Heródoto describe a los tauros, sus habitantes, que sacrificaban a los náufragos a una diosa virgen. También describe las colonias griegas allí.',
+ quote:'"Los tauros tienen la costumbre de sacrificar a todos los náufragos." — IV.103'},
+{lat:32.8234,lng:21.8531,name:'Cirene',modern:'Shahhat, Libia',books:[2,3,4],region:'Norte de África',
+ text:'La principal colonia griega de Libia, fundada por los de la isla de Tera siguiendo el oráculo de Delfos. Rica ciudad famosa por sus caballos y su silfio (planta medicinal).',
+ quote:'"Bato fundó Cirene siguiendo las instrucciones del oráculo." — IV.155'},
+{lat:29.2000,lng:25.3167,name:'Siwa (Oráculo de Amón)',modern:'Siwa, Egipto',books:[3,4],region:'Norte de África',
+ text:'El oráculo de Amón en el desierto libio. El ejército de Cambises enviado a destruirlo desapareció en una tormenta de arena. Alejandro Magno también lo visitaría después.',
+ quote:'"El ejército de Cambises marchó contra el Oráculo de Amón y nunca regresó." — III.26'},
+{lat:37.0000,lng:10.1700,name:'Cartago',modern:'Túnez, Túnez',books:[3,4,7],region:'Norte de África',
+ text:'La gran potencia fenicia del Mediterráneo occidental. Los cartagineses rechazaron participar en la expedición de Jerjes argumentando que no atacaban a sus colonias.',
+ quote:'"Los cartagineses se negaron a atacar a los griegos, sus hermanos de sangre." — VII.167'},
+{lat:42.3154,lng:43.3569,name:'Cólquida',modern:'Kutaisi, Georgia',books:[1,2,7],region:'Cólquida',
+ text:'Tierra del Vellocino de Oro según la mitología. Heródoto relaciona a los colcos con los egipcios por su costumbre de la circuncisión y su piel oscura.',
+ quote:'"Los colcos son evidentemente de origen egipcio." — II.104'},
+{lat:38.9637,lng:59.5563,name:'Masagetas',modern:'Turkmenistán',books:[1],region:'Asia Central',
+ text:'Pueblo nómada al este del Mar Caspio. Ciro el Grande murió luchando contra ellos. La reina masageta Tomyris lo derrotó y le cortó la cabeza, sumergiéndola en sangre.',
+ quote:'"Tomyris sumergió la cabeza de Ciro en un odre lleno de sangre." — I.214'},
+{lat:43.2965,lng:5.3813,name:'Massalia',modern:'Marsella, Francia',books:[1,5],region:'Occidente',
+ text:'Colonia focense fundada hacia el 600 a.C. por griegos que huyeron de los persas. El extremo noroccidental del mundo griego conocido por Heródoto.'},
+{lat:37.5011,lng:15.0900,name:'Siracusa',modern:'Siracusa, Sicilia',books:[7],region:'Occidente',
+ text:'La más poderosa ciudad griega de Occidente. Jerjes intentó aliarse con Gelón de Siracusa, pero este exigió el mando supremo. Mientras Grecia luchaba en Salamina, Siracusa resistía la invasión cartaginesa.',
+ quote:'"Gelón de Siracusa respondió que ningún mando inferior le sería aceptable." — VII.163'},
+{lat:36.5298,lng:-6.2919,name:'Gadira (Gades)',modern:'Cádiz, España',books:[4],region:'Occidente',
+ text:'El extremo occidental del mundo conocido. Heródoto la menciona como la ciudad más lejana al oeste conocida por los griegos, más allá de las Columnas de Hércules.',
+ quote:'"Más allá de las Columnas de Hércules hay poco que sepamos con certeza." — IV.8'},
+{lat:37.3886,lng:-5.9823,name:'Tartessos',modern:'Sevilla, España',books:[1,4],region:'Occidente',
+ text:'Reino mítico en el extremo occidental. Los foceos navegaron hasta Tartessos y se hicieron amigos del rey Argantonio, que vivió 120 años y reinó 80. Mítica tierra de plata.',
+ quote:'"El rey de Tartessos, llamado Argantonio, reinó 80 años y vivió 120." — I.163'},
+];
+const REGIONS = {
+  'Lidia':     { color:'#e07b39', coords:[[39.20,26.80],[39.30,27.20],[39.25,27.80],[38.95,28.30],[38.55,28.60],[38.20,28.45],[37.95,28.10],[37.85,27.50],[38.05,27.00],[38.35,26.55],[38.80,26.50],[39.00,26.60]] },
+  'Frigia':    { color:'#c9a227', coords:[[39.50,29.50],[39.60,30.50],[39.40,31.20],[39.00,31.50],[38.50,31.30],[38.10,31.00],[38.00,30.30],[38.20,29.60],[38.80,29.30],[39.20,29.30]] },
+  'Caria':     { color:'#27ae60', coords:[[37.85,27.50],[37.90,28.10],[37.70,28.60],[37.40,28.80],[37.00,28.60],[36.70,28.20],[36.85,27.70],[37.20,27.40],[37.55,27.30]] },
+  'Licia':     { color:'#8e44ad', coords:[[36.70,28.20],[37.00,28.60],[36.80,29.20],[36.50,29.80],[36.20,30.00],[36.00,29.80],[36.15,29.20],[36.30,28.80],[36.50,28.40]] },
+  'Cilicia':   { color:'#2980b9', coords:[[36.80,33.20],[37.20,33.80],[37.40,34.50],[37.20,35.20],[36.80,35.80],[36.30,36.00],[36.00,35.50],[36.10,34.80],[36.30,34.00],[36.50,33.40]] },
+  'Media':     { color:'#d35400', coords:[[36.50,46.00],[37.00,47.50],[37.50,48.50],[36.80,49.50],[35.80,50.00],[34.50,49.50],[33.80,48.50],[33.50,47.00],[34.00,46.00],[35.00,45.50],[35.80,45.80]] },
+  'Persia':    { color:'#c0392b', coords:[[31.00,50.50],[32.00,52.00],[33.00,53.00],[32.50,54.50],[31.00,55.00],[29.50,54.50],[28.50,53.00],[28.00,51.50],[29.00,50.50],[30.00,50.00]] },
+  'Babilonia': { color:'#f39c12', coords:[[33.50,43.00],[34.00,44.50],[33.50,45.50],[32.50,46.00],[31.50,45.50],[31.00,44.00],[31.50,43.00],[32.50,42.50]] },
+  'Egipto':    { color:'#16a085', coords:[[31.50,30.00],[31.50,32.50],[31.00,33.50],[30.00,33.50],[29.00,33.00],[24.00,33.00],[22.00,32.00],[22.00,31.00],[24.00,30.00],[26.00,29.50],[28.00,29.00],[30.00,29.50],[31.00,29.80]] },
+  'Escitia':   { color:'#74c6f0', coords:[[47.50,30.00],[48.00,32.00],[48.50,34.00],[49.00,36.00],[49.50,38.00],[49.00,40.00],[48.00,41.00],[47.00,41.50],[46.00,41.00],[45.50,39.50],[45.50,37.00],[45.80,34.00],[46.20,31.50],[46.80,30.00]] },
+  'Tracia':    { color:'#e74c3c', coords:[[42.50,23.00],[42.80,24.50],[42.50,26.00],[42.00,27.00],[41.50,28.00],[41.00,28.00],[40.50,27.00],[40.30,26.00],[40.50,24.50],[41.00,23.50],[41.50,23.00],[42.00,22.80]] },
+  'Macedonia': { color:'#e67e22', coords:[[41.50,21.00],[42.00,22.00],[42.00,23.00],[41.50,23.50],[41.00,23.50],[40.60,23.00],[40.30,22.50],[40.30,21.80],[40.80,21.00]] },
+  'Fenicia':   { color:'#9b59b6', coords:[[34.20,35.50],[34.50,36.00],[34.20,36.50],[33.80,36.50],[33.40,36.00],[33.20,35.50],[33.30,35.00],[33.80,34.80]] },
+  'Tróade':    { color:'#1abc9c', coords:[[39.90,26.00],[40.10,26.40],[40.00,26.80],[39.80,27.00],[39.50,26.80],[39.40,26.40],[39.50,26.00],[39.70,25.80]] },
+  'Cólquida':  { color:'#e91e63', coords:[[42.80,41.50],[43.00,42.50],[42.80,43.50],[42.20,43.50],[41.80,43.00],[41.80,42.00],[42.20,41.50]] },
+};
+const RIVERS = [
+  { name:'Νεῖλος · Nilo', labelPt:[27.80,30.85], w:3.0,
+    c:[[24.09,32.90],[24.45,32.87],[25.10,32.65],[25.70,32.53],[26.20,32.35],[26.55,31.92],[27.05,31.30],[27.50,30.98],[28.10,30.80],[28.70,30.78],[29.30,31.00],[29.90,31.20],[30.20,31.25],[30.48,31.25]] },
+  { name:'', labelPt:null, w:1.8,
+    c:[[30.48,31.25],[30.65,31.08],[30.82,30.90],[31.05,30.68],[31.25,30.52],[31.40,30.42]] },
+  { name:'', labelPt:null, w:1.8,
+    c:[[30.48,31.25],[30.58,31.38],[30.72,31.52],[30.90,31.70],[31.10,31.88],[31.25,32.05]] },
+  { name:'Εὐφράτης · Éufrates', labelPt:[35.50,40.00], w:2.5,
+    c:[[39.75,39.50],[39.20,39.00],[38.50,38.50],[37.90,38.25],[37.47,38.33],[37.03,37.98],[36.52,37.95],[35.95,38.60],[35.70,39.20],[35.34,40.14],[34.70,40.82],[34.20,41.30],[33.64,42.82],[33.43,43.30],[33.00,44.00],[32.54,44.42],[31.75,45.20],[31.06,46.23],[30.80,47.00],[30.50,47.50],[30.20,47.90],[29.90,48.20],[29.60,48.50]] },
+  { name:'Τίγρης · Tigris', labelPt:[35.60,43.20], w:2.2,
+    c:[[38.50,39.40],[38.10,39.80],[37.70,40.80],[37.45,41.20],[37.33,42.20],[36.85,42.60],[36.34,43.12],[35.55,43.68],[35.20,43.75],[34.40,43.90],[33.90,44.10],[33.34,44.40],[32.75,44.70],[32.20,45.80],[31.83,47.15],[31.00,47.40],[30.70,47.55],[30.40,47.80],[29.95,48.35]] },
+  { name:'Ἅλυς · Halis (Kızılırmak)', labelPt:[39.85,33.50], w:2.0,
+    c:[[39.75,37.80],[39.70,37.40],[39.55,36.80],[39.15,36.30],[38.73,35.49],[38.55,34.60],[38.10,33.70],[38.20,33.50],[38.60,33.20],[39.10,33.15],[39.40,33.20],[39.85,33.50],[40.10,33.70],[40.50,33.80],[40.80,34.00],[41.00,34.30],[41.20,34.50],[41.50,35.00],[41.55,35.40],[41.57,35.90]] },
+  { name:'Μαίανδρος · Meandro', labelPt:[37.70,28.30], w:1.5,
+    c:[[38.07,30.17],[37.98,29.90],[37.92,29.60],[37.88,29.30],[37.85,29.00],[37.85,28.70],[37.82,28.55],[37.78,28.40],[37.73,28.30],[37.68,28.20],[37.65,28.10],[37.60,27.95],[37.55,27.85],[37.50,27.72],[37.45,27.55],[37.42,27.40],[37.40,27.25],[37.38,27.17]] },
+  { name:'Ἕρμος · Hermos (Gediz)', labelPt:[38.56,27.60], w:1.4,
+    c:[[38.90,29.60],[38.80,29.20],[38.70,28.90],[38.60,28.50],[38.50,28.10],[38.48,27.80],[38.47,27.60],[38.52,27.40],[38.58,27.10],[38.62,26.95],[38.65,26.90]] },
+  { name:'Κάυστρος · Caistro', labelPt:[38.12,27.72], w:1.2,
+    c:[[38.30,28.25],[38.25,28.05],[38.18,27.90],[38.12,27.72],[38.05,27.58],[38.00,27.45],[37.95,27.30],[37.93,27.25]] },
+  { name:'Ἴστρος · Danubio', labelPt:[46.50,21.00], w:2.5,
+    c:[[48.10,8.20],[48.25,9.80],[48.55,11.00],[48.70,12.00],[48.80,12.80],[48.90,13.50],[48.70,14.50],[48.25,15.50],[48.14,17.11],[47.78,17.63],[47.65,18.00],[47.50,18.90],[47.20,19.40],[46.60,18.96],[45.75,19.10],[45.50,19.50],[45.25,19.85],[44.82,20.46],[44.68,21.00],[44.68,22.43],[44.40,23.00],[44.10,23.50],[43.90,24.00],[43.70,24.50],[43.80,25.97],[44.50,26.80],[45.00,27.20],[45.27,27.97],[45.44,28.05],[45.30,28.40],[45.19,28.80],[45.12,29.20],[45.10,29.75]] },
+  { name:'Βορυσθένης · Borísthenes', labelPt:[49.50,32.50], w:2.0,
+    c:[[55.10,33.50],[54.40,32.00],[53.50,32.30],[52.50,32.20],[51.80,32.00],[51.00,31.70],[50.45,30.52],[50.00,30.60],[49.50,31.50],[49.07,33.42],[48.80,34.00],[48.47,35.05],[47.84,35.14],[47.50,34.80],[47.10,34.00],[46.75,33.37],[46.64,32.61],[46.55,32.30],[46.50,32.00]] },
+  { name:'Τάναϊς · Tanais (Don)', labelPt:[50.50,41.00], w:1.8,
+    c:[[54.00,38.00],[53.70,38.50],[52.80,39.00],[52.00,39.20],[51.67,39.21],[51.20,39.50],[50.50,40.80],[50.00,41.50],[49.50,42.00],[49.00,42.50],[48.50,43.00],[48.20,43.50],[47.83,42.10],[47.50,41.50],[47.22,39.72],[47.10,39.50]] },
+  { name:'Τύρης · Tyras (Dniéster)', labelPt:[47.80,29.00], w:1.4,
+    c:[[49.00,23.50],[48.80,24.00],[48.70,25.00],[48.50,26.00],[48.45,27.80],[48.20,28.30],[47.90,28.80],[47.30,29.40],[46.85,29.60],[46.50,30.00],[46.20,30.40]] },
+  { name:'Ὕπανις · Hípano (Bug)', labelPt:[48.20,31.00], w:1.3,
+    c:[[49.50,29.80],[49.20,30.00],[49.00,30.20],[48.60,30.50],[48.00,30.80],[47.97,30.85],[47.50,31.20],[47.10,31.60],[46.97,31.98]] },
+  { name:'Ἀράξης · Araxes (Aras)', labelPt:[39.80,45.20], w:1.5,
+    c:[[39.70,41.50],[39.75,42.00],[39.80,42.80],[39.92,44.05],[39.88,44.40],[39.80,44.80],[39.65,45.30],[39.50,45.70],[39.40,46.20],[39.25,46.70],[39.14,47.20],[39.10,47.70],[39.12,48.20],[39.18,48.60],[39.25,48.80]] },
+  { name:'Φᾶσις · Fasis (Rioni)', labelPt:[42.25,42.30], w:1.2,
+    c:[[42.50,43.50],[42.45,43.20],[42.38,42.90],[42.32,42.60],[42.25,42.30],[42.20,42.00],[42.15,41.70]] },
+  { name:'Ἕβρος · Hebros (Maritsa)', labelPt:[41.60,25.50], w:1.4,
+    c:[[42.10,23.90],[42.05,24.20],[42.00,24.50],[41.90,25.00],[41.80,25.20],[41.70,25.40],[41.60,25.50],[41.50,25.70],[41.40,25.90],[41.35,26.10],[41.20,26.15],[41.10,26.18],[40.88,26.16]] },
+  { name:'Στρυμών · Estrimón', labelPt:[41.40,23.52], w:1.3,
+    c:[[42.45,23.25],[42.30,23.30],[42.10,23.35],[41.90,23.45],[41.70,23.50],[41.50,23.55],[41.30,23.60],[41.10,23.72],[40.98,24.01]] },
+  { name:'Ἀξιός · Axios (Vardar)', labelPt:[41.50,22.00], w:1.3,
+    c:[[41.90,21.00],[41.80,21.30],[41.70,21.60],[41.70,21.80],[41.50,22.10],[41.40,22.30],[41.20,22.45],[41.10,22.50],[40.97,22.60]] },
+  { name:'Σαγγάριος · Sangario', labelPt:[40.40,30.75], w:1.1,
+    c:[[38.75,30.40],[39.00,30.60],[39.30,30.80],[39.50,31.00],[39.60,31.00],[39.80,30.90],[40.00,30.75],[40.20,30.80],[40.40,30.88],[40.60,30.70],[40.75,30.55],[40.90,30.45],[41.05,30.50]] },
+  { name:'Πηνειός · Peneo', labelPt:[39.73,22.10], w:1.2,
+    c:[[39.77,21.17],[39.77,21.40],[39.75,21.70],[39.73,22.00],[39.72,22.25],[39.74,22.45],[39.77,22.65]] },
+  { name:'Εὐρώτας · Eurotas', labelPt:[37.18,22.43], w:1.0,
+    c:[[37.45,22.30],[37.38,22.33],[37.28,22.38],[37.18,22.42],[37.08,22.50],[36.95,22.58],[36.85,22.65],[36.78,22.73]] },
+  { name:'Ἀχελῷος · Aqueloo', labelPt:[38.80,21.12], w:1.2,
+    c:[[39.63,21.22],[39.45,21.20],[39.25,21.18],[39.05,21.15],[38.85,21.10],[38.65,21.18],[38.50,21.25],[38.35,21.35]] },
+  { name:'Πύραμος · Piramo (Ceyhan)', labelPt:[37.25,36.60], w:1.1,
+    c:[[38.00,36.50],[37.85,36.58],[37.70,36.58],[37.55,36.55],[37.40,36.58],[37.25,36.65],[37.10,36.55],[36.95,36.40],[36.80,36.25],[36.70,36.15]] },
+  { name:'Θερμώδων · Termodonte', labelPt:[40.85,37.10], w:1.0,
+    c:[[40.60,37.40],[40.72,37.22],[40.85,37.02],[41.00,36.97],[41.20,36.98]] },
+  { name:'Κηφισός · Cefiso', labelPt:[38.50,22.85], w:1.0,
+    c:[[38.80,22.60],[38.68,22.72],[38.55,22.85],[38.45,23.02],[38.38,23.22],[38.35,23.40]] },
+  { name:'Σκαμάνδρος · Escamandro', labelPt:[39.92,26.32], w:1.0,
+    c:[[39.78,26.47],[39.85,26.38],[39.92,26.32],[39.95,26.25],[39.97,26.18]] },
+  { name:'Ἰνδός · Indo', labelPt:[30.00,70.50], w:1.8,
+    c:[[35.50,75.00],[34.80,74.00],[34.00,73.50],[33.00,72.80],[32.00,72.00],[31.00,71.50],[30.00,70.50],[29.00,69.50],[28.00,68.80],[27.00,68.30],[26.00,68.00],[25.00,67.80],[24.00,67.50]] },
+];
+const LAKES = [
+  { name:'Εὔξεινος Πόντος\n(Ponto Euxino)',        lat:43.20, lng:34.00 },
+  { name:'Κάσπιη θάλασσα\n(Mar Caspio)',            lat:41.80, lng:51.50 },
+  { name:'Λίμνη Μοῖρις\n(Lago Moeris)',             lat:29.50, lng:30.55 },
+  { name:'Τρίτωνις λίμνη\n(Lago Tritonis)',         lat:33.80, lng:10.20 },
+  { name:'Πρασιάς λίμνη\n(Lago Prasias)',           lat:41.18, lng:22.65 },
+  { name:'Ματιηνή λίμνη\n(Lago Matiene / Urmia)',   lat:37.70, lng:45.50 },
+  { name:'Γυγαίη λίμνη\n(Lago Gige)',               lat:38.65, lng:27.88 },
+  { name:'Προποντίς\n(Propóntide)',                  lat:40.65, lng:28.20 },
+];
+
+const map = L.map('map', {center:[38,30], zoom:4});
+L.imageOverlay(
+  'data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyMDAwIDEzMDAnPjxyZWN0IHdpZHRoPScyMDAwJyBoZWlnaHQ9JzEzMDAnIGZpbGw9JyMwZDFlMmUnLz48cGF0aCBkPSdNIDMxMCw2ODAgTCAyOTUsNjcxIEwgMjQzLDY2MSBMIDIzNCw2MjIgTCAyMzYsNjA3IEwgMjQ5LDU3MSBMIDIzNyw1MzUgTCAyNTIsNTIyIEwgMzQwLDUyMiBMIDM3NCw1MjYgTCAzNzgsNTI0IEwgNDczLDU0MyBMIDQ1Miw1NjcgTCA0MjEsNTg2IEwgNDA2LDYwNyBMIDQwNyw2MzkgTCAzNzIsNjY3IEwgMzA3LDY4MiBMIDMxMCw2ODAgWicgZmlsbD0nIzJjMjIxMCcgc3Ryb2tlPScjNWE0MDIwJyBzdHJva2Utd2lkdGg9JzEuMicgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcvPjxwYXRoIGQ9J00gMzc4LDUyNCBMIDM4Myw1MTEgTCAzODcsNDY1IEwgMzY0LDQzNyBMIDMyNyw0MTggTCAzMzYsNDExIEwgMzgxLDM5MCBMIDQ0NSwzNjQgTCA0NTgsMzYwIEwgNTUxLDM3MyBMIDU1Nyw0MTYgTCA1MzgsNDU4IEwgNTU1LDUxMSBMIDU1MSw1MjIgTCA1MDUsNTIyIEwgNDY3LDUyOSBMIDQ3Myw1NDMgTCAzNzgsNTI0IFonIGZpbGw9JyMyYzIyMTAnIHN0cm9rZT0nIzVhNDAyMCcgc3Ryb2tlLXdpZHRoPScxLjInIHN0cm9rZS1saW5lam9pbj0ncm91bmQnLz48cGF0aCBkPSdNIDU2MSw1MTEgTCA2MDQsNTIyIEwgNjE3LDUzOSBMIDY0MSw1NjUgTCA2NzksNTgwIEwgNzA1LDYwMyBMIDcwMyw2NDEgTCA3MDcsNjM3IEwgNzIwLDYxMiBMIDc1Nyw1OTcgTCA3MzMsNTc1IEwgNzcyLDU2NSBMIDY4OCw1NDMgTCA2NDUsNTAxIEwgNjY3LDQ3NyBMIDU2MSw1MTEgWicgZmlsbD0nIzJjMjIxMCcgc3Ryb2tlPScjNWE0MDIwJyBzdHJva2Utd2lkdGg9JzEuMicgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcvPjxwYXRoIGQ9J00gNDU4LDM2MCBMIDU3MCwyNzkgTCA2MDksMjIwIEwgNjQ1LDI1NiBMIDU0MiwyMTMgTCA1MTAsMTYyIEwgNjczLDY0IEwgNzI5LDAgTCA4OTcsLTY0IEwgOTUzLC00MyBMIDg5Nyw2NCBMIDg3OSwxNzAgTCA4NjksMTgzIEwgODA0LDIzNCBMIDc4NSwyNzcgTCA3NTcsMjkyIEwgNjkyLDI5OCBMIDYzNiwyNzcgTCA2NzMsMzYyIEwgNzEwLDM4NCBMIDcyOSw0MTYgTCA3MjAsNDM3IEwgNjY0LDQ2OSBMIDY2Nyw0NzcgTCA2NzMsNDgwIEwgNjgyLDUwMSBMIDcyMCw1MjIgTCA3NTAsNTM5IEwgNzc0LDU2OSBMIDc3Niw1OTcgTCA3ODUsNjA1IEwgNzk0LDYyOSBMIDgxMyw2NTAgTCA4MjIsNjY1IEwgODMyLDY3MyBMIDgzNyw2NjEgTCA4NTQsNjQxIEwgODYwLDYzMSBMIDgzNyw2MjIgTCA4MzIsNjA3IEwgODM5LDU4NCBMIDg0Myw1ODAgTCA4NjUsNTg2IEwgODg2LDU2OSBMIDkwMSw1NzggTCA5MDMsNTYwIEwgOTI1LDU0MyBMIDkzNSw1MTYgTCA5NjYsNDg2IEwgOTg3LDQ1OCBMIDEwODQsNDQ4IEwgMTEyMSw0MTYgTCAxMTIxLDI3NyBMIDgyMiwyNzcgTCA2NzMsMzYwIEwgNDU4LDM2MCBaJyBmaWxsPScjMmMyMjEwJyBzdHJva2U9JyM1YTQwMjAnIHN0cm9rZS13aWR0aD0nMS4yJyBzdHJva2UtbGluZWpvaW49J3JvdW5kJy8+PHBhdGggZD0nTSA5MDMsNTYwIEwgOTA4LDU3NSBMIDg5Nyw1OTcgTCA5MDcsNjM5IEwgOTM1LDY4MiBMIDk3Miw2ODIgTCAxMDI4LDY4MiBMIDEwODgsNjgyIEwgMTA4OCw2NzEgTCAxMTAzLDY2MSBMIDExMTgsNjI5IEwgMTA5Myw1OTcgTCAxMDkyLDU3NSBMIDExMjEsNTc1IEwgMTE1OSw1NzUgTCAxMTg3LDU3MSBMIDEyMjQsNTQzIEwgMTIxNSw1MzMgTCAxMTU5LDUzMyBMIDExMjEsNTY1IEwgMTA3NSw1NjUgTCAxMDI4LDU1NCBMIDk3Miw1NTQgTCA5NTMsNTU0IEwgOTUzLDU3NSBMIDk0NCw1NjUgTCA5MzUsNTYwIEwgOTAzLDU2MCBaJyBmaWxsPScjMmMyMjEwJyBzdHJva2U9JyM1YTQwMjAnIHN0cm9rZS13aWR0aD0nMS4yJyBzdHJva2UtbGluZWpvaW49J3JvdW5kJy8+PHBhdGggZD0nTSAxMjI0LDU0MyBMIDEyOTAsNDk0IEwgMTM0Niw1MTEgTCAxMzgzLDUyMiBMIDE0MDIsNTU0IEwgMTM4Myw1OTcgTCAxNDAyLDYyOSBMIDE0MjEsNjYxIEwgMTQyMSw2ODIgTCAxMzgzLDY3MSBMIDEzNDYsNjYxIEwgMTM0Niw2MTggTCAxMzQ2LDU5NyBMIDEzODMsNTU0IEwgMTM4Myw1MTEgTCAxMzQ2LDUwMSBMIDEyMzQsNTIyIEwgMTIyNCw1NDMgWicgZmlsbD0nIzJjMjIxMCcgc3Ryb2tlPScjNWE0MDIwJyBzdHJva2Utd2lkdGg9JzEuMicgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcvPjxwYXRoIGQ9J00gODYwLDQ0OCBMIDk2Niw0ODYgTCA5ODcsNDU4IEwgMTA4NCw0NDggTCAxMTIxLDQxNiBMIDExMjEsMjc3IEwgMTUzMywyNzcgTCAxNTMzLDQyNiBMIDEzODMsNDI2IEwgMTM0Niw1MDEgTCAxMjE1LDUzMyBMIDExNTksNTMzIEwgMTA5Myw1NTQgTCAxMDI4LDU0MyBMIDk1Myw1MzMgTCA5NDQsNTQzIEwgOTM1LDU2MCBMIDkwMyw1NjAgTCA5MjUsNTQzIEwgOTM1LDUxNiBMIDk2Niw0ODYgWicgZmlsbD0nIzJjMjIxMCcgc3Ryb2tlPScjNWE0MDIwJyBzdHJva2Utd2lkdGg9JzEuMicgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcvPjxwYXRoIGQ9J00gMzAzLDY4NiBMIDM0Niw2OTMgTCAzNzQsNzAzIEwgNDAyLDY5MyBMIDQ0OSw2NzEgTCA1MDUsNjY1IEwgNTUxLDY2MSBMIDYxMSw2NTkgTCA2MjYsNzM1IEwgNjU4LDc0OCBMIDY5Miw3OTkgTCA3ODUsNzk5IEwgODc5LDc5OSBMIDk3MCw3ODQgTCAxMDA5LDc3OCBMIDEwNDcsODUyIEwgMTEyMSw5ODAgTCAxMTk2LDExMzAgTCAxMjM0LDExOTMgTCAxMDY1LDExOTMgTCA4NzksMTE5MyBMIDY5MiwxMTkzIEwgNTA1LDExOTMgTCAzMTgsMTE5MyBMIDkzLDExMzAgTCA5MywxMDIzIEwgMTY4LDg3NCBMIDIyNCw4MzEgTCAyMzQsNzg5IEwgMjUyLDc0NiBMIDI4MCw3MTQgTCAyOTAsNzAzIEwgMzAzLDY4NiBaJyBmaWxsPScjMmMyMjEwJyBzdHJva2U9JyM1YTQwMjAnIHN0cm9rZS13aWR0aD0nMS4yJyBzdHJva2UtbGluZWpvaW49J3JvdW5kJy8+PHBhdGggZD0nTSAxMDg4LDY3OCBMIDEwODQsNzE0IEwgMTA3NSw3MzUgTCAxMDY1LDc1MCBMIDEwNTYsNzc4IEwgMTAxOSw4MTAgTCAxMTAzLDk4MCBMIDExOTYsMTEzMCBMIDEyMzQsMTE5MyBMIDEzNDYsMTE5MyBMIDE0MjEsMTExOSBMIDE1MDUsMTAyMyBMIDE1MzMsOTgwIEwgMTQ4Niw5MzggTCAxNDY3LDg5NSBMIDE0MzksODQyIEwgMTM0Niw3OTkgTCAxMzA4LDc5OSBMIDEzMDgsNzY3IEwgMTIzNCw2ODIgTCAxMjM0LDYzOSBMIDEzNDYsNjI5IEwgMTQyMSw1OTcgTCAxMzkzLDU1NCBMIDEzNTUsNTExIEwgMTM0Niw1MDEgTCAxMjM0LDUyMiBMIDEyMjQsNTQzIEwgMTE1OSw1NjUgTCAxMTIxLDU3NSBMIDEwOTMsNTc1IEwgMTA5Myw1OTcgTCAxMTAzLDY2MSBMIDEwODgsNjcxIEwgMTA4OCw2NzggWicgZmlsbD0nIzJjMjIxMCcgc3Ryb2tlPScjNWE0MDIwJyBzdHJva2Utd2lkdGg9JzEuMicgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcvPjxwYXRoIGQ9J00gMTY4Miw5MTYgTCAxNTMzLDg1MiBMIDE2NDUsNzk5IEwgMTgxMyw4NTIgTCAxODIyLDkzOCBMIDE3OTQsMTAyMyBMIDE4MTMsMTEzMCBMIDE4NjksMTIzNiBMIDE4NjAsMTI3OSBMIDE4MTMsMTE1MSBMIDE3NzYsMTA2NiBMIDE3MjksOTgwIEwgMTY4Miw5MTYgWicgZmlsbD0nIzJjMjIxMCcgc3Ryb2tlPScjNWE0MDIwJyBzdHJva2Utd2lkdGg9JzEuMicgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcvPjxwYXRoIGQ9J00gMTEyMSwyNzcgTCAyMDAwLDI3NyBMIDIwMDAsNDI2IEwgMTUzMyw0MjYgTCAxNTMzLDI3NyBMIDExMjEsMjc3IFonIGZpbGw9JyMyYzIyMTAnIHN0cm9rZT0nIzVhNDAyMCcgc3Ryb2tlLXdpZHRoPScxLjInIHN0cm9rZS1saW5lam9pbj0ncm91bmQnLz48cGF0aCBkPSdNIDQzMiwzMjcgTCA0NDUsNzAgTCA1NzAsMTggTCA2MDksMjE3IEwgNjU4LDE1NSBMIDQ1OCwzNjAgWicgZmlsbD0nIzJjMjIxMCcgc3Ryb2tlPScjNWE0MDIwJyBzdHJva2Utd2lkdGg9JzEuMicgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcgb3BhY2l0eT0nMC42Jy8+PHBhdGggZD0nTSAwLDAgTCAwLDEzMDAgTCAyNDMsMTMwMCBMIDkzLDExMzAgTCA5MywxMDIzIEwgMTY4LDg3NCBMIDIyNCw4MzEgTCAyMzQsNzg5IEwgMjUyLDc0NiBMIDI4MCw3MTQgTCAyOTAsNzAzIEwgMzAzLDY4NiBMIDI5OSw2ODIgTCAyNDMsNjYxIEwgMjM0LDYyMiBMIDIzNiw2MDcgTCAyNDksNTcxIEwgMjM3LDUzNSBMIDI1Miw1MjIgTCAzNDAsNTIyIEwgMzc0LDUyNiBMIDM3OCw1MjQgTCAzODMsNTExIEwgMzg3LDQ2NSBMIDM2NCw0MzcgTCAzMjcsNDE4IEwgMzM2LDQxMSBMIDM4MSwzOTAgTCA0NDUsMzY0IEwgNDQ5LDIzNCBMIDUwNSwxMjggTCA1MDUsMCBMIDAsMCBaJyBmaWxsPScjMGQxZTJlJyBzdHJva2U9JyMxNjI4NDAnIHN0cm9rZS13aWR0aD0nMC42JyBzdHJva2UtbGluZWpvaW49J3JvdW5kJyBvcGFjaXR5PScwLjk3Jy8+PHBhdGggZD0nTSAzMDcsNjgyIEwgMzc0LDcwMyBMIDQwMiw2OTMgTCA0NDksNjcxIEwgNTA1LDY2NSBMIDU1MSw2NjEgTCA2MTEsNjU5IEwgNjI2LDczNSBMIDY0NSw3ODkgTCA3ODUsNzk5IEwgOTcwLDc4NCBMIDEwMDksNzc4IEwgMTA2NSw3NTAgTCAxMDg0LDcxNCBMIDEwODgsNjc4IEwgMTA4OCw2ODIgTCAxMDI4LDY4MiBMIDkzNSw2ODIgTCA5MDcsNjM5IEwgODk3LDU5NyBMIDkwOCw1NzUgTCA5MDMsNTYwIEwgOTQ0LDU2NSBMIDU5Myw1NzUgTCA5NTMsNTU0IEwgMTAyOCw1NTQgTCAxMDc1LDU2NSBMIDExMjEsNTc1IEwgMTA5Myw1NzUgTCAxMDkzLDU5NyBMIDExMTgsNjI5IEwgMTEwMyw2NjEgTCAxMDg4LDY3MSBMIDEwMjgsNjgyIEwgOTM1LDY4MiBMIDkwNyw2MzkgTCA4NjUsNTg2IEwgODg2LDU2OSBMIDU5MDEsNTc4IEwgOTAzLDU2MCBMIDU5Myw1NjAgTCA4NjUsNTg2IEwgODg2LDU2OSBMIDkwMSw1NzggTCA4NDMsNTgwIEwgODM5LDU4NCBMIDgzMiw2MDcgTCA4MzcsNjIyIEwgODYwLDYzMSBMIDg1NCw2NDEgTCA4MzcsNjYxIEwgODMyLDY3MyBMIDgyMiw2NjUgTCA4MTMsNjUwIEwgNzk0LDYyOSBMIDc4NSw2MDUgTCA3NzYsNTk3IEwgNzc0LDU2OSBMIDc3Miw1NjUgTCA3NTcsNTk3IEwgNzIwLDYxMiBMIDcwNyw2MzcgTCA3MDMsNjQxIEwgNzA1LDYwMyBMIDY3OSw1ODAgTCA2NDEsNTY1IEwgNjE3LDUzOSBMIDYwNCw1MjIgTCA1NjEsNTExIEwgNTUxLDUyMiBMIDUwNSw1MjIgTCA0NjcsNTI5IEwgNDczLDU0MyBMIDQ1Miw1NjcgTCA0MjEsNTg2IEwgNDA3LDYzOSBMIDM3Miw2NjcgTCAzMDcsNjgyIFonIGZpbGw9JyMwZDFlMmUnIHN0cm9rZT0nIzE2Mjg0MCcgc3Ryb2tlLXdpZHRoPScwLjYnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnIG9wYWNpdHk9JzAuOTcnLz48cGF0aCBkPSdNIDEzNDYsNjYxIEwgMTM0Niw1OTcgTCAxMzgzLDUzMyBMIDEzNjQsNDkwIEwgMTMwOCw1MTEgTCAxMzI3LDU5NyBMIDEzNDYsNjYxIFonIGZpbGw9JyMwZDFlMmUnIHN0cm9rZT0nIzE2Mjg0MCcgc3Ryb2tlLXdpZHRoPScwLjYnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnIG9wYWNpdHk9JzAuOTcnLz48cGF0aCBkPSdNIDEwMTksODEwIEwgMTA0Nyw4NTIgTCAxMTIxLDk4MCBMIDEyMTUsMTE5MyBMIDEyMTUsMTIxNSBMIDExNzgsMTE5MyBMIDEwODQsOTgwIEwgMTA0Nyw4NzQgTCAxMDE5LDgxMCBaJyBmaWxsPScjMGQxZTJlJyBzdHJva2U9JyMxNjI4NDAnIHN0cm9rZS13aWR0aD0nMC42JyBzdHJva2UtbGluZWpvaW49J3JvdW5kJyBvcGFjaXR5PScwLjk3Jy8+PHBhdGggZD0nTSAxMzA4LDc5OSBMIDE0NzcsOTM4IEwgMTUwNSwxMDIzIEwgMTUzMyw5ODAgTCAxNDg2LDkzOCBMIDE0NjcsODk1IEwgMTQzOSw4NDIgTCAxMzQ2LDc5OSBMIDEzMDgsNzk5IFonIGZpbGw9JyMwZDFlMmUnIHN0cm9rZT0nIzE2Mjg0MCcgc3Ryb2tlLXdpZHRoPScwLjYnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnIG9wYWNpdHk9JzAuOTcnLz48cGF0aCBkPSdNIDQ1OCwzNjIgTCA0NjcsMzQxIEwgNTYxLDIzNCBMIDUwNSwxMjggTCA1MDUsMCBMIDkzNSwwIEwgOTM1LDI3NyBMIDgyMiwyNzcgTCA3ODUsMzQxIEwgNDY3LDM0MSBMIDQ1OCwzNjIgWicgZmlsbD0nIzBkMWUyZScgc3Ryb2tlPScjMTYyODQwJyBzdHJva2Utd2lkdGg9JzAuNicgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcgb3BhY2l0eT0nMC45NycvPjxwYXRoIGQ9J00gMTUzMywxMTMwIEwgMjAwMCwxMTMwIEwgMjAwMCw4MTAgTCAxNjI2LDgxMCBMIDE1MzMsODk1IEwgMTUzMyw5ODAgTCAxNTMzLDExMzAgWicgZmlsbD0nIzBkMWUyZScgc3Ryb2tlPScjMTYyODQwJyBzdHJva2Utd2lkdGg9JzAuNicgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcgb3BhY2l0eT0nMC45NycvPjxwb2x5bGluZSBwb2ludHM9JzMwMyw2ODYgMzc0LDcwMyA0MTEsNjkzIDQ0OSw2NzEgNTUxLDY2MSA2MTEsNjU5IDYyNiw3MzUgNjQ1LDc4OSA3ODUsNzk5IDg3OSw3OTkgOTcwLDc4NCAxMDA5LDc3OCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjN2E1YTI4JyBzdHJva2Utd2lkdGg9JzEuNScgc3Ryb2tlLWxpbmVjYXA9J3JvdW5kJyBzdHJva2UtbGluZWpvaW49J3JvdW5kJy8+PHBvbHlsaW5lIHBvaW50cz0nMTAwOSw3NzggMTA2NSw3NTAgMTA4NCw3MTQgMTA4OCw2NzgnIGZpbGw9J25vbmUnIHN0cm9rZT0nIzdhNWEyOCcgc3Ryb2tlLXdpZHRoPScxLjUnIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcvPjxwb2x5bGluZSBwb2ludHM9JzEwODgsNjc4IDEwMjgsNjgyIDk3Miw2ODIgOTM1LDY4MiA5MDcsNjM5IDg5Nyw1OTcnIGZpbGw9J25vbmUnIHN0cm9rZT0nIzdhNWEyOCcgc3Ryb2tlLXdpZHRoPScxLjUnIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcvPjxwb2x5bGluZSBwb2ludHM9JzkwNyw2MzkgODIyLDYxOCA4MjIsNjUwIDgyMiw2NjUgODMyLDY3MyA4NTQsNjQxIDgzOSw1ODQgODg2LDU2OSA5MDEsNTc4IDkwMyw1NjAnIGZpbGw9J25vbmUnIHN0cm9rZT0nIzdhNWEyOCcgc3Ryb2tlLXdpZHRoPScxLjUnIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcvPjxwb2x5bGluZSBwb2ludHM9JzU2MSw1MTEgNjA0LDUyMiA2NDEsNTY1IDY3OSw1ODAgNzAzLDY0MScgZmlsbD0nbm9uZScgc3Ryb2tlPScjN2E1YTI4JyBzdHJva2Utd2lkdGg9JzEuNScgc3Ryb2tlLWxpbmVjYXA9J3JvdW5kJyBzdHJva2UtbGluZWpvaW49J3JvdW5kJy8+PHBvbHlsaW5lIHBvaW50cz0nNzAzLDY0MSA3NTcsNTk3IDc3Miw1NjUgNjQ1LDUwMScgZmlsbD0nbm9uZScgc3Ryb2tlPScjN2E1YTI4JyBzdHJva2Utd2lkdGg9JzEuNScgc3Ryb2tlLWxpbmVjYXA9J3JvdW5kJyBzdHJva2UtbGluZWpvaW49J3JvdW5kJy8+PHBvbHlsaW5lIHBvaW50cz0nNTYxLDUyMiA1MDUsNTIyIDQ2Nyw1MjkgNDczLDU0MyA0NTIsNTY3IDQyMSw1ODYgNDA3LDYzOSAzNzIsNjY3IDMwNyw2ODInIGZpbGw9J25vbmUnIHN0cm9rZT0nIzdhNWEyOCcgc3Ryb2tlLXdpZHRoPScxLjUnIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcvPjxwb2x5bGluZSBwb2ludHM9JzMwNyw2ODIgMjQzLDY2MSAyMzQsNjIyIDI0OSw1NzEgMjM3LDUzNScgZmlsbD0nbm9uZScgc3Ryb2tlPScjN2E1YTI4JyBzdHJva2Utd2lkdGg9JzEuNScgc3Ryb2tlLWxpbmVjYXA9J3JvdW5kJyBzdHJva2UtbGluZWpvaW49J3JvdW5kJy8+PHBvbHlsaW5lIHBvaW50cz0nMzc4LDUyNCAzNjQsNDM3IDMyNyw0MTggMzgxLDM5MCA0NTgsMzYyJyBmaWxsPSdub25lJyBzdHJva2U9JyM3YTVhMjgnIHN0cm9rZS13aWR0aD0nMS41JyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnLz48cG9seWxpbmUgcG9pbnRzPSc5MDMsNTYwIDk1Myw1NTQgMTA4NCw1NDMgMTE1OSw1NDMgMTE5Niw1MzMnIGZpbGw9J25vbmUnIHN0cm9rZT0nIzdhNWEyOCcgc3Ryb2tlLXdpZHRoPScxLjUnIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcvPjxwb2x5bGluZSBwb2ludHM9JzkwOCw1NzUgOTUzLDU1NCAxMDI4LDU1NCAxMDc1LDU2NSAxMTIxLDU3NSAxMTU5LDU3NSAxMjI0LDU0MycgZmlsbD0nbm9uZScgc3Ryb2tlPScjN2E1YTI4JyBzdHJva2Utd2lkdGg9JzEuNScgc3Ryb2tlLWxpbmVjYXA9J3JvdW5kJyBzdHJva2UtbGluZWpvaW49J3JvdW5kJy8+PHBvbHlsaW5lIHBvaW50cz0nMTAxOSw4MTAgMTA0Nyw4NzQgMTEyMSw5ODAgMTE5NiwxMTMwJyBmaWxsPSdub25lJyBzdHJva2U9JyM3YTVhMjgnIHN0cm9rZS13aWR0aD0nMS41JyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnLz48cG9seWxpbmUgcG9pbnRzPScxMzA4LDc5OSAxNDc3LDkzOCAxNTA1LDEwMjMnIGZpbGw9J25vbmUnIHN0cm9rZT0nIzdhNWEyOCcgc3Ryb2tlLXdpZHRoPScxLjUnIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcvPjxwb2x5bGluZSBwb2ludHM9JzEyMjQsNTQzIDEzMDgsNTExIDEzODMsNTU0IDEzNDYsNTk3JyBmaWxsPSdub25lJyBzdHJva2U9JyM3YTVhMjgnIHN0cm9rZS13aWR0aD0nMS41JyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnLz48L3N2Zz4=',
+  [[7,-22],[68,85]],
+  {opacity:1, interactive:false, zIndex:1}
+).addTo(map);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  subdomains:'abc', maxZoom:18, opacity:0.6, zIndex:2
+}).addTo(map);
+
+const regionGroup = L.layerGroup().addTo(map);
+let regionsVisible = true;
+Object.entries(REGIONS).forEach(([name, data]) => {
+  const poly = L.polygon(data.coords, {
+    color:data.color, weight:1.5, opacity:0.6,
+    fillColor:data.color, fillOpacity:0.14, smoothFactor:1, interactive:false
+  }).addTo(regionGroup);
+  const center = poly.getBounds().getCenter();
+  regionGroup.addLayer(L.marker(center, {
+    icon: L.divIcon({
+      className:'region-label-icon',
+      html:`<div style="font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.15em;color:${data.color};text-shadow:0 0 8px #000,0 0 14px #000;white-space:nowrap;opacity:0.7;pointer-events:none;">${name}</div>`,
+      iconSize:[130,18], iconAnchor:[65,9]
+    }), interactive:false
+  }));
+});
+
+const riverGroup = L.layerGroup().addTo(map);
+RIVERS.forEach(r => {
+  riverGroup.addLayer(L.polyline(r.c, {color:'#5bbde0', weight:r.w+0.3, opacity:0.85, smoothFactor:1.5}));
+  if (r.name && r.labelPt) {
+    riverGroup.addLayer(L.marker(r.labelPt, {
+      icon: L.divIcon({className:'river-label-icon', html:`<div class="river-label">${r.name}</div>`, iconSize:[200,14], iconAnchor:[100,7]}),
+      interactive:false, zIndexOffset:-2000
+    }));
+  }
+});
+
+const lakeGroup = L.layerGroup().addTo(map);
+LAKES.forEach(l => {
+  lakeGroup.addLayer(L.marker([l.lat, l.lng], {
+    icon: L.divIcon({className:'lake-label-icon', html:`<div class="lake-label">${l.name}</div>`, iconSize:[180,36], iconAnchor:[90,18]}),
+    interactive:false, zIndexOffset:-2000
+  }));
+});
+
+let rlVisible = true;
+window.toggleRiversLakes = function() {
+  rlVisible = !rlVisible;
+  document.getElementById('rl-btn').classList.toggle('off', !rlVisible);
+  if (rlVisible) { riverGroup.addTo(map); lakeGroup.addTo(map); }
+  else { map.removeLayer(riverGroup); map.removeLayer(lakeGroup); }
+};
+window.toggleRegions = function() {
+  regionsVisible = !regionsVisible;
+  document.getElementById('reg-btn').classList.toggle('off', !regionsVisible);
+  if (regionsVisible) regionGroup.addTo(map);
+  else map.removeLayer(regionGroup);
+};
+
+const allMarkers = [];
+function pickColor(books) { return (!books||!books.length)?'#888':(BOOKS[books[0]]?BOOKS[books[0]].color:'#c9a227'); }
+function makeIcon(color, r=7) {
+  return L.divIcon({className:'', html:`<div style="width:${r*2}px;height:${r*2}px;background:${color};border:1.5px solid rgba(255,255,255,.4);border-radius:50%;box-shadow:0 0 0 2px ${color}44,0 0 8px ${color}88;cursor:pointer;transition:transform .15s"></div>`, iconSize:[r*2,r*2], iconAnchor:[r,r], popupAnchor:[0,-r-4]});
+}
+PLACES.forEach(p => {
+  const color = pickColor(p.books);
+  const size = p.books.length>=5?9:p.books.length>=3?7:6;
+  const marker = L.marker([p.lat, p.lng], {icon:makeIcon(color,size), title:p.name});
+  const tags = p.books.map(b=>`<span class="popup-book-tag" style="background:${BOOKS[b].color}22;color:${BOOKS[b].color};border:1px solid ${BOOKS[b].color}44">Libro ${BOOKS[b].short}</span>`).join('');
+  const quoteHtml = p.quote?`<div class="popup-quote">${p.quote}</div>`:'';
+  marker.bindPopup(L.popup({maxWidth:320,minWidth:250,closeButton:true}).setContent(`
+    <div class="popup-header"><div class="popup-books">${tags}</div><div class="popup-name">${p.name}</div><div class="popup-modern">→ ${p.modern}</div></div>
+    <div class="popup-body"><div class="popup-text">${p.text}</div>${quoteHtml}</div>`));
+  marker.bindTooltip(p.name, {permanent:false, direction:'top', offset:[0,-size-2]});
+  marker.on('mouseover', function(){ const el=this.getElement().querySelector('div'); if(el) el.style.transform='scale(1.6)'; });
+  marker.on('mouseout',  function(){ const el=this.getElement().querySelector('div'); if(el) el.style.transform='scale(1)'; });
+  marker.addTo(map);
+  allMarkers.push({marker, place:p});
+});
+updateCount();
+
+const bookState = {};
+Object.keys(BOOKS).forEach(b => { bookState[b]=true; });
+let html2 = `<div class="book-filter active" id="bf-all" onclick="toggleAll(this)"><div class="bf-dot" style="background:linear-gradient(135deg,#e07b39,#27ae60,#c0392b)"></div><div class="bf-label">Todos los libros</div><div class="bf-count">${PLACES.length}</div></div>`;
+Object.entries(BOOKS).forEach(([b, info]) => {
+  const cnt = PLACES.filter(p=>p.books.includes(+b)).length;
+  html2 += `<div class="book-filter active" id="bf-${b}" onclick="toggleBook(${b}, this)"><div class="bf-dot" style="background:${info.color}"></div><div class="bf-label">${info.label}</div><div class="bf-count">${cnt}</div></div>`;
+});
+document.getElementById('filters').innerHTML = html2;
+
+function toggleAll(el) {
+  const allOn = Object.values(bookState).every(v=>v);
+  Object.keys(bookState).forEach(b=>{ bookState[b]=!allOn; });
+  document.querySelectorAll('.book-filter').forEach(e=>e.classList.toggle('inactive',allOn));
+  el.classList.toggle('inactive',allOn);
+  updateMarkers();
+}
+function toggleBook(b,el) { bookState[b]=!bookState[b]; el.classList.toggle('inactive',!bookState[b]); updateMarkers(); }
+function updateMarkers() {
+  allMarkers.forEach(({marker,place})=>{
+    const visible=place.books.some(b=>bookState[b]);
+    if(visible){ if(!map.hasLayer(marker)) marker.addTo(map); } else map.removeLayer(marker);
+  });
+  updateCount();
+}
+function updateCount() {
+  const cnt=allMarkers.filter(({marker})=>map.hasLayer(marker)).length;
+  document.getElementById('cnt').textContent=cnt;
+  document.getElementById('cnt2').textContent=cnt;
+}
+
+const searchEl=document.getElementById('search');
+const resultsEl=document.getElementById('search-results');
+searchEl.addEventListener('input',()=>{
+  const q=searchEl.value.toLowerCase().trim();
+  if(q.length<2){ resultsEl.style.display='none'; return; }
+  const matches=allMarkers.filter(({place})=>place.name.toLowerCase().includes(q)||place.modern.toLowerCase().includes(q)||place.region.toLowerCase().includes(q)).slice(0,10);
+  if(!matches.length){ resultsEl.style.display='none'; return; }
+  resultsEl.innerHTML=matches.map(({place})=>{
+    const color=pickColor(place.books);
+    return `<div class="sr-item" onclick="flyTo(${place.lat},${place.lng},'${place.name.replace(/'/g,"\\'")}')"><div style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0"></div><div style="flex:1"><div style="font-size:.82rem;color:#e8d5a3">${place.name}</div><div style="font-size:.7rem;color:#7a5a2a">${place.modern}</div></div><div class="sr-book" style="color:${color}">${place.books.map(b=>`L.${BOOKS[b].short}`).join(', ')}</div></div>`;
+  }).join('');
+  resultsEl.style.display='block';
+});
+document.addEventListener('click', e=>{ if(!e.target.closest('.search-wrap')) resultsEl.style.display='none'; });
+window.flyTo = function(lat,lng,name) {
+  resultsEl.style.display='none'; searchEl.value=name;
+  map.flyTo([lat,lng],8,{duration:1.2});
+  const match=allMarkers.find(({place})=>place.name===name||(place.lat===lat&&place.lng===lng));
+  if(match){ setTimeout(()=>match.marker.openPopup(),1300); if(!map.hasLayer(match.marker)) match.marker.addTo(map); }
+};
+window.toggleSidebar = function() {
+  const sb=document.getElementById('sidebar');
+  const tog=document.getElementById('tog');
+  sb.classList.toggle('closed');
+  tog.textContent=sb.classList.contains('closed')?'LIBROS ▶':'LIBROS ◀';
+};
+function downloadHTML() {
+  let docText='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
+  docText=docText.replace(/<button class="download-btn"[\s\S]*?<\/button>/,'');
+  const blob=new Blob([docText],{type:'text/html'});
+  const link=document.createElement('a');
+  link.href=URL.createObjectURL(blob);
+  link.download='herodoto.html';
+  document.body.appendChild(link); link.click(); document.body.removeChild(link);
+}
+</script>
+</body>
+</html>
