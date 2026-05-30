@@ -1337,16 +1337,27 @@ body.pdf-export-mode #app { display: none !important; }
 .pdf-sheet-wrap:last-child { page-break-after: auto; }
 
 @media print {
+  @page { size: letter portrait; margin: 0; }
+
+  /* Ocultar toda la UI */
   #sidebar, .btn-bg-image, .btn-row, .signature-actions, #sidebar-actions,
   #top-nav, #login-screen, .content-sheet-toolbar,
   .btn-cover-change, .btn-cover-remove,
   .ctt-fixed-actions, .btn-dynamic-remove, .btn-add-block,
   .ctt-attachment-actions, .ctt-omit,
-  .btn-tiny, .btn-tiny-reset { display: none !important; }
+  .btn-tiny, .btn-tiny-reset,
+  .ctt-firma-area button, .ctt-firma-area input,
+  .ctt-firma-placeholder { display: none !important; }
+
+  html, body {
+    width: 100%; height: auto;
+    background: #fff;
+    overflow: visible;
+    margin: 0; padding: 0;
+  }
 
   #main-content { padding: 0; overflow: visible; }
   #app { display: block; }
-  body { background: #fff; overflow: visible; height: auto; }
 
   body.pdf-export-mode #app { display: none !important; }
   body.pdf-export-mode #pdf-export-container {
@@ -1355,35 +1366,134 @@ body.pdf-export-mode #app { display: none !important; }
     opacity: 1;
     overflow: visible;
   }
-  .ctt-omitted { display: none !important; }
 
-  .sheet { box-shadow: none; border-radius: 0; page-break-after: always; }
-  .cover-sheet-page, .content-sheet {
-    box-shadow: none; border-radius: 0;
+  /* Cada hoja = una página exacta */
+  .pdf-sheet-wrap {
     page-break-after: always;
-    width: 100%; max-width: 100%;
-    aspect-ratio: unset; min-height: 100vh;
+    break-after: page;
+    overflow: hidden;
   }
-  .content-page-area { padding: 30px 50px; background: transparent; }
+  .pdf-sheet-wrap:last-child { page-break-after: auto; }
 
-  /* En PDF mostrar el texto plano (sin bordes ni inputs) */
-  .ctt-inline, .ctt-textarea, .ctt-dynamic-body, .ctt-numbered-body, .ctt-fixed-textarea {
+  /* Portada: imagen llena toda la página */
+  .cover-sheet-page {
+    box-shadow: none;
+    border-radius: 0;
+    width: 100vw;
+    height: 100vh;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    aspect-ratio: unset;
+    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+    page-break-after: always;
+    break-after: page;
+  }
+  .cover-page-inner { width: 100%; height: 100%; }
+  .cover-full-img { width: 100%; height: 100%; object-fit: fill; display: block; }
+  .cover-placeholder-big { display: none; }
+
+  /* Hoja de contenido */
+  .content-sheet {
+    box-shadow: none;
+    border-radius: 0;
+    width: 100%;
+    min-height: 100vh;
+    page-break-after: always;
+    break-after: page;
+  }
+  .content-page-area {
+    padding: 40px 60px;
+    background: transparent;
+  }
+
+  /* Membrete de fondo — visible en impresión */
+  .membrete-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* Inputs: solo texto, sin cajas ni bordes */
+  .ctt-inline {
     border: none !important;
-    border-bottom: 1px solid #ccc !important;
+    border-radius: 0 !important;
     background: transparent !important;
     box-shadow: none !important;
-    padding: 0 2px !important;
+    padding: 0 1px !important;
     color: #000 !important;
+    display: inline !important;
+    width: auto !important;
+    min-width: 0 !important;
   }
-  .ctt-textarea, .ctt-dynamic-body, .ctt-numbered-body { display: block; min-height: auto !important; border-bottom: none !important; }
+  .ctt-textarea {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    resize: none !important;
+    color: #000 !important;
+    min-height: auto !important;
+    overflow: visible !important;
+  }
+  .ctt-dynamic-body, .ctt-numbered-body {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    min-height: auto !important;
+    display: block;
+  }
+  .ctt-dynamic-title {
+    border: none !important;
+    background: transparent !important;
+    font-weight: 700;
+    color: #1a3d80 !important;
+  }
+  select.ctt-inline {
+    -webkit-appearance: none; appearance: none;
+    border: none !important;
+    background: transparent !important;
+    padding-right: 0 !important;
+  }
+
+  /* Texto fijo */
   .ctt-fixed-textarea { display: none !important; }
   .ctt-fixed-text { display: block !important; }
-  .ctt-dynamic-title { border: none !important; }
-  select.ctt-inline { border: none !important; -webkit-appearance: none; appearance: none; padding-right: 0; }
-  .ctt-attachment { border: none; background: transparent; padding: 0; }
-  .ctt-study-line { border: none; padding: 0; }
+
+  /* Estudios omitidos: no se imprimen */
+  .ctt-omitted { display: none !important; }
   .ctt-omit-inline { display: none !important; }
-  .ctt-p { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 4px; }
+
+  /* Líneas de estudio */
+  .ctt-study-line {
+    border: none !important;
+    background: transparent !important;
+    padding: 1px 0 !important;
+  }
+
+  /* Párrafos con inputs inline: alineación natural */
+  .ctt-p {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 1px 3px;
+    text-align: left;
+  }
+
+  /* Adjuntos */
+  .ctt-attachment { border: none; background: transparent; padding: 0; }
+  .ctt-attachment-img { max-width: 100%; page-break-inside: avoid; }
+
+  /* Firma */
+  .ctt-firma-display { border: none; background: transparent; }
+  .ctt-firma-section label,
+  .ctt-doctor-select { display: none !important; }
 }
 
 /* ===== SCROLLBAR ===== */
