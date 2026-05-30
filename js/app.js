@@ -336,7 +336,7 @@ async function exportPDF() {
 
   // Medidas en mm (carta)
   const PAGE_W = 215.9, PAGE_H = 279.4;
-  const MT = 30, MB = 30, ML = 15, MR = 15;   // márgenes: 3cm / 1.5cm
+  const MT = 30, MB = 40, ML = 15, MR = 15;   // márgenes: 3cm arriba / 4cm abajo / 1.5cm lados
   const CW = PAGE_W - ML - MR;                 // ancho útil
   const CH = PAGE_H - MT - MB;                 // alto útil por página
   const RENDER_W = 816;                         // px de render (8.5in × 96)
@@ -358,21 +358,32 @@ async function exportPDF() {
 
       /* --- 1. Renderizar hoja en div oculto --- */
       const div = document.createElement('div');
+      div.className = 'pdf-rendering';
       div.style.cssText = `position:fixed;top:0;left:-9999px;width:${RENDER_W}px;background:#fff;z-index:-1;`;
       div.innerHTML = sheet.render();
       document.body.appendChild(div);
 
-      // Inyectar valores guardados
-      div.querySelectorAll('input,textarea,select').forEach(el => {
-        if (el.type === 'file' || el.type === 'checkbox') return;
-        if (el.id && appState[el.id] !== undefined) {
-          el.value = appState[el.id];
-          if (el.tagName === 'TEXTAREA') {
-            el.textContent = appState[el.id];
-            el.style.height = 'auto';
-            el.style.height = el.scrollHeight + 2 + 'px';
-          }
-        }
+      // Convertir inputs/textareas/selects en spans con su valor (texto plano)
+      div.querySelectorAll('input[type="text"], input:not([type])').forEach(el => {
+        const val = (el.id && appState[el.id] !== undefined) ? appState[el.id] : el.value;
+        const span = document.createElement('span');
+        span.className = 'pdf-value';
+        span.textContent = val || '';
+        el.parentNode.replaceChild(span, el);
+      });
+      div.querySelectorAll('select').forEach(el => {
+        const val = (el.id && appState[el.id] !== undefined) ? appState[el.id] : el.value;
+        const span = document.createElement('span');
+        span.className = 'pdf-value';
+        span.textContent = val || '';
+        el.parentNode.replaceChild(span, el);
+      });
+      div.querySelectorAll('textarea').forEach(el => {
+        const val = (el.id && appState[el.id] !== undefined) ? appState[el.id] : el.value;
+        const div2 = document.createElement('div');
+        div2.className = 'pdf-value-block';
+        div2.textContent = val || '';
+        el.parentNode.replaceChild(div2, el);
       });
 
       // Restaurar imágenes de firma
@@ -392,8 +403,11 @@ async function exportPDF() {
       ['.content-sheet-toolbar','.ctt-omit','.ctt-omit-inline','.btn-add-block',
        '.btn-dynamic-remove','.btn-tiny','.btn-tiny-reset','.ctt-firma-edit',
        '.no-print','.ctt-attachment-actions','.ctt-fixed-actions',
-       '.ctt-firma-placeholder','.btn-remove','.btn-secondary',
-       '.membrete-control','[type="file"]'].forEach(sel => {
+       '.ctt-firma-placeholder','.btn-remove','.btn-secondary','.btn-primary',
+       '.membrete-control','[type="file"]',
+       '.btn-cover-change','.btn-cover-remove','.cover-placeholder-big',
+       '.ctt-doctor-select','.ctt-firma-section .no-print',
+       'button'].forEach(sel => {
         div.querySelectorAll(sel).forEach(el => el.style.display = 'none');
       });
 
