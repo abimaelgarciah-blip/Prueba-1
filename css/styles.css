@@ -914,7 +914,6 @@ body {
 
 /* ---------- CONTENT SHEET (mixto: membrete + texto) ---------- */
 .content-sheet {
-  background: #fff;
   width: 100%;
   max-width: 816px;
   margin: 0 auto;
@@ -924,16 +923,19 @@ body {
   position: relative;
   font-family: Arial, Helvetica, sans-serif;
   min-height: 100vh;
-}
-.membrete-bg {
-  position: absolute;
-  inset: 0;
+  /* Membrete: cubre el elemento completo en pantalla */
+  background-color: #fff;
   background-size: cover;
-  background-position: center;
+  background-position: center top;
   background-repeat: no-repeat;
-  z-index: 0;
-  pointer-events: none;
 }
+.content-sheet-overlay {
+  /* Velo blanco semitransparente para legibilidad sobre el membrete */
+  background: rgba(255,255,255,0.58);
+  min-height: 100%;
+  width: 100%;
+}
+.membrete-bg { display: none; } /* ya no se usa */
 .content-sheet-toolbar {
   position: relative;
   z-index: 5;
@@ -964,17 +966,12 @@ body {
 .content-page-area {
   position: relative;
   z-index: 2;
-  padding: 3cm 1.5cm; /* 3cm sup/inf, 1.5cm izq/der */
-  min-height: 1056px; /* Carta = 11in × 96 */
-  background-color: #fff;
-  background-repeat: repeat-y;
-  background-size: 100% 1056px; /* una imagen = una hoja carta */
-  background-position: top center;
+  padding: 3cm 1.5cm;
+  min-height: 1056px;
+  background: transparent;
   overflow-x: hidden;
   box-sizing: border-box;
   width: 100%;
-  print-color-adjust: exact;
-  -webkit-print-color-adjust: exact;
 }
 
 /* ---------- TEXTO ESTRUCTURADO ---------- */
@@ -1394,11 +1391,6 @@ body.pdf-export-mode #app { display: none !important; }
 
 @media print {
   @page { size: letter portrait; margin: 0; }
-  @page content-page { size: letter portrait; margin: 3cm 1.5cm; }
-  @page cover-page { size: letter portrait; margin: 0; }
-
-  .content-sheet { page: content-page; }
-  .cover-sheet-page { page: cover-page; }
 
   /* Ocultar toda la UI */
   #sidebar, .btn-bg-image, .btn-row, .signature-actions, #sidebar-actions,
@@ -1464,20 +1456,21 @@ body.pdf-export-mode #app { display: none !important; }
     min-height: 100vh;
     page-break-after: always;
     break-after: page;
+    /* background-image se hereda del inline style, fixed lo pinta por página */
+    background-attachment: fixed !important;
+    background-size: cover !important;
+    background-position: center top !important;
+    background-repeat: no-repeat !important;
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+  .content-sheet-overlay {
+    background: rgba(255,255,255,0.55) !important;
   }
   .content-page-area {
-    padding: 0;
-    background: transparent;
+    padding: 3cm 1.5cm;
+    background: transparent !important;
     min-height: auto;
-  }
-
-  /* Membrete: repetido por cada página impresa */
-  .content-page-area {
-    background-repeat: repeat-y !important;
-    background-size: 100% 100vh !important;
-    background-position: top center !important;
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
   }
   .membrete-bg { display: none !important; }
 

@@ -84,17 +84,19 @@ function removeMembrete(stateKey) {
 /* ----- CONTENT SHEET WRAPPER ----- */
 function renderContentWrapper(stateKey, label, innerHTML) {
   const img = appState[stateKey];
-  const bgStyle = img
-    ? ` style="background-image: linear-gradient(rgba(255,255,255,0.6),rgba(255,255,255,0.6)), url('${img}');"`
-    : '';
+  // Background va en el .content-sheet (el contenedor) con data-attr
+  // para que print pueda usar background-attachment:fixed (una vez por página)
+  const bgAttr = img ? ` data-bg="${escapeAttr(img)}" style="background-image:url('${img}');"` : '';
   return `
-  <div class="sheet content-sheet">
-    <div class="content-sheet-toolbar">
-      <strong>${label}</strong>
-      ${renderMembreteControl(stateKey)}
-    </div>
-    <div class="content-page-area"${bgStyle}>
-      ${innerHTML}
+  <div class="sheet content-sheet"${bgAttr}>
+    <div class="content-sheet-overlay">
+      <div class="content-sheet-toolbar">
+        <strong>${label}</strong>
+        ${renderMembreteControl(stateKey)}
+      </div>
+      <div class="content-page-area">
+        ${innerHTML}
+      </div>
     </div>
   </div>`;
 }
