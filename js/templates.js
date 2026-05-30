@@ -83,14 +83,17 @@ function removeMembrete(stateKey) {
 
 /* ----- CONTENT SHEET WRAPPER ----- */
 function renderContentWrapper(stateKey, label, innerHTML) {
+  const img = appState[stateKey];
+  const bgStyle = img
+    ? ` style="background-image: linear-gradient(rgba(255,255,255,0.6),rgba(255,255,255,0.6)), url('${img}');"`
+    : '';
   return `
   <div class="sheet content-sheet">
-    ${renderMembreteBg(stateKey)}
     <div class="content-sheet-toolbar">
       <strong>${label}</strong>
       ${renderMembreteControl(stateKey)}
     </div>
-    <div class="content-page-area">
+    <div class="content-page-area"${bgStyle}>
       ${innerHTML}
     </div>
   </div>`;

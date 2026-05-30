@@ -966,10 +966,15 @@ body {
   z-index: 2;
   padding: 3cm 1.5cm; /* 3cm sup/inf, 1.5cm izq/der */
   min-height: 1056px; /* Carta = 11in × 96 */
-  background: rgba(255,255,255,0.55);
+  background-color: #fff;
+  background-repeat: repeat-y;
+  background-size: 100% 1056px; /* una imagen = una hoja carta */
+  background-position: top center;
   overflow-x: hidden;
   box-sizing: border-box;
   width: 100%;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
 }
 
 /* ---------- TEXTO ESTRUCTURADO ---------- */
@@ -1389,6 +1394,11 @@ body.pdf-export-mode #app { display: none !important; }
 
 @media print {
   @page { size: letter portrait; margin: 0; }
+  @page content-page { size: letter portrait; margin: 3cm 1.5cm; }
+  @page cover-page { size: letter portrait; margin: 0; }
+
+  .content-sheet { page: content-page; }
+  .cover-sheet-page { page: cover-page; }
 
   /* Ocultar toda la UI */
   #sidebar, .btn-bg-image, .btn-row, .signature-actions, #sidebar-actions,
@@ -1456,22 +1466,20 @@ body.pdf-export-mode #app { display: none !important; }
     break-after: page;
   }
   .content-page-area {
-    padding: 3cm 1.5cm;
+    padding: 0;
     background: transparent;
+    min-height: auto;
   }
 
-  /* Membrete de fondo — visible en impresión, se repite por página */
-  .membrete-bg {
-    position: absolute !important;
-    top: 0; left: 0; right: 0; bottom: 0;
-    width: 100%;
-    height: 100%;
-    background-size: 100% 100vh !important;
+  /* Membrete: repetido por cada página impresa */
+  .content-page-area {
     background-repeat: repeat-y !important;
+    background-size: 100% 100vh !important;
     background-position: top center !important;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }
+  .membrete-bg { display: none !important; }
 
   /* Inputs: solo texto, sin cajas ni bordes */
   .ctt-inline {
