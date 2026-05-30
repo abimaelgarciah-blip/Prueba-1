@@ -1003,8 +1003,8 @@ body {
   outline: none;
 }
 .ctt-inline:focus { background: #f0f7ff; border-bottom-color: #2e5fa8; }
-.ctt-inline-sm { min-width: 60px; max-width: 120px; }
-.ctt-inline-md { min-width: 100px; max-width: 240px; }
+.ctt-inline-sm { min-width: 60px; }
+.ctt-inline-md { min-width: 100px; }
 
 select.ctt-inline {
   border: 1px solid #1e4d8c;
@@ -1102,6 +1102,27 @@ select.ctt-inline {
   border-radius: 4px;
   padding: 4px;
 }
+.ctt-omit-inline {
+  font-size: 0.7rem;
+  padding: 1px 7px;
+  background: #fff7e6;
+  color: #92400e;
+  margin: 0 8px 0 0;
+  vertical-align: middle;
+}
+.ctt-study-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 6px 0;
+  padding: 4px 6px;
+  border-left: 2px solid transparent;
+  transition: background 0.15s;
+}
+.ctt-study-line:hover { background: #f7fafc; border-left-color: #cfe2f3; }
+.ctt-study-line .ctt-omit-inline { flex: 0 0 auto; margin-top: 2px; }
+.ctt-study-line .ctt-study-text { flex: 1 1 auto; margin: 0; }
+.ctt-study-line.ctt-omitted .ctt-study-text { text-decoration: line-through; }
 
 /* ---------- BLOQUES DINÁMICOS ---------- */
 .ctt-dynamic { margin: 8px 0; }

@@ -122,6 +122,7 @@ function navigateTo(index) {
   container.innerHTML = sheet.render();
 
   if (sheet.restore) setTimeout(() => sheet.restore(), 0);
+  setTimeout(() => autoSizeAllInline(container), 10);
   document.getElementById('main-content')?.scrollTo(0, 0);
 }
 
@@ -137,6 +138,7 @@ function restoreFields(ids) {
   ids.forEach(id => {
     const el = document.getElementById(id);
     if (el && appState[id] !== undefined) el.value = appState[id];
+    if (el && el.classList?.contains('ctt-inline')) autoSizeInline(el);
   });
 }
 

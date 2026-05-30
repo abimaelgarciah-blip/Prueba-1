@@ -103,7 +103,31 @@ function p(html)     { return `<p class="ctt-p">${html}</p>`; }
 
 function input(id, ph, size='md') {
   return `<input type="text" class="ctt-inline ctt-inline-${size}" id="${id}"
-    placeholder="${ph||'____'}" oninput="saveFieldState('${id}')" />`;
+    placeholder="${ph||'____'}" oninput="autoSizeInline(this); saveFieldState('${id}')" />`;
+}
+
+function autoSizeInline(el) {
+  if (!el) return;
+  const measure = document.getElementById('__ctt-measure') || (() => {
+    const s = document.createElement('span');
+    s.id = '__ctt-measure';
+    s.style.cssText = 'position:absolute;visibility:hidden;white-space:pre;left:-9999px;top:-9999px;padding:0 4px;';
+    document.body.appendChild(s);
+    return s;
+  })();
+  const cs = window.getComputedStyle(el);
+  measure.style.font = cs.font;
+  measure.style.fontFamily = cs.fontFamily;
+  measure.style.fontSize = cs.fontSize;
+  measure.style.fontWeight = cs.fontWeight;
+  measure.style.letterSpacing = cs.letterSpacing;
+  measure.textContent = el.value || el.placeholder || '';
+  const w = measure.offsetWidth + 14;
+  el.style.width = Math.max(60, w) + 'px';
+}
+
+function autoSizeAllInline(root) {
+  (root || document).querySelectorAll('.ctt-inline').forEach(autoSizeInline);
 }
 
 function select(id, opts) {
@@ -373,4 +397,18 @@ function toggleOmit(id, checked) {
   saveToStorage();
   const block = document.getElementById(`block-${id}`);
   if (block) block.classList.toggle('ctt-omitted', checked);
+}
+
+/* ----- ESTUDIO INDIVIDUAL (línea + omit toggle) ----- */
+function renderStudyLine(id, html) {
+  const omitted = appState[`omit-${id}`] === 'true';
+  return `
+  <div class="ctt-study-line${omitted ? ' ctt-omitted' : ''}" id="block-${id}">
+    <label class="ctt-omit ctt-omit-inline">
+      <input type="checkbox" id="omit-chk-${id}" ${omitted ? 'checked' : ''}
+        onchange="toggleOmit('${id}', this.checked)" />
+      <span>Omitir</span>
+    </label>
+    <p class="ctt-p ctt-study-text">${html}</p>
+  </div>`;
 }
