@@ -325,58 +325,172 @@ function printReport() {
   setTimeout(() => document.body.classList.remove('print-single'), 500);
 }
 
-/* ===== EXPORTAR PDF COMPLETO (todas las hojas) ===== */
-function exportPDF() {
-  // Eliminar contenedor previo si existe
-  const prev = document.getElementById('pdf-export-container');
-  if (prev) prev.remove();
+/* ===== EXPORTAR PDF COMPLETO — html2canvas + jsPDF ===== */
+async function exportPDF() {
+  if (!window.html2canvas || !window.jspdf) {
+    alert('Las librerías de PDF aún se están cargando. Intente en unos segundos.');
+    return;
+  }
 
-  const container = document.createElement('div');
-  container.id = 'pdf-export-container';
+  const { jsPDF } = window.jspdf;
 
-  // Renderizar todas las hojas
-  sheets.forEach(sheet => {
-    const wrap = document.createElement('div');
-    wrap.className = 'pdf-sheet-wrap';
-    wrap.innerHTML = sheet.render();
-    container.appendChild(wrap);
-  });
+  // Medidas en mm (carta)
+  const PAGE_W = 215.9, PAGE_H = 279.4;
+  const MT = 30, MB = 30, ML = 15, MR = 15;   // márgenes: 3cm / 1.5cm
+  const CW = PAGE_W - ML - MR;                 // ancho útil
+  const CH = PAGE_H - MT - MB;                 // alto útil por página
+  const RENDER_W = 816;                         // px de render (8.5in × 96)
 
-  document.body.appendChild(container);
+  const doc = new jsPDF({ unit: 'mm', format: 'letter', orientation: 'portrait' });
+  let firstPage = true;
 
-  // Inyectar valores desde appState en cada input/textarea/select
-  container.querySelectorAll('input, textarea, select').forEach(el => {
-    if (el.type === 'file' || el.type === 'checkbox') return;
-    if (el.id && appState[el.id] !== undefined) {
-      el.value = appState[el.id];
-      el.setAttribute('value', appState[el.id]);
-      if (el.tagName === 'TEXTAREA') el.textContent = appState[el.id];
+  // Overlay de progreso
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-family:Arial,sans-serif;gap:14px;';
+  overlay.innerHTML = '<div style="font-size:1.1rem;font-weight:700;">Generando PDF...</div><div id="pdf-progress" style="font-size:0.9rem;opacity:0.8;">Hoja 0 / 0</div>';
+  document.body.appendChild(overlay);
+  const progressEl = document.getElementById('pdf-progress');
+
+  try {
+    for (let si = 0; si < sheets.length; si++) {
+      const sheet = sheets[si];
+      progressEl.textContent = `Hoja ${si + 1} / ${sheets.length} — ${sheet.label}`;
+
+      /* --- 1. Renderizar hoja en div oculto --- */
+      const div = document.createElement('div');
+      div.style.cssText = `position:fixed;top:0;left:-9999px;width:${RENDER_W}px;background:#fff;z-index:-1;`;
+      div.innerHTML = sheet.render();
+      document.body.appendChild(div);
+
+      // Inyectar valores guardados
+      div.querySelectorAll('input,textarea,select').forEach(el => {
+        if (el.type === 'file' || el.type === 'checkbox') return;
+        if (el.id && appState[el.id] !== undefined) {
+          el.value = appState[el.id];
+          if (el.tagName === 'TEXTAREA') {
+            el.textContent = appState[el.id];
+            el.style.height = 'auto';
+            el.style.height = el.scrollHeight + 2 + 'px';
+          }
+        }
+      });
+
+      // Restaurar imágenes de firma
+      [['c11-firma-img','c11-firma-display']].forEach(([k,id]) => {
+        if (appState[k]) {
+          const el = div.querySelector('#'+id);
+          if (el) el.innerHTML = `<img src="${appState[k]}" style="max-height:100px;max-width:100%;object-fit:contain;"/>`;
+        }
+      });
+
+      // Ocultar bloques omitidos
+      div.querySelectorAll('[id^="block-"]').forEach(el => {
+        if (appState['omit-' + el.id.replace('block-','')] === 'true') el.style.display = 'none';
+      });
+
+      // Ocultar controles de UI
+      ['.content-sheet-toolbar','.ctt-omit','.ctt-omit-inline','.btn-add-block',
+       '.btn-dynamic-remove','.btn-tiny','.btn-tiny-reset','.ctt-firma-edit',
+       '.no-print','.ctt-attachment-actions','.ctt-fixed-actions',
+       '.ctt-firma-placeholder','.btn-remove','.btn-secondary',
+       '.membrete-control','[type="file"]'].forEach(sel => {
+        div.querySelectorAll(sel).forEach(el => el.style.display = 'none');
+      });
+
+      // Quitar background-image del .content-sheet (lo dibujamos nosotros)
+      const contentSheet = div.querySelector('.content-sheet');
+      if (contentSheet) contentSheet.style.backgroundImage = 'none';
+      const overlay2 = div.querySelector('.content-sheet-overlay');
+      if (overlay2) overlay2.style.background = 'transparent';
+
+      // Esperar que imágenes internas carguen
+      await Promise.all([...div.querySelectorAll('img')].map(img =>
+        img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; })
+      ));
+      await new Promise(r => setTimeout(r, 80));
+
+      /* --- 2. Capturar canvas --- */
+      const canvas = await html2canvas(div, {
+        scale: 2, useCORS: true, allowTaint: true,
+        logging: false, backgroundColor: '#ffffff', width: RENDER_W
+      });
+      document.body.removeChild(div);
+
+      const isCover = sheet.type === 'cover';
+
+      if (!firstPage) doc.addPage();
+      firstPage = false;
+
+      /* --- 3a. Portada: imagen llena la página completa --- */
+      if (isCover) {
+        doc.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, PAGE_W, PAGE_H);
+        continue;
+      }
+
+      /* --- 3b. Hoja de contenido: márgenes + membrete por página --- */
+      const membreteImg = sheet.membreteKey ? appState[sheet.membreteKey] : null;
+
+      // Precomponer canvas del membrete con velo blanco (para reutilizar en cada página)
+      let bgDataUrl = null;
+      if (membreteImg) {
+        const bgC = document.createElement('canvas');
+        bgC.width = 816; bgC.height = 1056;
+        const ctx = bgC.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, 816, 1056);
+        await new Promise(resolve => {
+          const img = new Image();
+          img.onload = () => {
+            ctx.globalAlpha = 0.45;
+            ctx.drawImage(img, 0, 0, 816, 1056);
+            ctx.globalAlpha = 1;
+            resolve();
+          };
+          img.onerror = resolve;
+          img.src = membreteImg;
+        });
+        bgDataUrl = bgC.toDataURL('image/jpeg', 0.88);
+      }
+
+      // Calcular cuántas páginas necesita este contenido
+      const totalMM  = (canvas.height / canvas.width) * CW;
+      const numPages = Math.max(1, Math.ceil(totalMM / CH));
+      const pxPerMM  = canvas.width / CW;
+
+      for (let p = 0; p < numPages; p++) {
+        if (p > 0) doc.addPage();
+
+        // Membrete de fondo (completo, una vez por página)
+        if (bgDataUrl) {
+          doc.addImage(bgDataUrl, 'JPEG', 0, 0, PAGE_W, PAGE_H);
+        }
+
+        // Cortar el canvas del contenido para esta página
+        const sliceY_mm = p * CH;
+        const sliceH_mm = Math.min(CH, totalMM - sliceY_mm);
+        const srcY = Math.round(sliceY_mm * pxPerMM);
+        const srcH = Math.max(1, Math.round(sliceH_mm * pxPerMM));
+
+        const sliceC = document.createElement('canvas');
+        sliceC.width  = canvas.width;
+        sliceC.height = srcH;
+        sliceC.getContext('2d').drawImage(canvas, 0, srcY, canvas.width, srcH, 0, 0, canvas.width, srcH);
+
+        doc.addImage(sliceC.toDataURL('image/jpeg', 0.92), 'JPEG', ML, MT, CW, sliceH_mm);
+      }
     }
-  });
 
-  // Restaurar firmas (sheet9 y sheet22)
-  [['c9-firma-img','c9-firma-display'], ['c22-firma-img','c22-firma-display']].forEach(([k, dispId]) => {
-    if (appState[k]) {
-      const disp = container.querySelector(`#${dispId}`);
-      if (disp) disp.innerHTML = `<img src="${appState[k]}" />`;
-    }
-  });
+    const nombre = appState['s1-patient'] || appState.patientName || 'paciente';
+    const fecha  = new Date().toISOString().split('T')[0];
+    doc.save(`chequeo-${nombre}-${fecha}.pdf`);
+    showToast('PDF descargado correctamente.');
 
-  // Aplicar omit (line-through) sobre estudios omitidos
-  container.querySelectorAll('[id^="block-"]').forEach(el => {
-    const id = el.id.replace(/^block-/, '');
-    if (appState[`omit-${id}`] === 'true') el.classList.add('ctt-omitted');
-  });
-
-  // Activar modo export y disparar print
-  document.body.classList.add('pdf-export-mode');
-  setTimeout(() => {
-    window.print();
-    setTimeout(() => {
-      document.body.classList.remove('pdf-export-mode');
-      container.remove();
-    }, 500);
-  }, 100);
+  } catch (err) {
+    console.error('exportPDF error:', err);
+    alert('Error al generar el PDF: ' + err.message);
+  } finally {
+    overlay.remove();
+  }
 }
 
 /* ===== TOAST ===== */
