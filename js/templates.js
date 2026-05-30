@@ -103,7 +103,7 @@ function p(html)     { return `<p class="ctt-p">${html}</p>`; }
 
 function input(id, ph, size='md') {
   return `<input type="text" class="ctt-inline ctt-inline-${size}" id="${id}"
-    placeholder="${ph||'____'}" oninput="autoSizeInline(this); saveFieldState('${id}')" />`;
+    placeholder="${ph||''}" oninput="autoSizeInline(this); saveFieldState('${id}')" />`;
 }
 
 function autoSizeInline(el) {
@@ -139,7 +139,7 @@ function select(id, opts) {
 
 function textarea(id, ph) {
   return `<textarea class="ctt-textarea" id="${id}"
-    placeholder="${ph||'...'}" oninput="autoGrow(this); saveFieldState('${id}')"></textarea>`;
+    placeholder="${ph||''}" oninput="autoGrow(this); saveFieldState('${id}')"></textarea>`;
 }
 
 /* ----- TEXTO FIJO EDITABLE ----- */

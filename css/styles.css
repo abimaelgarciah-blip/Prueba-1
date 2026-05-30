@@ -1519,6 +1519,7 @@ body.pdf-export-mode #app { display: none !important; }
     background: transparent !important;
     padding: 1px 0 !important;
   }
+  input::placeholder, textarea::placeholder { color: transparent !important; }
 
   /* Párrafos con inputs inline: alineación natural */
   .ctt-p {

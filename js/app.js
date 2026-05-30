@@ -33,7 +33,7 @@ const sheets = [
   sheet6, sheet7, sheet8, sheet9, sheet10,
   sheet11, sheet12, sheet13, sheet14, sheet15,
   sheet16, sheet17, sheet18, sheet19, sheet20,
-  sheet21, sheet22
+  sheet21
 ];
 
 let currentSheetIndex = 0;
