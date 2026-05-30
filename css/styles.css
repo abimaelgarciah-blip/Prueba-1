@@ -79,9 +79,12 @@ body {
 
 /* ===== VIEW PANELS ===== */
 .view-panel {
-  display: none; flex: 1; overflow-y: auto;
+  display: none; flex: 1;
   flex-direction: column;
+  min-height: 0;
 }
+#view-doctors.active-panel, #view-dashboard.active-panel { overflow-y: auto; }
+#view-patients.active-panel { overflow: hidden; }
 .view-panel.active-panel { display: flex; }
 
 .view-header {
@@ -139,6 +142,7 @@ body {
 .patient-card:hover .patient-card-delete { opacity: 1; }
 
 /* ===== FORM LAYOUT (19 hojas) ===== */
+#patients-list-view { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; }
 #patients-form-view { flex: 1; overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
 #form-layout { display: flex; flex: 1; overflow: hidden; min-height: 0; }
 
@@ -599,6 +603,11 @@ body {
   text-align: center;
 }
 .btn-action:hover { background: #1a2f4a; }
+.btn-action-primary {
+  background: #16a34a;
+  margin-bottom: 6px;
+}
+.btn-action-primary:hover { background: #15803d; }
 
 .btn-row {
   display: flex;
@@ -1306,6 +1315,27 @@ select.ctt-inline {
 .ctt-conditional > * { display: inline; }
 
 /* ===== PRINT ===== */
+/* ===== CONTENEDOR DE EXPORTACIÓN PDF COMPLETA ===== */
+#pdf-export-container {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  z-index: -1;
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+body.pdf-export-mode #pdf-export-container {
+  position: static;
+  z-index: auto;
+  opacity: 1;
+  pointer-events: auto;
+  overflow: visible;
+}
+body.pdf-export-mode #app { display: none !important; }
+.pdf-sheet-wrap { page-break-after: always; break-after: page; }
+.pdf-sheet-wrap:last-child { page-break-after: auto; }
+
 @media print {
   #sidebar, .btn-bg-image, .btn-row, .signature-actions, #sidebar-actions,
   #top-nav, #login-screen, .content-sheet-toolbar,
@@ -1316,7 +1346,16 @@ select.ctt-inline {
 
   #main-content { padding: 0; overflow: visible; }
   #app { display: block; }
-  body { background: #fff; overflow: auto; height: auto; }
+  body { background: #fff; overflow: visible; height: auto; }
+
+  body.pdf-export-mode #app { display: none !important; }
+  body.pdf-export-mode #pdf-export-container {
+    display: block !important;
+    position: static;
+    opacity: 1;
+    overflow: visible;
+  }
+  .ctt-omitted { display: none !important; }
 
   .sheet { box-shadow: none; border-radius: 0; page-break-after: always; }
   .cover-sheet-page, .content-sheet {

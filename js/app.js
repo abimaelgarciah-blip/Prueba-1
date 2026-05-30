@@ -86,12 +86,12 @@ function openPatientRecord(id) {
 
 function openFormView() {
   document.getElementById('patients-list-view').style.display = 'none';
-  document.getElementById('patients-form-view').style.display = 'block';
+  document.getElementById('patients-form-view').style.display = 'flex';
 }
 
 function backToPatientList() {
   document.getElementById('patients-form-view').style.display = 'none';
-  document.getElementById('patients-list-view').style.display = 'block';
+  document.getElementById('patients-list-view').style.display = 'flex';
   loadPatientsView();
 }
 
@@ -318,8 +318,66 @@ function loadData() {
   input.click();
 }
 
-/* ===== PRINT ===== */
-function printReport() { window.print(); }
+/* ===== PRINT (hoja actual) ===== */
+function printReport() {
+  document.body.classList.add('print-single');
+  window.print();
+  setTimeout(() => document.body.classList.remove('print-single'), 500);
+}
+
+/* ===== EXPORTAR PDF COMPLETO (todas las hojas) ===== */
+function exportPDF() {
+  // Eliminar contenedor previo si existe
+  const prev = document.getElementById('pdf-export-container');
+  if (prev) prev.remove();
+
+  const container = document.createElement('div');
+  container.id = 'pdf-export-container';
+
+  // Renderizar todas las hojas
+  sheets.forEach(sheet => {
+    const wrap = document.createElement('div');
+    wrap.className = 'pdf-sheet-wrap';
+    wrap.innerHTML = sheet.render();
+    container.appendChild(wrap);
+  });
+
+  document.body.appendChild(container);
+
+  // Inyectar valores desde appState en cada input/textarea/select
+  container.querySelectorAll('input, textarea, select').forEach(el => {
+    if (el.type === 'file' || el.type === 'checkbox') return;
+    if (el.id && appState[el.id] !== undefined) {
+      el.value = appState[el.id];
+      el.setAttribute('value', appState[el.id]);
+      if (el.tagName === 'TEXTAREA') el.textContent = appState[el.id];
+    }
+  });
+
+  // Restaurar firmas (sheet9 y sheet22)
+  [['c9-firma-img','c9-firma-display'], ['c22-firma-img','c22-firma-display']].forEach(([k, dispId]) => {
+    if (appState[k]) {
+      const disp = container.querySelector(`#${dispId}`);
+      if (disp) disp.innerHTML = `<img src="${appState[k]}" />`;
+    }
+  });
+
+  // Aplicar omit (line-through) sobre estudios omitidos
+  container.querySelectorAll('[id^="block-"]').forEach(el => {
+    const id = el.id.replace(/^block-/, '');
+    if (appState[`omit-${id}`] === 'true') el.classList.add('ctt-omitted');
+  });
+
+  // Activar modo export y disparar print
+  document.body.classList.add('pdf-export-mode');
+  setTimeout(() => {
+    window.print();
+    setTimeout(() => {
+      document.body.classList.remove('pdf-export-mode');
+      container.remove();
+    }, 500);
+  }, 100);
+}
 
 /* ===== TOAST ===== */
 function showToast(msg) {
