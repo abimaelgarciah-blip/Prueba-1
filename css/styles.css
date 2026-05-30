@@ -962,9 +962,9 @@ body {
 .content-page-area {
   position: relative;
   z-index: 2;
-  padding: 70px 90px;
+  padding: 3cm 1.5cm; /* 3cm sup/inf, 1.5cm izq/der */
   min-height: 1056px; /* Carta = 11in × 96 */
-  background: rgba(255,255,255,0.55); /* Para que el membrete sea visible pero el texto legible */
+  background: rgba(255,255,255,0.55);
 }
 
 /* ---------- TEXTO ESTRUCTURADO ---------- */
@@ -1445,7 +1445,7 @@ body.pdf-export-mode #app { display: none !important; }
     break-after: page;
   }
   .content-page-area {
-    padding: 40px 60px;
+    padding: 3cm 1.5cm;
     background: transparent;
   }
 

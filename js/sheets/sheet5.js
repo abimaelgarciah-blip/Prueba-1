@@ -51,22 +51,22 @@ window.sheet5 = {
 
       <!-- ANTECEDENTES HEREDO FAMILIARES -->
       ${h1('ANTECEDENTES HEREDO FAMILIARES')}
-      ${p(`Refiere ${textarea('c5-ahf','...')}`)}
+      ${p(`Refiere ${textarea('c5-ahf')}`)}
 
       <!-- ANTECEDENTES NO PATOLÓGICOS -->
       ${h1('ANTECEDENTES PERSONALES NO PATOLÓGICOS')}
-      ${this.noPatologicos.map(np => p(`${np.label} ${input('c5-np-'+np.id,'____')}`)).join('')}
+      ${this.noPatologicos.map(np => p(`${np.label} ${input('c5-np-'+np.id)}`)).join('')}
 
       <!-- ANTECEDENTES PATOLÓGICOS -->
       ${h1('ANTECEDENTES PERSONALES PATOLÓGICOS')}
-      ${renderIfSex('M', p(`Al interrogatorio de signos y síntomas prostáticos se refiere ${input('c5-pp-prostata','____')}`))}
-      ${renderIfSex('F', p(`Inicia menstruación a los ${input('c5-pp-menarca','edad','sm')} años, gesta ${input('c5-pp-gesta','0','sm')}, para ${input('c5-pp-para','0','sm')}, aborto ${input('c5-pp-aborto','0','sm')}, cesáreas ${input('c5-pp-cesareas','0','sm')}. Meses promedio de lactancia en el primero ${input('c5-pp-lact1','0','sm')} meses, en el segundo ${input('c5-pp-lact2','0','sm')} meses, en el tercer ${input('c5-pp-lact3','0','sm')} meses. FUM ${input('c5-pp-fum','fecha')}`))}
-      ${p(`Otros antecedentes refiere ${textarea('c5-pp-otros','...')}`)}
+      ${renderIfSex('M', p(`Al interrogatorio de signos y síntomas prostáticos se refiere ${input('c5-pp-prostata')}`))}
+      ${renderIfSex('F', p(`Inicia menstruación a los ${input('c5-pp-menarca','','sm')} años, gesta ${input('c5-pp-gesta','','sm')}, para ${input('c5-pp-para','','sm')}, aborto ${input('c5-pp-aborto','','sm')}, cesáreas ${input('c5-pp-cesareas','','sm')}. Meses promedio de lactancia en el primero ${input('c5-pp-lact1','','sm')} meses, en el segundo ${input('c5-pp-lact2','','sm')} meses, en el tercer ${input('c5-pp-lact3','','sm')} meses. FUM ${input('c5-pp-fum')}`))}
+      ${p(`Otros antecedentes refiere ${textarea('c5-pp-otros')}`)}
 
       <!-- EXAMEN FÍSICO -->
       ${h1('EXAMEN FÍSICO')}
-      ${p(`Signos vitales: T.A. ${input('c5-ef-ta','120/80','sm')} F.C. ${input('c5-ef-fc','lpm','sm')} Saturación: ${input('c5-ef-sat','%','sm')}`)}
-      ${p(`Peso: ${input('c5-ef-peso','kg','sm')} kilos y talla: ${input('c5-ef-talla','cm','sm')} cm.`)}
+      ${p(`Signos vitales: T.A. ${input('c5-ef-ta','','sm')} F.C. ${input('c5-ef-fc','','sm')} Saturación: ${input('c5-ef-sat','','sm')}`)}
+      ${p(`Peso: ${input('c5-ef-peso','','sm')} kilos y talla: ${input('c5-ef-talla','','sm')} cm.`)}
       ${this.examenFisico.map(ef => renderEditableFixed(ef.id, ef.text)).join('')}
     `;
     return renderContentWrapper(this.membreteKey, this.label, inner);
