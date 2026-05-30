@@ -74,7 +74,7 @@ body {
 
 /* ===== MAIN AREA ===== */
 #main-area {
-  flex: 1; overflow: hidden; display: flex; position: relative;
+  flex: 1; overflow: hidden; display: flex; position: relative; min-height: 0;
 }
 
 /* ===== VIEW PANELS ===== */
@@ -139,8 +139,8 @@ body {
 .patient-card:hover .patient-card-delete { opacity: 1; }
 
 /* ===== FORM LAYOUT (19 hojas) ===== */
-#patients-form-view { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
-#form-layout { display: flex; flex: 1; overflow: hidden; }
+#patients-form-view { flex: 1; overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
+#form-layout { display: flex; flex: 1; overflow: hidden; min-height: 0; }
 
 .btn-back {
   background: #243450; color: #7ec8e3; border: none;
@@ -289,10 +289,13 @@ body {
 #main-content {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 24px;
   background: #f0f2f5;
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  height: 100%;
 }
 
 #sheet-container {
@@ -978,9 +981,13 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 10pt;
   color: #000;
-  text-align: justify;
-  line-height: 1.5;
-  margin: 4px 0 6px;
+  text-align: left;
+  line-height: 2;
+  margin: 4px 0 8px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
 }
 .ctt-sub-line {
   color: #2e5fa8;
@@ -991,47 +998,58 @@ body {
 /* ---------- INPUTS INLINE ---------- */
 .ctt-inline {
   display: inline-block;
-  border: none;
-  border-bottom: 1px dashed #1e4d8c;
-  background: transparent;
-  padding: 1px 4px;
+  border: 1.5px solid #b8cfe8;
+  border-radius: 5px;
+  background: #f4f8fd;
+  padding: 3px 8px;
   font-family: inherit;
   font-size: 10pt;
   color: #000;
-  min-width: 100px;
-  max-width: 100%;
+  min-width: 90px;
   outline: none;
+  vertical-align: baseline;
+  transition: border-color 0.15s, background 0.15s;
+  box-shadow: inset 0 1px 2px rgba(30,77,140,0.05);
 }
-.ctt-inline:focus { background: #f0f7ff; border-bottom-color: #2e5fa8; }
+.ctt-inline:focus {
+  background: #eaf3ff;
+  border-color: #2e5fa8;
+  box-shadow: 0 0 0 2px rgba(46,95,168,0.13);
+}
 .ctt-inline-sm { min-width: 60px; }
-.ctt-inline-md { min-width: 100px; }
+.ctt-inline-md { min-width: 110px; }
 
 select.ctt-inline {
-  border: 1px solid #1e4d8c;
-  border-radius: 4px;
-  background: #fff;
-  padding: 1px 6px;
   cursor: pointer;
+  padding-right: 24px;
+  background-color: #f4f8fd;
+  appearance: auto;
 }
 
 .ctt-textarea {
   display: block;
   width: 100%;
-  border: 1px dashed #1e4d8c;
-  background: #fdfeff;
-  padding: 6px 10px;
+  border: 1.5px solid #b8cfe8;
+  background: #f4f8fd;
+  padding: 8px 12px;
   font-family: inherit;
   font-size: 10pt;
   color: #000;
-  margin-top: 4px;
-  border-radius: 4px;
-  resize: none;
-  min-height: 38px;
+  margin-top: 6px;
+  border-radius: 6px;
+  resize: vertical;
+  min-height: 60px;
   outline: none;
-  line-height: 1.5;
+  line-height: 1.6;
   text-align: justify;
+  box-shadow: inset 0 1px 3px rgba(30,77,140,0.06);
+  transition: border-color 0.15s, background 0.15s;
 }
-.ctt-textarea:focus { background: #f0f7ff; border-color: #2e5fa8; }
+.ctt-textarea:focus {
+  background: #eaf3ff;
+  border-color: #2e5fa8;
+  box-shadow: 0 0 0 2px rgba(46,95,168,0.13);
+}
 
 /* ---------- EDITABLE FIXED ---------- */
 .ctt-fixed {
@@ -1312,16 +1330,21 @@ select.ctt-inline {
   /* En PDF mostrar el texto plano (sin bordes ni inputs) */
   .ctt-inline, .ctt-textarea, .ctt-dynamic-body, .ctt-numbered-body, .ctt-fixed-textarea {
     border: none !important;
+    border-bottom: 1px solid #ccc !important;
     background: transparent !important;
-    padding: 0 !important;
+    box-shadow: none !important;
+    padding: 0 2px !important;
     color: #000 !important;
   }
-  .ctt-textarea, .ctt-dynamic-body, .ctt-numbered-body { display: block; min-height: auto !important; }
+  .ctt-textarea, .ctt-dynamic-body, .ctt-numbered-body { display: block; min-height: auto !important; border-bottom: none !important; }
   .ctt-fixed-textarea { display: none !important; }
   .ctt-fixed-text { display: block !important; }
   .ctt-dynamic-title { border: none !important; }
   select.ctt-inline { border: none !important; -webkit-appearance: none; appearance: none; padding-right: 0; }
   .ctt-attachment { border: none; background: transparent; padding: 0; }
+  .ctt-study-line { border: none; padding: 0; }
+  .ctt-omit-inline { display: none !important; }
+  .ctt-p { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 4px; }
 }
 
 /* ===== SCROLLBAR ===== */
