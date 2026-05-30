@@ -379,6 +379,10 @@ async function exportPDF() {
         el.parentNode.replaceChild(span, el);
       });
       div.querySelectorAll('textarea').forEach(el => {
+        if (el.classList.contains('ctt-fixed-textarea')) {
+          el.style.display = 'none';
+          return;
+        }
         const val = (el.id && appState[el.id] !== undefined) ? appState[el.id] : el.value;
         const div2 = document.createElement('div');
         div2.className = 'pdf-value-block';
@@ -455,7 +459,7 @@ async function exportPDF() {
         await new Promise(resolve => {
           const img = new Image();
           img.onload = () => {
-            ctx.globalAlpha = 0.45;
+            ctx.globalAlpha = 0.70;
             ctx.drawImage(img, 0, 0, 816, 1056);
             ctx.globalAlpha = 1;
             resolve();
