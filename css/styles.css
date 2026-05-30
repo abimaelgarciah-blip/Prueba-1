@@ -305,6 +305,8 @@ body {
 #sheet-container {
   max-width: 860px;
   margin: 0 auto;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 /* ===== SHEET CARD ===== */
@@ -965,6 +967,9 @@ body {
   padding: 3cm 1.5cm; /* 3cm sup/inf, 1.5cm izq/der */
   min-height: 1056px; /* Carta = 11in × 96 */
   background: rgba(255,255,255,0.55);
+  overflow-x: hidden;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 /* ---------- TEXTO ESTRUCTURADO ---------- */
@@ -1015,10 +1020,13 @@ body {
   font-size: 10pt;
   color: #000;
   min-width: 90px;
+  max-width: 100%;
   outline: none;
   vertical-align: baseline;
   transition: border-color 0.15s, background 0.15s;
   box-shadow: inset 0 1px 2px rgba(30,77,140,0.05);
+  overflow: hidden;
+  box-sizing: border-box;
 }
 .ctt-inline:focus {
   background: #eaf3ff;
@@ -1140,15 +1148,18 @@ select.ctt-inline {
 .ctt-study-line {
   display: flex;
   align-items: flex-start;
-  gap: 6px;
+  flex-wrap: wrap;
+  gap: 4px 6px;
   margin: 6px 0;
   padding: 4px 6px;
   border-left: 2px solid transparent;
   transition: background 0.15s;
+  min-width: 0;
+  overflow: hidden;
 }
 .ctt-study-line:hover { background: #f7fafc; border-left-color: #cfe2f3; }
 .ctt-study-line .ctt-omit-inline { flex: 0 0 auto; margin-top: 2px; }
-.ctt-study-line .ctt-study-text { flex: 1 1 auto; margin: 0; }
+.ctt-study-line .ctt-study-text { flex: 1 1 0; margin: 0; min-width: 0; overflow: hidden; }
 .ctt-study-line.ctt-omitted .ctt-study-text { text-decoration: line-through; }
 
 /* ---------- BLOQUES DINÁMICOS ---------- */

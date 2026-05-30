@@ -122,8 +122,10 @@ function autoSizeInline(el) {
   measure.style.fontWeight = cs.fontWeight;
   measure.style.letterSpacing = cs.letterSpacing;
   measure.textContent = el.value || el.placeholder || '';
-  const w = measure.offsetWidth + 14;
-  el.style.width = Math.max(60, w) + 'px';
+  const textW = measure.offsetWidth + 14;
+  // Limitar al contenedor padre para no desbordar el layout
+  const maxW = (el.closest('.ctt-study-line, .ctt-p, .content-page-area')?.clientWidth || 600) - 80;
+  el.style.width = Math.min(Math.max(60, textW), Math.max(120, maxW)) + 'px';
 }
 
 function autoSizeAllInline(root) {
