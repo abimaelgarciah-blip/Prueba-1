@@ -1,111 +1,94 @@
 window.sheet5 = {
-  id: 'sheet5',
-  label: 'Hoja 5: Examen Físico',
+  id: 'contenido-hallazgos',
+  label: 'Contenido Hallazgos',
+  type: 'content',
+  membreteKey: 'mb-5',
+
+  // Antecedentes no patológicos (lista de "refiere ----")
+  noPatologicos: [
+    { id:'orig',  label:'Originario de' },
+    { id:'resid', label:'Residente de' },
+    { id:'alc',   label:'Bebidas alcohólicas refiere' },
+    { id:'fum',   label:'Fumar refiere' },
+    { id:'dep',   label:'Practicar deportes refiere' },
+    { id:'vis',   label:'Problemas visuales refiere' },
+    { id:'aud',   label:'Problemas auditivos refiere' },
+    { id:'trans', label:'Transfusiones refiere' },
+    { id:'hosp',  label:'Hospitalizaciones refiere' },
+    { id:'cirug', label:'Intervenciones quirúrgicas refiere' },
+    { id:'meds',  label:'Medicamentos refiere' },
+    { id:'infec', label:'Enfermedades infecciosas refiere' },
+    { id:'alerg', label:'Alergias refiere' },
+    { id:'fract', label:'Fracturas refiere' },
+    { id:'grsang',label:'Grupo sanguíneo refiere' },
+    { id:'inmun', label:'Inmunizaciones refiere' }
+  ],
+
+  // Examen físico - descripciones fijas editables
+  examenFisico: [
+    { id:'ef-general', text:'Paciente consciente, cooperador, cuya edad cronológica corresponde con la real. Su apariencia general es normal.' },
+    { id:'ef-derma',   text:'Exploración dermatológica: Sin alteraciones.' },
+    { id:'ef-craneo',  text:'Cráneo: Es normoencefalo, con cabello bien implantado, no tiene exóstosis, sin otras alteraciones.' },
+    { id:'ef-ojos',    text:'Ojos: Con movimientos oculares, reflejos y fondoscopía normal, conjuntivas, escleróticas y párpados normales.' },
+    { id:'ef-oidos',   text:'Oídos: Con pabellón auricular normal, el conducto auditivo externo es normal, la membrana timpánica está íntegra, la conducción aérea y ósea normal.' },
+    { id:'ef-nariz',   text:'Nariz: Rectilínea, septum central, sin traumatismos presentes, mucosas normales, cornetes sin alteraciones.' },
+    { id:'ef-boca',    text:'Boca: Piezas dentales normales, lengua y mucosas normales, faringe sin alteraciones.' },
+    { id:'ef-cuello',  text:'Cuello: Es cilíndrico, no presenta adenomegalias, la tiroides palpable normal, movimientos normales, pulsos presentes normales.' },
+    { id:'ef-torax',   text:'Tórax: Es normolíneo, con movimientos de amplexión y amplexación normales, los ruidos respiratorios sin fenómenos acústicos agregados, los ruidos cardíacos rítmicos sin frotes, ni soplos.' },
+    { id:'ef-abdomen', text:'Abdomen: Es plano, blando, depresible, no es doloroso, no tiene visceromegalias, no presenta masas, peristaltismo presente y área renal sin alteraciones.' },
+    { id:'ef-genit',   text:'Genitales: Sin alteraciones.' },
+    { id:'ef-rectal',  text:'Examen rectal: No se realizó.' },
+    { id:'ef-extsup',  text:'Examen de extremidades superiores: Sin alteraciones.' },
+    { id:'ef-extinf',  text:'Examen de extremidades inferiores: Sin alteraciones.' },
+    { id:'ef-neuro',   text:'Examen neurológico: Orientación normal en 3 esferas, pares craneales normales, meningeos negativos, vestíbulos cerebelosos negativos, reflejos osteotendinosos normales, marcha normal, no tiene problemas de sensibilidad ni motilidad.' }
+  ],
+
   render() {
-    return `
-    <div class="sheet" id="sheet-5">
-      <div class="sheet-header">
-        <h1>Examen Físico</h1>
-        <span class="sheet-number">Hoja 5</span>
-      </div>
-      <div class="sheet-body">
-        <div class="sheet-bg" id="s5-bg"></div>
+    const inner = `
+      <!-- RESUMEN MÉDICO -->
+      ${h1('RESUMEN MÉDICO')}
+      ${p(`${select('c5-sexo',['Masculino','Femenino'])} de ${input('c5-edad','edad','sm')} años de edad.`)}
 
-        <button class="btn-bg-image" onclick="triggerBgImage('s5-bg','s5-bg-input')">
-          🖼 Agregar imagen de fondo
-        </button>
-        <input type="file" id="s5-bg-input" accept="image/*" style="display:none"
-          onchange="setBgImage(event,'s5-bg','s5bg')" />
+      <!-- ANTECEDENTES HEREDO FAMILIARES -->
+      ${h1('ANTECEDENTES HEREDO FAMILIARES')}
+      ${p(`Refiere ${textarea('c5-ahf','...')}`)}
 
-        <div class="grid-2">
-          <div class="section-card">
-            <h3>Signos Vitales</h3>
-            ${[
-              {id:'s5-ta',label:'Tensión Arterial',ph:'Ej. 120/80 mmHg'},
-              {id:'s5-fc',label:'Frecuencia Cardíaca',ph:'lpm'},
-              {id:'s5-fr',label:'Frecuencia Respiratoria',ph:'rpm'},
-              {id:'s5-temp',label:'Temperatura',ph:'°C'},
-              {id:'s5-spo2',label:'SpO₂',ph:'%'},
-              {id:'s5-glucosa',label:'Glucosa capilar',ph:'mg/dL'}
-            ].map(f=>`
-            <div class="result-row">
-              <label>${f.label}</label>
-              <input type="text" id="${f.id}" placeholder="${f.ph}" oninput="saveFieldState('${f.id}')" />
-            </div>`).join('')}
-          </div>
+      <!-- ANTECEDENTES NO PATOLÓGICOS -->
+      ${h1('ANTECEDENTES PERSONALES NO PATOLÓGICOS')}
+      ${this.noPatologicos.map(np => p(`${np.label} ${input('c5-np-'+np.id,'____')}`)).join('')}
 
-          <div class="section-card">
-            <h3>Antropometría</h3>
-            ${[
-              {id:'s5-peso',label:'Peso',ph:'kg'},
-              {id:'s5-talla',label:'Talla',ph:'cm'},
-              {id:'s5-imc',label:'IMC',ph:'kg/m²'},
-              {id:'s5-cintura',label:'Circunf. Cintura',ph:'cm'},
-              {id:'s5-cadera',label:'Circunf. Cadera',ph:'cm'},
-              {id:'s5-cc',label:'Índice Cintura/Cadera',ph:''}
-            ].map(f=>`
-            <div class="result-row">
-              <label>${f.label}</label>
-              <input type="text" id="${f.id}" placeholder="${f.ph}" oninput="saveFieldState('${f.id}')" />
-            </div>`).join('')}
-          </div>
-        </div>
+      <!-- ANTECEDENTES PATOLÓGICOS -->
+      ${h1('ANTECEDENTES PERSONALES PATOLÓGICOS')}
+      ${renderIfSex('M', p(`Al interrogatorio de signos y síntomas prostáticos se refiere ${input('c5-pp-prostata','____')}`))}
+      ${renderIfSex('F', p(`Inicia menstruación a los ${input('c5-pp-menarca','edad','sm')} años, gesta ${input('c5-pp-gesta','0','sm')}, para ${input('c5-pp-para','0','sm')}, aborto ${input('c5-pp-aborto','0','sm')}, cesáreas ${input('c5-pp-cesareas','0','sm')}. Meses promedio de lactancia en el primero ${input('c5-pp-lact1','0','sm')} meses, en el segundo ${input('c5-pp-lact2','0','sm')} meses, en el tercer ${input('c5-pp-lact3','0','sm')} meses. FUM ${input('c5-pp-fum','fecha')}`))}
+      ${p(`Otros antecedentes refiere ${textarea('c5-pp-otros','...')}`)}
 
-        ${[
-          {title:'Cabeza y Cuello', id:'s5-cabeza'},
-          {title:'Tórax y Pulmones', id:'s5-torax'},
-          {title:'Corazón y Cardiovascular', id:'s5-corazon'},
-          {title:'Abdomen', id:'s5-abdomen'},
-          {title:'Sistema Musculoesquelético', id:'s5-musculo'},
-          {title:'Sistema Neurológico', id:'s5-neuro'},
-          {title:'Piel y Tegumentos', id:'s5-piel'},
-          {title:'Genitourinario', id:'s5-genito'}
-        ].map(s=>`
-        <div class="section-card">
-          <h3>${s.title}</h3>
-          <div class="form-group">
-            <label>Hallazgos</label>
-            <textarea id="${s.id}" placeholder="Describe los hallazgos del examen..." oninput="saveFieldState('${s.id}')"></textarea>
-          </div>
-          <div class="result-row">
-            <label>Resultado</label>
-            <select class="status-select" id="${s.id}-status" onchange="updateStatusStyle('${s.id}-status'); saveFieldState('${s.id}-status')">
-              <option value="">-- Resultado --</option>
-              <option value="Normal">Normal</option>
-              <option value="Anormal">Anormal</option>
-              <option value="Limítrofe">Limítrofe</option>
-            </select>
-          </div>
-        </div>`).join('')}
-
-        <div class="form-group">
-          <label>Observaciones generales del examen físico</label>
-          <div class="editor-wrapper"><div id="s5-editor"></div></div>
-        </div>
-      </div>
-    </div>`;
+      <!-- EXAMEN FÍSICO -->
+      ${h1('EXAMEN FÍSICO')}
+      ${p(`Signos vitales: T.A. ${input('c5-ef-ta','120/80','sm')} F.C. ${input('c5-ef-fc','lpm','sm')} Saturación: ${input('c5-ef-sat','%','sm')}`)}
+      ${p(`Peso: ${input('c5-ef-peso','kg','sm')} kilos y talla: ${input('c5-ef-talla','cm','sm')} cm.`)}
+      ${this.examenFisico.map(ef => renderEditableFixed(ef.id, ef.text)).join('')}
+    `;
+    return renderContentWrapper(this.membreteKey, this.label, inner);
   },
-  quill: null,
-  initEditor() {
-    if (document.getElementById('s5-editor') && !this.quill) {
-      this.quill = new Quill('#s5-editor', { theme: 'snow', placeholder: 'Observaciones generales...' });
-      this.quill.on('text-change', () => {
-        appState.s5EditorContent = this.quill.root.innerHTML;
-        saveToStorage();
-      });
-      if (appState.s5EditorContent) this.quill.root.innerHTML = appState.s5EditorContent;
-    }
-  },
+
   restore() {
-    const fields = ['s5-ta','s5-fc','s5-fr','s5-temp','s5-spo2','s5-glucosa',
-      's5-peso','s5-talla','s5-imc','s5-cintura','s5-cadera','s5-cc',
-      's5-cabeza','s5-torax','s5-corazon','s5-abdomen','s5-musculo','s5-neuro','s5-piel','s5-genito',
-      's5-cabeza-status','s5-torax-status','s5-corazon-status','s5-abdomen-status',
-      's5-musculo-status','s5-neuro-status','s5-piel-status','s5-genito-status'];
-    restoreFields(fields);
-    fields.filter(f=>f.endsWith('-status')).forEach(f=>updateStatusStyle(f));
-    restoreBgImage('s5-bg','s5bg');
-    this.quill = null;
-    this.initEditor();
+    // Inputs simples
+    const ids = ['c5-sexo','c5-edad','c5-ahf','c5-pp-prostata','c5-pp-menarca',
+      'c5-pp-gesta','c5-pp-para','c5-pp-aborto','c5-pp-cesareas','c5-pp-lact1',
+      'c5-pp-lact2','c5-pp-lact3','c5-pp-fum','c5-pp-otros',
+      'c5-ef-ta','c5-ef-fc','c5-ef-sat','c5-ef-peso','c5-ef-talla'];
+    this.noPatologicos.forEach(np => ids.push('c5-np-'+np.id));
+    this.examenFisico.forEach(ef => ids.push(ef.id));
+    restoreFields(ids);
+    restoreAutoGrow(ids);
+
+    // Sincronizar texto fijo desde state
+    this.examenFisico.forEach(ef => syncFixedText(ef.id));
+
+    // Listener para mostrar/ocultar campos por sexo
+    const sexEl = document.getElementById('c5-sexo');
+    if (sexEl) sexEl.addEventListener('change', refreshSexConditionals);
+    refreshSexConditionals();
   }
 };
