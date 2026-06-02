@@ -82,13 +82,34 @@ function removeMembrete(stateKey) {
 }
 
 /* ----- CONTENT SHEET WRAPPER ----- */
+const SECTION_DEFAULT_COLORS = {
+  'mb-5':  '#1a3d80',
+  'mb-7':  '#0d7a5f',
+  'mb-9':  '#b45309',
+  'mb-11': '#6d28d9',
+  'mb-13': '#be123c',
+  'mb-15': '#0369a1',
+  'mb-17': '#065f46',
+  'mb-19': '#4338ca',
+  'mb-24': '#0e7490',
+  'mb-26': '#be185d',
+  'mb-21': '#1e3a5f',
+  'mb-22': '#374151',
+};
+
+function getSectionColor(stateKey) {
+  if (typeof templateState !== 'undefined' && templateState['color-' + stateKey]) {
+    return templateState['color-' + stateKey];
+  }
+  return SECTION_DEFAULT_COLORS[stateKey] || '#1a3d80';
+}
+
 function renderContentWrapper(stateKey, label, innerHTML) {
   const img = appState[stateKey];
-  // Background va en el .content-sheet (el contenedor) con data-attr
-  // para que print pueda usar background-attachment:fixed (una vez por página)
+  const color = getSectionColor(stateKey);
   const bgAttr = img ? ` data-bg="${escapeAttr(img)}" style="background-image:url('${img}');"` : '';
   return `
-  <div class="sheet content-sheet"${bgAttr}>
+  <div class="sheet content-sheet"${bgAttr} style="--section-color:${color};">
     <div class="content-sheet-overlay">
       <div class="content-sheet-toolbar">
         <strong>${label}</strong>

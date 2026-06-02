@@ -18,17 +18,17 @@ const COVER_TEMPLATES = [
 ];
 
 const MEMBRETE_TEMPLATES = [
-  { key: 'mb-5',  label: 'Contenido Hallazgos' },
-  { key: 'mb-7',  label: 'Contenido Sistemas' },
-  { key: 'mb-9',  label: 'Contenido Conclusiones' },
-  { key: 'mb-11', label: 'Contenido Sugerencias' },
-  { key: 'mb-13', label: 'Contenido Prueba Esfuerzo' },
-  { key: 'mb-15', label: 'Contenido Espirometría' },
-  { key: 'mb-17', label: 'Contenido Est. Gabinete' },
-  { key: 'mb-19', label: 'Contenido Oftalmología' },
-  { key: 'mb-24', label: 'Contenido Audiometría' },
-  { key: 'mb-26', label: 'Contenido Diag. Dental' },
-  { key: 'mb-21', label: 'Contenido Laboratorio' },
+  { key: 'mb-5',  label: 'Contenido Hallazgos',       defaultColor: '#1a3d80' },
+  { key: 'mb-7',  label: 'Contenido Sistemas',         defaultColor: '#0d7a5f' },
+  { key: 'mb-9',  label: 'Contenido Conclusiones',     defaultColor: '#b45309' },
+  { key: 'mb-11', label: 'Contenido Sugerencias',      defaultColor: '#6d28d9' },
+  { key: 'mb-13', label: 'Contenido Prueba Esfuerzo',  defaultColor: '#be123c' },
+  { key: 'mb-15', label: 'Contenido Espirometría',     defaultColor: '#0369a1' },
+  { key: 'mb-17', label: 'Contenido Est. Gabinete',    defaultColor: '#065f46' },
+  { key: 'mb-19', label: 'Contenido Oftalmología',     defaultColor: '#4338ca' },
+  { key: 'mb-24', label: 'Contenido Audiometría',      defaultColor: '#0e7490' },
+  { key: 'mb-26', label: 'Contenido Diag. Dental',     defaultColor: '#be185d' },
+  { key: 'mb-21', label: 'Contenido Laboratorio',      defaultColor: '#1e3a5f' },
 ];
 
 function loadTemplatesView() {
@@ -69,24 +69,27 @@ function loadTemplatesView() {
     <div class="section-card">
       <h3>Hojas de Portada</h3>
       <div class="tpl-grid">
-        ${COVER_TEMPLATES.map(t => renderTplCard(t)).join('')}
+        ${COVER_TEMPLATES.map(t => renderTplCard(t, false)).join('')}
       </div>
     </div>
 
     <div class="section-card">
-      <h3>Membretes por Hoja</h3>
+      <h3>Membretes y Color de Títulos por Hoja</h3>
       <p style="margin:-6px 0 14px;color:#64748b;font-size:0.86rem;">
-        Configura un membrete específico por hoja. Si se deja vacío, se usará el membrete único (si está configurado).
+        Configura el membrete y el color de los títulos de cada sección. El color se aplica a los encabezados dentro de esa hoja de contenido.
       </p>
-      <div class="tpl-grid">
-        ${MEMBRETE_TEMPLATES.map(t => renderTplCard(t)).join('')}
+      <div class="tpl-grid tpl-grid-membrete">
+        ${MEMBRETE_TEMPLATES.map(t => renderTplCard(t, true)).join('')}
       </div>
     </div>
   `;
 }
 
-function renderTplCard(t) {
+function renderTplCard(t, showColor) {
   const img = templateState[t.key];
+  const currentColor = templateState['color-' + t.key] || t.defaultColor || '#1a3d80';
+  const isCustomColor = !!templateState['color-' + t.key];
+
   return `
   <div class="tpl-card">
     <div class="tpl-card-thumb" onclick="document.getElementById('tpl-inp-${t.key}').click()" title="Haz clic para subir imagen">
@@ -109,6 +112,14 @@ function renderTplCard(t) {
         </button>
         ${img ? `<button class="btn-tiny btn-tiny-reset" onclick="removeTplImage('${t.key}')">✕</button>` : ''}
       </div>
+      ${showColor ? `
+      <div class="tpl-color-row">
+        <span class="tpl-color-label">Color títulos:</span>
+        <input type="color" class="tpl-color-input" value="${currentColor}"
+          onchange="setTplColor('${t.key}', this.value)"
+          title="Color de h1/h2 en esta sección" />
+        ${isCustomColor ? `<button class="btn-tiny btn-tiny-reset" onclick="resetTplColor('${t.key}')" title="Restaurar color por defecto">↺</button>` : ''}
+      </div>` : ''}
     </div>
     <input type="file" id="tpl-inp-${t.key}" style="display:none" accept="image/*"
       onchange="setTplImage(event,'${t.key}')" />
@@ -133,6 +144,24 @@ function removeTplImage(key) {
   saveTemplate();
   loadTemplatesView();
   showToast('Imagen eliminada de plantilla.');
+}
+
+function setTplColor(key, color) {
+  templateState['color-' + key] = color;
+  saveTemplate();
+  // Refrescar la hoja activa si corresponde a esta sección
+  const sheet = sheets[currentSheetIndex];
+  if (sheet && sheet.membreteKey === key) navigateTo(currentSheetIndex);
+  showToast('Color de títulos guardado.');
+}
+
+function resetTplColor(key) {
+  delete templateState['color-' + key];
+  saveTemplate();
+  loadTemplatesView();
+  const sheet = sheets[currentSheetIndex];
+  if (sheet && sheet.membreteKey === key) navigateTo(currentSheetIndex);
+  showToast('Color restaurado al valor por defecto.');
 }
 
 function setTplMbAll(event) {
