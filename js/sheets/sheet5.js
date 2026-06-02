@@ -59,14 +59,14 @@ window.sheet5 = {
 
       <!-- ANTECEDENTES PATOLÓGICOS -->
       ${h1('ANTECEDENTES PERSONALES PATOLÓGICOS')}
-      ${renderIfSex('M', p(`Al interrogatorio de signos y síntomas prostáticos se refiere ${input('c5-pp-prostata')}`))}
-      ${renderIfSex('F', p(`Inicia menstruación a los ${input('c5-pp-menarca','','sm')} años, gesta ${input('c5-pp-gesta','','sm')}, para ${input('c5-pp-para','','sm')}, aborto ${input('c5-pp-aborto','','sm')}, cesáreas ${input('c5-pp-cesareas','','sm')}. Meses promedio de lactancia en el primero ${input('c5-pp-lact1','','sm')} meses, en el segundo ${input('c5-pp-lact2','','sm')} meses, en el tercer ${input('c5-pp-lact3','','sm')} meses. FUM ${input('c5-pp-fum')}`))}
-      ${p(`Otros antecedentes refiere ${textarea('c5-pp-otros')}`)}
+      ${renderIfSex('M', p(`<strong class="ctt-sub-line">Interrogatorio prostático:</strong> ${textarea('c5-pp-prostata','...')}`))}
+      ${renderIfSex('F', p(`<strong class="ctt-sub-line">Antecedentes gineco-obstétricos:</strong> Menarca a los ${input('c5-pp-menarca','','sm')} años, gesta ${input('c5-pp-gesta','','sm')}, para ${input('c5-pp-para','','sm')}, aborto ${input('c5-pp-aborto','','sm')}, cesáreas ${input('c5-pp-cesareas','','sm')}. Lactancia: 1.º ${input('c5-pp-lact1','','sm')} meses, 2.º ${input('c5-pp-lact2','','sm')} meses, 3.º ${input('c5-pp-lact3','','sm')} meses. FUM ${input('c5-pp-fum')}`))}
+      ${p(`<strong class="ctt-sub-line">Otros antecedentes:</strong> ${textarea('c5-pp-otros','...')}`)}
 
       <!-- EXAMEN FÍSICO -->
       ${h1('EXAMEN FÍSICO')}
-      ${p(`Signos vitales: T.A. ${input('c5-ef-ta','','sm')} F.C. ${input('c5-ef-fc','','sm')} Saturación: ${input('c5-ef-sat','','sm')}`)}
-      ${p(`Peso: ${input('c5-ef-peso','','sm')} kilos y talla: ${input('c5-ef-talla','','sm')} cm.`)}
+      ${p(`<strong class="ctt-sub-line">Signos vitales:</strong> T.A. ${input('c5-ef-ta','','sm')} F.C. ${input('c5-ef-fc','','sm')} Saturación: ${input('c5-ef-sat','','sm')}`)}
+      ${p(`<strong class="ctt-sub-line">Antropometría:</strong> Peso ${input('c5-ef-peso','','sm')} kg, talla ${input('c5-ef-talla','','sm')} cm.`)}
       ${this.examenFisico.map(ef => renderEditableFixed(ef.id, ef.text)).join('')}
     `;
     return renderContentWrapper(this.membreteKey, this.label, inner);

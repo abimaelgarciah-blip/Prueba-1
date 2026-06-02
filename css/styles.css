@@ -966,7 +966,7 @@ body {
 .content-page-area {
   position: relative;
   z-index: 2;
-  padding: 4cm 1.5cm 3cm;
+  padding: 4.5cm 1.5cm 3cm;
   min-height: 1056px;
   background: transparent;
   overflow-x: hidden;
@@ -1401,7 +1401,7 @@ select.ctt-inline {
   background: transparent !important;
 }
 .pdf-rendering .content-page-area {
-  padding: 56px 24px 18px !important;
+  padding: 75px 24px 18px !important;
   background: transparent !important;
   min-height: auto !important;
   overflow: visible !important;
@@ -1662,7 +1662,7 @@ body.pdf-export-mode #app { display: none !important; }
     background: rgba(255,255,255,0.55) !important;
   }
   .content-page-area {
-    padding: 4cm 1.5cm 3cm;
+    padding: 4.5cm 1.5cm 3cm;
     background: transparent !important;
     min-height: auto;
   }

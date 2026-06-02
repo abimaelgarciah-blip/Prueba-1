@@ -463,6 +463,14 @@ async function exportPDF() {
       ));
       await new Promise(r => setTimeout(r, 80));
 
+      // Medir posiciones de bloques de texto mientras el div está en el DOM
+      // (se usarán para evitar que el corte de página parta un párrafo)
+      const divViewTop = div.getBoundingClientRect().top;
+      const domBlocks = [...div.querySelectorAll('.ctt-p, .ctt-h1, .ctt-h2')].map(el => {
+        const r = el.getBoundingClientRect();
+        return { top: Math.round((r.top - divViewTop) * 2), bot: Math.round((r.bottom - divViewTop) * 2) };
+      }).filter(b => b.bot > b.top && b.top >= 0);
+
       /* --- 2. Capturar canvas --- */
       const canvas = await html2canvas(div, {
         scale: 2, useCORS: true, allowTaint: true,
@@ -506,30 +514,25 @@ async function exportPDF() {
         bgDataUrl = bgC.toDataURL('image/jpeg', 0.88);
       }
 
-      // Calcular cortes de página buscando filas blancas para no partir texto
+      // Calcular cortes de página usando posiciones DOM para no partir párrafos
       const pxPerMM   = canvas.width / CW;
       const idealCHpx = Math.round(CH * pxPerMM);
-      const scanWin   = 220; // canvas px hacia atrás para buscar fila blanca (~1.5 cm)
-
-      const findSafeCut = (idealY) => {
-        const ctx2 = canvas.getContext('2d');
-        for (let y = idealY; y >= Math.max(0, idealY - scanWin); y -= 2) {
-          const row = ctx2.getImageData(0, y, canvas.width, 1).data;
-          let whites = 0;
-          for (let i = 0; i < row.length; i += 4) {
-            if (row[i] > 235 && row[i+1] > 235 && row[i+2] > 235) whites++;
-          }
-          if (whites / (row.length / 4) > 0.92) return y;
-        }
-        return idealY;
-      };
 
       const cutPoints = [0];
       let pos = 0;
       while (pos + idealCHpx < canvas.height) {
-        const safe = findSafeCut(pos + idealCHpx);
-        cutPoints.push(safe);
-        pos = safe;
+        const idealCut = pos + idealCHpx;
+        let safeCut = idealCut;
+        // Si algún bloque cruza el corte ideal, mover el corte a justo antes del bloque
+        for (const b of domBlocks) {
+          if (b.top < idealCut && b.bot > idealCut && b.top > pos) {
+            if (b.top < safeCut) safeCut = b.top;
+          }
+        }
+        // Fallback: bloque mayor que una página completa, cortar en el punto ideal
+        if (safeCut <= pos) safeCut = idealCut;
+        cutPoints.push(safeCut);
+        pos = safeCut;
       }
       cutPoints.push(canvas.height);
       const numPages = cutPoints.length - 1;
