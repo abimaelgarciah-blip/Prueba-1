@@ -506,10 +506,33 @@ async function exportPDF() {
         bgDataUrl = bgC.toDataURL('image/jpeg', 0.88);
       }
 
-      // Calcular cuántas páginas necesita este contenido
-      const totalMM  = (canvas.height / canvas.width) * CW;
-      const numPages = Math.max(1, Math.ceil(totalMM / CH));
-      const pxPerMM  = canvas.width / CW;
+      // Calcular cortes de página buscando filas blancas para no partir texto
+      const pxPerMM   = canvas.width / CW;
+      const idealCHpx = Math.round(CH * pxPerMM);
+      const scanWin   = 220; // canvas px hacia atrás para buscar fila blanca (~1.5 cm)
+
+      const findSafeCut = (idealY) => {
+        const ctx2 = canvas.getContext('2d');
+        for (let y = idealY; y >= Math.max(0, idealY - scanWin); y -= 2) {
+          const row = ctx2.getImageData(0, y, canvas.width, 1).data;
+          let whites = 0;
+          for (let i = 0; i < row.length; i += 4) {
+            if (row[i] > 235 && row[i+1] > 235 && row[i+2] > 235) whites++;
+          }
+          if (whites / (row.length / 4) > 0.92) return y;
+        }
+        return idealY;
+      };
+
+      const cutPoints = [0];
+      let pos = 0;
+      while (pos + idealCHpx < canvas.height) {
+        const safe = findSafeCut(pos + idealCHpx);
+        cutPoints.push(safe);
+        pos = safe;
+      }
+      cutPoints.push(canvas.height);
+      const numPages = cutPoints.length - 1;
 
       for (let p = 0; p < numPages; p++) {
         if (p > 0) doc.addPage();
@@ -520,14 +543,13 @@ async function exportPDF() {
         }
 
         // Cortar el canvas del contenido para esta página
-        const sliceY_mm = p * CH;
-        const sliceH_mm = Math.min(CH, totalMM - sliceY_mm);
-        const srcY = Math.round(sliceY_mm * pxPerMM);
-        const srcH = Math.max(1, Math.round(sliceH_mm * pxPerMM));
+        const srcY = cutPoints[p];
+        const srcH = cutPoints[p + 1] - srcY;
+        const sliceH_mm = srcH / pxPerMM;
 
         const sliceC = document.createElement('canvas');
         sliceC.width  = canvas.width;
-        sliceC.height = srcH;
+        sliceC.height = Math.max(1, srcH);
         sliceC.getContext('2d').drawImage(canvas, 0, srcY, canvas.width, srcH, 0, 0, canvas.width, srcH);
 
         doc.addImage(sliceC.toDataURL('image/jpeg', 0.92), 'JPEG', ML, MT, CW, sliceH_mm);

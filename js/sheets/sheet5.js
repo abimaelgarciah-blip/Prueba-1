@@ -55,7 +55,7 @@ window.sheet5 = {
 
       <!-- ANTECEDENTES NO PATOLÓGICOS -->
       ${h1('ANTECEDENTES PERSONALES NO PATOLÓGICOS')}
-      ${this.noPatologicos.map(np => p(`${np.label} ${input('c5-np-'+np.id)}`)).join('')}
+      ${this.noPatologicos.map(np => p(`<strong class="ctt-sub-line">${np.label}:</strong> ${textarea('c5-np-'+np.id,'...')}`)).join('')}
 
       <!-- ANTECEDENTES PATOLÓGICOS -->
       ${h1('ANTECEDENTES PERSONALES PATOLÓGICOS')}
