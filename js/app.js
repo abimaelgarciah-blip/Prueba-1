@@ -424,10 +424,13 @@ async function exportPDF() {
       });
 
       // Restaurar imágenes de firma
-      [['c11-firma-img','c11-firma-display']].forEach(([k,id]) => {
+      [
+        ['c11-firma-img', 'c11-firma-display'],
+        ['c22-firma-img', 'c22-firma-display'],
+      ].forEach(([k, id]) => {
         if (appState[k]) {
-          const el = div.querySelector('#'+id);
-          if (el) el.innerHTML = `<img src="${appState[k]}" style="max-height:100px;max-width:100%;object-fit:contain;"/>`;
+          const el = div.querySelector('#' + id);
+          if (el) el.innerHTML = `<img src="${appState[k]}" style="max-height:120px;max-width:100%;object-fit:contain;"/>`;
         }
       });
 

@@ -9,97 +9,97 @@ window.sheet7 = {
       <!-- RESPIRATORIO -->
       <div id="block-sis-resp">
         ${h1('SISTEMA RESPIRATORIO')}
-        ${renderStudyLine('est-resp-sint', `Síntomas respiratorios ${input('c7-resp-sint')}.`)}
-        ${renderStudyLine('est-resp-espiro', `Espirometría ${input('c7-resp-espiro')}.`)}
-        ${renderStudyLine('est-resp-rx', `Radiografía de tórax ${input('c7-resp-rx')}.`)}
+        ${p(`<strong class="ctt-sub-line">Síntomas respiratorios:</strong> ${input('c7-resp-sint')}`)}
+        ${p(`<strong class="ctt-sub-line">Espirometría:</strong> ${input('c7-resp-espiro')}`)}
+        ${p(`<strong class="ctt-sub-line">Radiografía de tórax:</strong> ${input('c7-resp-rx')}`)}
         ${renderDynamicBlock('c7-resp-extra','+ Agregar campo a Respiratorio')}
       </div>
 
       <!-- CARDIOVASCULAR -->
       <div id="block-sis-card">
         ${h1('SISTEMA CARDIOVASCULAR')}
-        ${renderStudyLine('est-card-pef', `Prueba de esfuerzo ${input('c7-card-pef')}.`)}
-        ${renderStudyLine('est-card-ecg', `Electrocardiograma ${input('c7-card-ecg')}.`)}
+        ${p(`<strong class="ctt-sub-line">Prueba de esfuerzo:</strong> ${input('c7-card-pef')}`)}
+        ${p(`<strong class="ctt-sub-line">Electrocardiograma:</strong> ${input('c7-card-ecg')}`)}
         ${renderDynamicBlock('c7-card-extra','+ Agregar campo a Cardiovascular')}
       </div>
 
       <!-- GASTROINTESTINAL -->
       <div id="block-sis-gi">
         ${h1('SISTEMA GASTROINTESTINAL')}
-        ${renderStudyLine('est-gi-sint', `Sintomatología ${input('c7-gi-sint')}.`)}
-        ${renderStudyLine('est-gi-eco', `Ultrasonido abdominal ${input('c7-gi-eco')}.`)}
-        ${renderStudyLine('est-gi-pfh', `Pruebas de función hepática ${input('c7-gi-pfh')}.`)}
-        ${renderStudyLine('est-gi-copro', `Coprológico ${input('c7-gi-copro')}.`)}
-        ${renderStudyLine('est-gi-coprop', `Coproparasitoscópico ${input('c7-gi-coprop')}.`)}
-        ${renderStudyLine('est-gi-dental', `La evaluación odontológica ${input('c7-gi-dental')}.`)}
+        ${p(`<strong class="ctt-sub-line">Sintomatología:</strong> ${input('c7-gi-sint')}`)}
+        ${p(`<strong class="ctt-sub-line">Ultrasonido abdominal:</strong> ${input('c7-gi-eco')}`)}
+        ${p(`<strong class="ctt-sub-line">Pruebas de función hepática:</strong> ${input('c7-gi-pfh')}`)}
+        ${p(`<strong class="ctt-sub-line">Coprológico:</strong> ${input('c7-gi-copro')}`)}
+        ${p(`<strong class="ctt-sub-line">Coproparasitoscópico:</strong> ${input('c7-gi-coprop')}`)}
+        ${p(`<strong class="ctt-sub-line">Evaluación odontológica:</strong> ${input('c7-gi-dental')}`)}
         ${renderDynamicBlock('c7-gi-extra','+ Agregar campo a Gastrointestinal')}
       </div>
 
       <!-- GENITO-URINARIO -->
       <div id="block-sis-gu">
         ${h1('SISTEMA GENITO-URINARIO')}
-        ${renderStudyLine('est-gu-sint', `Sintomatología ${input('c7-gu-sint')}.`)}
-        ${renderStudyLine('est-gu-ecoR', `Ecosonograma renal ${input('c7-gu-ecoR')}.`)}
-        ${renderIfSex('M', renderStudyLine('est-gu-ecoP', `Ecosonograma prostático ${input('c7-gu-ecoP')}.`))}
-        ${renderIfSex('F', renderStudyLine('est-gu-ecoPel', `Ecosonograma pélvico ${input('c7-gu-ecoPel')}.`))}
-        ${renderStudyLine('est-gu-orina', `General de orina ${input('c7-gu-orina')}.`)}
-        ${renderStudyLine('est-gu-urea', `Urea ${input('c7-gu-urea','','sm')}.`)}
-        ${renderStudyLine('est-gu-creat', `Creatinina ${input('c7-gu-creat','','sm')}.`)}
-        ${renderStudyLine('est-gu-nitro', `Nitrógeno uréico ${input('c7-gu-nitro','','sm')}.`)}
-        ${renderStudyLine('est-gu-tfg', `Tasa de filtración glomerular ${input('c7-gu-tfg','','sm')}.`)}
-        ${renderIfSex('M', renderStudyLine('est-gu-psa', `Antígeno prostático ${input('c7-gu-psa','','sm')}.`))}
+        ${p(`<strong class="ctt-sub-line">Sintomatología:</strong> ${input('c7-gu-sint')}`)}
+        ${p(`<strong class="ctt-sub-line">Ecosonograma renal:</strong> ${input('c7-gu-ecoR')}`)}
+        ${renderIfSex('M', p(`<strong class="ctt-sub-line">Ecosonograma prostático:</strong> ${input('c7-gu-ecoP')}`))}
+        ${renderIfSex('F', p(`<strong class="ctt-sub-line">Ecosonograma pélvico:</strong> ${input('c7-gu-ecoPel')}`))}
+        ${p(`<strong class="ctt-sub-line">General de orina:</strong> ${input('c7-gu-orina')}`)}
+        ${p(`<strong class="ctt-sub-line">Urea:</strong> ${input('c7-gu-urea','','sm')}`)}
+        ${p(`<strong class="ctt-sub-line">Creatinina:</strong> ${input('c7-gu-creat','','sm')}`)}
+        ${p(`<strong class="ctt-sub-line">Nitrógeno uréico:</strong> ${input('c7-gu-nitro','','sm')}`)}
+        ${p(`<strong class="ctt-sub-line">Tasa de filtración glomerular:</strong> ${input('c7-gu-tfg','','sm')}`)}
+        ${renderIfSex('M', p(`<strong class="ctt-sub-line">Antígeno prostático:</strong> ${input('c7-gu-psa','','sm')}`))}
         ${renderDynamicBlock('c7-gu-extra','+ Agregar campo a Genito-Urinario')}
       </div>
 
       <!-- NERVIOSO -->
       <div id="block-sis-nerv">
         ${h1('SISTEMA NERVIOSO Y ÓRGANOS DE LOS SENTIDOS')}
-        ${renderStudyLine('est-nerv-sint', `Sintomatología ${input('c7-nerv-sint')}.`)}
-        ${renderStudyLine('est-nerv-oftal', `Valoración oftalmológica ${input('c7-nerv-oftal')}.`)}
-        ${renderStudyLine('est-nerv-audio', `Audiometría ${input('c7-nerv-audio')}.`)}
+        ${p(`<strong class="ctt-sub-line">Sintomatología:</strong> ${input('c7-nerv-sint')}`)}
+        ${p(`<strong class="ctt-sub-line">Valoración oftalmológica:</strong> ${input('c7-nerv-oftal')}`)}
+        ${p(`<strong class="ctt-sub-line">Audiometría:</strong> ${input('c7-nerv-audio')}`)}
         ${renderDynamicBlock('c7-nerv-extra','+ Agregar campo a Nervioso')}
       </div>
 
       <!-- ENDOCRINO -->
       <div id="block-sis-endo">
         ${h1('SISTEMA ENDOCRINO METABÓLICO')}
-        ${renderStudyLine('est-endo-gluc', `Glucosa ${input('c7-endo-gluc','','sm')}.`)}
-        ${renderStudyLine('est-endo-au', `Ácido úrico ${input('c7-endo-au','','sm')}.`)}
-        ${renderStudyLine('est-endo-colT', `Colesterol total ${input('c7-endo-colT','','sm')}.`)}
-        ${renderStudyLine('est-endo-trig', `Triglicéridos ${input('c7-endo-trig','','sm')}.`)}
-        ${renderStudyLine('est-endo-hdl', `HDL ${input('c7-endo-hdl','','sm')}.`)}
-        ${renderStudyLine('est-endo-ldl', `LDL ${input('c7-endo-ldl','','sm')}.`)}
-        ${renderIfSex('F', renderStudyLine('est-endo-lh',   `LH ${input('c7-endo-lh','','sm')}.`))}
-        ${renderIfSex('F', renderStudyLine('est-endo-fsh',  `FSH ${input('c7-endo-fsh','','sm')}.`))}
-        ${renderIfSex('F', renderStudyLine('est-endo-prl',  `Prolactina ${input('c7-endo-prl','','sm')}.`))}
-        ${renderIfSex('F', renderStudyLine('est-endo-prog', `Progesterona ${input('c7-endo-prog','','sm')}.`))}
-        ${renderIfSex('F', renderStudyLine('est-endo-est',  `Estradiol ${input('c7-endo-est','','sm')}.`))}
-        ${renderStudyLine('est-endo-imc', `Índice de masa corporal ${input('c7-endo-imc','','sm')} clasificado como ${input('c7-endo-imcClass')}.`)}
+        ${p(`<strong class="ctt-sub-line">Glucosa:</strong> ${input('c7-endo-gluc','','sm')}`)}
+        ${p(`<strong class="ctt-sub-line">Ácido úrico:</strong> ${input('c7-endo-au','','sm')}`)}
+        ${p(`<strong class="ctt-sub-line">Colesterol total:</strong> ${input('c7-endo-colT','','sm')}`)}
+        ${p(`<strong class="ctt-sub-line">Triglicéridos:</strong> ${input('c7-endo-trig','','sm')}`)}
+        ${p(`<strong class="ctt-sub-line">HDL:</strong> ${input('c7-endo-hdl','','sm')}`)}
+        ${p(`<strong class="ctt-sub-line">LDL:</strong> ${input('c7-endo-ldl','','sm')}`)}
+        ${renderIfSex('F', p(`<strong class="ctt-sub-line">LH:</strong> ${input('c7-endo-lh','','sm')}`))}
+        ${renderIfSex('F', p(`<strong class="ctt-sub-line">FSH:</strong> ${input('c7-endo-fsh','','sm')}`))}
+        ${renderIfSex('F', p(`<strong class="ctt-sub-line">Prolactina:</strong> ${input('c7-endo-prl','','sm')}`))}
+        ${renderIfSex('F', p(`<strong class="ctt-sub-line">Progesterona:</strong> ${input('c7-endo-prog','','sm')}`))}
+        ${renderIfSex('F', p(`<strong class="ctt-sub-line">Estradiol:</strong> ${input('c7-endo-est','','sm')}`))}
+        ${p(`<strong class="ctt-sub-line">IMC:</strong> ${input('c7-endo-imc','','sm')} &nbsp;—&nbsp; clasificado como ${input('c7-endo-imcClass')}`)}
         ${renderDynamicBlock('c7-endo-extra','+ Agregar campo a Endocrino')}
       </div>
 
       <!-- MUSCULOESQUELÉTICO -->
       <div id="block-sis-muscu">
         ${h1('SISTEMA MUSCULOESQUELÉTICO')}
-        ${renderStudyLine('est-muscu-sint', `Sintomatología ${input('c7-muscu-sint')}.`)}
-        ${renderStudyLine('est-muscu-rx', `Radiografía de columna lumbar ${input('c7-muscu-rx')}.`)}
-        ${renderStudyLine('est-muscu-densi', `Densitometría ${input('c7-muscu-densi')}.`)}
+        ${p(`<strong class="ctt-sub-line">Sintomatología:</strong> ${input('c7-muscu-sint')}`)}
+        ${p(`<strong class="ctt-sub-line">Radiografía de columna lumbar:</strong> ${input('c7-muscu-rx')}`)}
+        ${p(`<strong class="ctt-sub-line">Densitometría:</strong> ${input('c7-muscu-densi')}`)}
         ${renderDynamicBlock('c7-muscu-extra','+ Agregar campo a Musculoesquelético')}
       </div>
 
       <!-- HEMATOPOYÉTICO -->
       <div id="block-sis-hema">
         ${h1('SISTEMA HEMATOPOYÉTICO Y CÉLULAS EN SANGRE')}
-        ${renderStudyLine('est-hema-bh', `Biometría hemática ${input('c7-hema-bh')}.`)}
-        ${renderStudyLine('est-hema-ca', `Calcio ${input('c7-hema-ca','','sm')}.`)}
-        ${renderStudyLine('est-hema-p',  `Fósforo ${input('c7-hema-p','','sm')}.`)}
-        ${renderStudyLine('est-hema-na', `Sodio ${input('c7-hema-na','','sm')}.`)}
-        ${renderStudyLine('est-hema-k',  `Potasio ${input('c7-hema-k','','sm')}.`)}
-        ${renderStudyLine('est-hema-cl', `Cloro ${input('c7-hema-cl','','sm')}.`)}
-        ${renderStudyLine('est-hema-fe', `Hierro sérico ${input('c7-hema-fe','','sm')}.`)}
-        ${renderStudyLine('est-hema-grupo', `Grupo sanguíneo ${input('c7-hema-grupo','','sm')}.`)}
-        ${renderStudyLine('est-hema-vih', `Anticuerpos contra el virus del SIDA y antígeno p24 ${input('c7-hema-vih')}.`)}
-        ${renderStudyLine('est-hema-vdrl', `VDRL ${input('c7-hema-vdrl','','sm')}.`)}
+        ${p(`<strong class="ctt-sub-line">Biometría hemática:</strong> ${input('c7-hema-bh')}`)}
+        ${p(`<strong class="ctt-sub-line">Calcio:</strong> ${input('c7-hema-ca','','sm')}`)}
+        ${p(`<strong class="ctt-sub-line">Fósforo:</strong> ${input('c7-hema-p','','sm')}`)}
+        ${p(`<strong class="ctt-sub-line">Sodio:</strong> ${input('c7-hema-na','','sm')}`)}
+        ${p(`<strong class="ctt-sub-line">Potasio:</strong> ${input('c7-hema-k','','sm')}`)}
+        ${p(`<strong class="ctt-sub-line">Cloro:</strong> ${input('c7-hema-cl','','sm')}`)}
+        ${p(`<strong class="ctt-sub-line">Hierro sérico:</strong> ${input('c7-hema-fe','','sm')}`)}
+        ${p(`<strong class="ctt-sub-line">Grupo sanguíneo:</strong> ${input('c7-hema-grupo','','sm')}`)}
+        ${p(`<strong class="ctt-sub-line">Anticuerpos VIH y antígeno p24:</strong> ${input('c7-hema-vih')}`)}
+        ${p(`<strong class="ctt-sub-line">VDRL:</strong> ${input('c7-hema-vdrl','','sm')}`)}
         ${renderDynamicBlock('c7-hema-extra','+ Agregar campo a Hematopoyético')}
       </div>
     `;
@@ -123,12 +123,10 @@ window.sheet7 = {
     ];
     restoreFields(ids);
     restoreAutoGrow(ids);
-
-    ['sis-resp','sis-card','sis-gi','sis-gu','sis-nerv','sis-endo','sis-muscu','sis-hema']
-      .forEach(k => { if (appState[`omit-${k}`]) delete appState[`omit-${k}`]; });
-    saveToStorage();
-
     document.querySelectorAll('.ctt-dynamic-body').forEach(autoGrow);
     refreshSexConditionals();
+
+    const sexEl = document.getElementById('c5-sexo') || document.querySelector('.ctt-sex-M');
+    if (!sexEl) refreshSexConditionals();
   }
 };
