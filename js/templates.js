@@ -104,12 +104,27 @@ function getSectionColor(stateKey) {
   return SECTION_DEFAULT_COLORS[stateKey] || '#1a3d80';
 }
 
+function hexToRgba(hex, alpha) {
+  const h = (hex || '#1a3d80').replace('#', '');
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
 function renderContentWrapper(stateKey, label, innerHTML) {
-  const img = appState[stateKey];
+  const img   = appState[stateKey];
   const color = getSectionColor(stateKey);
-  const bgAttr = img ? ` data-bg="${escapeAttr(img)}" style="background-image:url('${img}');"` : '';
+  const cssVars = [
+    `--section-color:${color}`,
+    `--section-color-bg:${hexToRgba(color, 0.10)}`,
+    `--section-color-border:${hexToRgba(color, 0.32)}`,
+    `--section-color-subtle:${hexToRgba(color, 0.06)}`,
+  ].join(';');
+  const bgStyle  = img ? `background-image:url('${escapeAttr(img)}');` : '';
+  const dataAttr = img ? ` data-bg="${escapeAttr(img)}"` : '';
   return `
-  <div class="sheet content-sheet"${bgAttr} style="--section-color:${color};">
+  <div class="sheet content-sheet"${dataAttr} style="${bgStyle}${cssVars};">
     <div class="content-sheet-overlay">
       <div class="content-sheet-toolbar">
         <strong>${label}</strong>
