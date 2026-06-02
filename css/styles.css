@@ -977,7 +977,7 @@ body {
 /* ---------- TEXTO ESTRUCTURADO ---------- */
 .ctt-h1 {
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 12pt;
+  font-size: 16pt;
   font-weight: 700;
   color: var(--section-color, #1a3d80);
   text-transform: uppercase;
@@ -993,7 +993,7 @@ body {
 }
 .ctt-h2 {
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 10.5pt;
+  font-size: 14pt;
   font-weight: 700;
   color: var(--section-color, #1a3d80);
   text-align: left;
@@ -1007,10 +1007,10 @@ body {
 }
 .ctt-p {
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 10pt;
+  font-size: 12pt;
   color: #000;
   text-align: left;
-  line-height: 2;
+  line-height: 1.9;
   margin: 4px 0 8px;
   display: flex;
   flex-wrap: wrap;
@@ -1019,8 +1019,8 @@ body {
 }
 .ctt-sub-line {
   color: var(--section-color, #1a3d80);
-  font-weight: 600;
-  font-size: 10pt;
+  font-weight: 700;
+  font-size: 14pt;
 }
 
 /* ---------- INPUTS INLINE ---------- */
@@ -1031,7 +1031,7 @@ body {
   background: #f4f8fd;
   padding: 3px 8px;
   font-family: inherit;
-  font-size: 10pt;
+  font-size: 12pt;
   color: #000;
   min-width: 90px;
   max-width: 100%;
@@ -1064,7 +1064,7 @@ select.ctt-inline {
   background: #f4f8fd;
   padding: 8px 12px;
   font-family: inherit;
-  font-size: 10pt;
+  font-size: 12pt;
   color: #000;
   margin-top: 6px;
   border-radius: 6px;
@@ -1089,7 +1089,7 @@ select.ctt-inline {
 }
 .ctt-fixed-text {
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 10pt;
+  font-size: 12pt;
   color: #000;
   text-align: justify;
   line-height: 1.5;
@@ -1102,7 +1102,7 @@ select.ctt-inline {
   background: #f0f7ff;
   padding: 8px 10px;
   font-family: inherit;
-  font-size: 10pt;
+  font-size: 12pt;
   color: #000;
   border-radius: 4px;
   resize: none;
@@ -1179,24 +1179,26 @@ select.ctt-inline {
 /* ---------- BLOQUES DINÁMICOS ---------- */
 .ctt-dynamic { margin: 8px 0; }
 .ctt-dynamic-item {
-  border-left: 3px solid #b3c6f0;
+  border-left: 3px solid var(--section-color-border, #b3c6f0);
   padding: 8px 12px;
   margin-bottom: 8px;
   position: relative;
-  background: rgba(232,240,254,0.4);
+  background: var(--section-color-subtle, rgba(232,240,254,0.4));
   border-radius: 0 6px 6px 0;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
 }
 .ctt-dynamic-title {
   display: block;
   width: 100%;
   border: none;
-  border-bottom: 1px solid #2e5fa8;
+  border-bottom: 1px solid var(--section-color, #2e5fa8);
   background: transparent;
   padding: 4px 0;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 11pt;
-  font-weight: 600;
-  color: #2e5fa8;
+  font-size: 14pt;
+  font-weight: 700;
+  color: var(--section-color, #2e5fa8);
   text-transform: uppercase;
   margin-bottom: 4px;
   outline: none;
@@ -1207,7 +1209,7 @@ select.ctt-inline {
   background: #fff;
   padding: 6px 10px;
   font-family: inherit;
-  font-size: 10pt;
+  font-size: 12pt;
   color: #000;
   border-radius: 4px;
   resize: none;
@@ -1230,7 +1232,7 @@ select.ctt-inline {
 .ctt-numbered {
   margin: 10px 0 12px 24px;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 10pt;
+  font-size: 12pt;
 }
 .ctt-numbered-item {
   position: relative;
@@ -1238,6 +1240,7 @@ select.ctt-inline {
   padding-left: 6px;
 }
 .ctt-numbered-body {
+  font-size: 12pt;
   width: calc(100% - 32px);
   border: 1px dashed #1e4d8c;
   background: #fdfeff;
@@ -1422,9 +1425,9 @@ select.ctt-inline {
 .pdf-rendering .pdf-value {
   display: inline;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 10pt;
-  color: #1a1a1a;
-  font-weight: 600;
+  font-size: 12pt;
+  color: #000;
+  font-weight: 400;
   padding: 0 2px;
 }
 .pdf-rendering .pdf-value-block {
@@ -1448,7 +1451,7 @@ select.ctt-inline {
   gap: 0 !important;
 }
 .pdf-rendering .ctt-h1 {
-  font-size: 12pt !important;
+  font-size: 16pt !important;
   text-align: center !important;
   margin: 16px 0 12px !important;
   color: var(--section-color, #1a3d80) !important;
@@ -1459,6 +1462,7 @@ select.ctt-inline {
   letter-spacing: 0.5px;
 }
 .pdf-rendering .ctt-h2 {
+  font-size: 14pt !important;
   border-left: 4px solid var(--section-color, #1a3d80) !important;
   background: var(--section-color-subtle, rgba(26,61,128,0.06)) !important;
   border-radius: 0 6px 6px 0 !important;
@@ -1466,8 +1470,17 @@ select.ctt-inline {
   color: var(--section-color, #1a3d80) !important;
 }
 .pdf-rendering .ctt-sub-line {
+  font-size: 14pt !important;
   color: var(--section-color, #1a3d80) !important;
   font-weight: 700;
+}
+.pdf-rendering .ctt-p {
+  font-size: 12pt !important;
+  color: #000 !important;
+}
+.pdf-rendering .ctt-fixed-text {
+  font-size: 12pt !important;
+  color: #000 !important;
 }
 .pdf-rendering .ctt-study-line {
   display: block !important;
