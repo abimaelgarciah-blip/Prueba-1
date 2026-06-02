@@ -12,6 +12,8 @@ const COVER_TEMPLATES = [
   { key: 'cover-14', label: 'Portada Espirometría' },
   { key: 'cover-16', label: 'Portada Est. Gabinete' },
   { key: 'cover-18', label: 'Portada Oftalmología' },
+  { key: 'cover-23', label: 'Portada Audiometría' },
+  { key: 'cover-25', label: 'Portada Diag. Dental' },
   { key: 'cover-20', label: 'Portada Laboratorio' },
 ];
 
@@ -24,6 +26,8 @@ const MEMBRETE_TEMPLATES = [
   { key: 'mb-15', label: 'Contenido Espirometría' },
   { key: 'mb-17', label: 'Contenido Est. Gabinete' },
   { key: 'mb-19', label: 'Contenido Oftalmología' },
+  { key: 'mb-24', label: 'Contenido Audiometría' },
+  { key: 'mb-26', label: 'Contenido Diag. Dental' },
   { key: 'mb-21', label: 'Contenido Laboratorio' },
 ];
 

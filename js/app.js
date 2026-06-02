@@ -44,7 +44,7 @@ function saveTemplate() {
 
 function applyTemplateToPatient() {
   const mbAllKey = '__mb_all__';
-  const membreteKeys = ['mb-5','mb-7','mb-9','mb-11','mb-13','mb-15','mb-17','mb-19','mb-21'];
+  const membreteKeys = ['mb-5','mb-7','mb-9','mb-11','mb-13','mb-15','mb-17','mb-19','mb-24','mb-26','mb-21'];
   if (templateState[mbAllKey]) {
     membreteKeys.forEach(k => {
       if (!templateState[k]) appState[k] = templateState[mbAllKey];
@@ -60,8 +60,10 @@ const sheets = [
   sheet1, sheet2, sheet3, sheet4, sheet5,
   sheet6, sheet7, sheet8, sheet9, sheet10,
   sheet11, sheet12, sheet13, sheet14, sheet15,
-  sheet16, sheet17, sheet18, sheet19, sheet20,
-  sheet21
+  sheet16, sheet17, sheet18, sheet19,
+  sheet23, sheet24,
+  sheet25, sheet26,
+  sheet20, sheet21, sheet22
 ];
 
 let currentSheetIndex = 0;
