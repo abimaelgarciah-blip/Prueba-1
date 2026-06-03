@@ -12,6 +12,7 @@ const COVER_TEMPLATES = [
   { key: 'cover-14', label: 'Portada Espirometría' },
   { key: 'cover-16', label: 'Portada Est. Gabinete' },
   { key: 'cover-18', label: 'Portada Oftalmología' },
+  { key: 'cover-23', label: 'Portada Audiometría' },
   { key: 'cover-20', label: 'Portada Laboratorio' },
 ];
 
@@ -24,6 +25,7 @@ const MEMBRETE_TEMPLATES = [
   { key: 'mb-15', label: 'Contenido Espirometría',     defaultColor: '#0369a1' },
   { key: 'mb-17', label: 'Contenido Est. Gabinete',    defaultColor: '#065f46' },
   { key: 'mb-19', label: 'Contenido Oftalmología',     defaultColor: '#4338ca' },
+  { key: 'mb-24', label: 'Contenido Audiometría',      defaultColor: '#0e7490' },
   { key: 'mb-21', label: 'Contenido Laboratorio',      defaultColor: '#1e3a5f' },
 ];
 
