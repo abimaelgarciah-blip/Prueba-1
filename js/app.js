@@ -27,6 +27,34 @@ function handleLogout() {
 let appState = {};
 const STORAGE_KEY = 'checqueo-medico-v1';
 
+/* ===== TEMPLATE STATE ===== */
+let templateState = {};
+const TEMPLATE_KEY = 'checqueo-medico-plantilla';
+
+function loadTemplate() {
+  try {
+    const raw = localStorage.getItem(TEMPLATE_KEY);
+    if (raw) templateState = JSON.parse(raw);
+  } catch(e) { templateState = {}; }
+}
+
+function saveTemplate() {
+  try { localStorage.setItem(TEMPLATE_KEY, JSON.stringify(templateState)); } catch(e) {}
+}
+
+function applyTemplateToPatient() {
+  const mbAllKey = '__mb_all__';
+  const membreteKeys = ['mb-5','mb-7','mb-9','mb-11','mb-13','mb-15','mb-17','mb-19','mb-21'];
+  if (templateState[mbAllKey]) {
+    membreteKeys.forEach(k => {
+      if (!templateState[k]) appState[k] = templateState[mbAllKey];
+    });
+  }
+  Object.keys(templateState).forEach(k => {
+    if (k !== mbAllKey && !appState[k]) appState[k] = templateState[k];
+  });
+}
+
 /* ===== SHEETS REGISTRY ===== */
 const sheets = [
   sheet1, sheet2, sheet3, sheet4, sheet5,
@@ -52,6 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initApp() {
   loadFromStorage();
+  loadTemplate();
   buildNav();
   checkConnection();
   showView('patients');
@@ -66,15 +95,17 @@ function showView(view) {
   document.getElementById(`view-${view}`)?.classList.add('active-panel');
   document.getElementById(`nav-${view}`)?.classList.add('active');
 
-  if (view === 'patients') loadPatientsView();
-  if (view === 'doctors')  loadDoctorsView();
+  if (view === 'patients')  loadPatientsView();
+  if (view === 'doctors')   loadDoctorsView();
   if (view === 'dashboard') loadDashboard();
+  if (view === 'templates') loadTemplatesView();
 }
 
 /* ===== PATIENT FORM NAV ===== */
 function startNewPatient() {
   currentRecordId = null;
   appState = {};
+  applyTemplateToPatient();
   saveToStorage();
   openFormView();
   navigateTo(0);

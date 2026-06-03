@@ -1707,6 +1707,88 @@ body.pdf-export-mode #app { display: none !important; }
   .ctt-firma-centered-display { border: none; background: transparent; }
 }
 
+/* ===== PLANTILLAS (templates view) ===== */
+#view-templates.active-panel { overflow-y: auto; }
+
+.tpl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 14px;
+}
+
+.tpl-card {
+  border: 1.5px solid #dce3ec;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+.tpl-card:hover { border-color: #1e4d8c; box-shadow: 0 2px 10px rgba(30,77,140,0.10); }
+
+.tpl-card-thumb {
+  height: 110px;
+  cursor: pointer;
+  background: #f0f4f8;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.tpl-card-empty {
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 6px; color: #94a3b8; font-size: 0.75rem;
+}
+
+.tpl-card-footer {
+  padding: 8px 10px 10px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.tpl-card-label {
+  font-size: 0.78rem; font-weight: 600; color: #374151;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.tpl-card-actions {
+  display: flex; gap: 4px; margin-top: 5px;
+}
+
+.tpl-grid-membrete { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+
+.tpl-color-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 7px;
+  padding-top: 7px;
+  border-top: 1px solid #e3eaf2;
+}
+.tpl-color-label { font-size: 0.72rem; color: #64748b; flex-shrink: 0; }
+.tpl-color-input {
+  width: 30px; height: 24px;
+  border: 1.5px solid #dce3ec;
+  border-radius: 4px;
+  padding: 1px;
+  cursor: pointer;
+  background: none;
+}
+.tpl-color-input::-webkit-color-swatch-wrapper { padding: 0; }
+.tpl-color-input::-webkit-color-swatch { border: none; border-radius: 3px; }
+
+.tpl-preview-img {
+  max-height: 140px; max-width: 260px;
+  border-radius: 7px; border: 1.5px solid #dce3ec; object-fit: cover;
+}
+.tpl-empty-preview {
+  width: 140px; height: 100px;
+  background: #f0f4f8;
+  border: 1.5px dashed #dce3ec;
+  border-radius: 7px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 6px; color: #94a3b8; font-size: 0.78rem;
+}
+
 /* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: #f0f2f5; }
