@@ -51,7 +51,7 @@ window.sheet5 = {
 
       <!-- ANTECEDENTES HEREDO FAMILIARES -->
       ${h1('ANTECEDENTES HEREDO FAMILIARES')}
-      ${p(`Refiere ${textarea('c5-ahf')}`)}
+      ${p(`<strong class="ctt-sub-line">Refiere:</strong> ${textarea('c5-ahf')}`)}
 
       <!-- ANTECEDENTES NO PATOLÓGICOS -->
       ${h1('ANTECEDENTES PERSONALES NO PATOLÓGICOS')}

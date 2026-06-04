@@ -474,7 +474,9 @@ async function exportPDF() {
       // Medir posiciones de bloques de texto mientras el div está en el DOM
       // (se usarán para evitar que el corte de página parta un párrafo)
       const divViewTop = div.getBoundingClientRect().top;
-      const domBlocks = [...div.querySelectorAll('.ctt-p, .ctt-h1, .ctt-h2')].map(el => {
+      const domBlocks = [...div.querySelectorAll(
+        '.ctt-p, .ctt-h1, .ctt-h2, .pdf-value-block, .ctt-fixed-text'
+      )].map(el => {
         const r = el.getBoundingClientRect();
         return { top: Math.round((r.top - divViewTop) * 2), bot: Math.round((r.bottom - divViewTop) * 2) };
       }).filter(b => b.bot > b.top && b.top >= 0);
@@ -533,7 +535,7 @@ async function exportPDF() {
         let safeCut = idealCut;
         // Si algún bloque cruza el corte ideal, mover el corte a justo antes del bloque
         for (const b of domBlocks) {
-          if (b.top < idealCut && b.bot > idealCut && b.top > pos) {
+          if (b.top < idealCut && b.bot > idealCut && b.top >= pos) {
             if (b.top < safeCut) safeCut = b.top;
           }
         }
