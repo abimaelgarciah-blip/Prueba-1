@@ -850,6 +850,18 @@ body {
    ============================================================ */
 
 /* ---------- PORTADA FULL PAGE ---------- */
+.cover-wrapper {
+  max-width: 860px;
+  margin: 0 auto;
+}
+.cover-wrapper .content-sheet-toolbar {
+  border-radius: 10px 10px 0 0;
+}
+.cover-wrapper .cover-sheet-page {
+  border-radius: 0 0 10px 10px;
+  margin: 0 auto;
+}
+
 .cover-sheet-page {
   background: #fff;
   width: 100%;
@@ -1405,6 +1417,10 @@ select.ctt-inline {
   background: transparent !important;
   min-height: auto !important;
   overflow: visible !important;
+}
+.pdf-rendering .cover-wrapper {
+  max-width: none !important;
+  margin: 0 !important;
 }
 .pdf-rendering .cover-sheet-page {
   background: #fff !important;

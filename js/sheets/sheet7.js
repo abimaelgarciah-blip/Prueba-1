@@ -31,8 +31,10 @@ window.sheet7 = {
         ${p(`<strong class="ctt-sub-line">Pruebas de función hepática:</strong> ${textarea('c7-gi-pfh','...')}`)}
         ${p(`<strong class="ctt-sub-line">Coprológico:</strong> ${textarea('c7-gi-copro','...')}`)}
         ${p(`<strong class="ctt-sub-line">Coproparasitoscópico:</strong> ${textarea('c7-gi-coprop','...')}`)}
-        ${p(`<strong class="ctt-sub-line">Evaluación odontológica:</strong> ${textarea('c7-gi-dental','...')}`)}
-        ${renderDynamicBlock('c7-gi-extra','+ Agregar campo a Gastrointestinal')}
+        <div id="block-gi-dental">
+          ${renderOmitToggle('gi-dental','Omitir evaluación odontológica')}
+          ${p(`<strong class="ctt-sub-line">Evaluación odontológica:</strong> ${textarea('c7-gi-dental','...')}`)}
+        </div>        ${renderDynamicBlock('c7-gi-extra','+ Agregar campo a Gastrointestinal')}
       </div>
 
       <!-- GENITO-URINARIO -->
@@ -126,6 +128,12 @@ window.sheet7 = {
     restoreAutoGrow(ids);
     document.querySelectorAll('.ctt-dynamic-body').forEach(autoGrow);
     refreshSexConditionals();
+
+    const chkDental = document.getElementById('omit-chk-gi-dental');
+    if (chkDental && appState['omit-gi-dental'] === 'true') {
+      chkDental.checked = true;
+      document.getElementById('block-gi-dental')?.classList.add('ctt-omitted');
+    }
 
     const sexEl = document.getElementById('c5-sexo') || document.querySelector('.ctt-sex-M');
     if (!sexEl) refreshSexConditionals();

@@ -434,6 +434,14 @@ async function exportPDF() {
         }
       });
 
+      // Actualizar campos de visualización del doctor (sheet11)
+      const nombreShow = div.querySelector('#c11-doc-nombre-show');
+      if (nombreShow) nombreShow.textContent = appState['c11-doc-nombre'] || 'Dr. Nombre Apellido';
+      const cedulaShow = div.querySelector('#c11-doc-cedula-show');
+      if (cedulaShow) cedulaShow.textContent = appState['c11-doc-cedula'] || '_____';
+      const especialidadShow = div.querySelector('#c11-doc-especialidad-show');
+      if (especialidadShow) especialidadShow.textContent = appState['c11-doc-especialidad'] || '_____';
+
       // Ocultar bloques omitidos
       div.querySelectorAll('[id^="block-"]').forEach(el => {
         if (appState['omit-' + el.id.replace('block-','')] === 'true') el.style.display = 'none';
@@ -445,7 +453,7 @@ async function exportPDF() {
        '.no-print','.ctt-attachment-actions','.ctt-fixed-actions',
        '.ctt-firma-placeholder','.btn-remove','.btn-secondary','.btn-primary',
        '.membrete-control','[type="file"]',
-       '.btn-cover-change','.btn-cover-remove','.cover-placeholder-big',
+       '.cover-placeholder-big',
        '.ctt-doctor-select','.ctt-firma-section .no-print',
        'button'].forEach(sel => {
         div.querySelectorAll(sel).forEach(el => el.style.display = 'none');

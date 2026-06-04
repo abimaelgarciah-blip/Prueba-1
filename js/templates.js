@@ -4,23 +4,32 @@
 function renderCoverPage(stateKey, label) {
   const img = appState[stateKey];
   return `
-  <div class="sheet cover-sheet-page" id="cover-${stateKey}">
-    <div class="cover-page-inner" onclick="document.getElementById('input-${stateKey}').click()">
-      ${img
-        ? `<img src="${img}" class="cover-full-img" />`
-        : `<div class="cover-placeholder-big">
-            <svg width="64" height="64" fill="none" stroke="#b0bec5" stroke-width="1.3" viewBox="0 0 24 24">
-              <rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/>
-              <path d="M21 15l-5-5L5 21"/>
-            </svg>
-            <p>Haz clic para subir la imagen de portada</p>
-            <span>(${label})</span>
-          </div>`}
+  <div class="cover-wrapper">
+    <div class="content-sheet-toolbar">
+      <strong>${label}</strong>
+      <div class="membrete-control">
+        <button class="btn-membrete" onclick="document.getElementById('input-${stateKey}').click()">
+          🖼 ${img ? 'Cambiar imagen de portada' : 'Agregar imagen de portada'}
+        </button>
+        ${img ? `<button class="btn-remove" onclick="removeCoverImage('${stateKey}')">✕ Quitar</button>` : ''}
+        <input type="file" id="input-${stateKey}" style="display:none"
+          accept="image/*" onchange="setCoverImage(event,'${stateKey}')" />
+      </div>
     </div>
-    ${img ? `<button class="btn-cover-change" onclick="document.getElementById('input-${stateKey}').click()">Cambiar imagen</button>
-            <button class="btn-cover-remove" onclick="removeCoverImage('${stateKey}')">Quitar</button>` : ''}
-    <input type="file" id="input-${stateKey}" style="display:none"
-      accept="image/*" onchange="setCoverImage(event,'${stateKey}')" />
+    <div class="sheet cover-sheet-page" id="cover-${stateKey}">
+      <div class="cover-page-inner" onclick="document.getElementById('input-${stateKey}').click()">
+        ${img
+          ? `<img src="${img}" class="cover-full-img" />`
+          : `<div class="cover-placeholder-big">
+              <svg width="64" height="64" fill="none" stroke="#b0bec5" stroke-width="1.3" viewBox="0 0 24 24">
+                <rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/>
+                <path d="M21 15l-5-5L5 21"/>
+              </svg>
+              <p>Haz clic para subir la imagen de portada</p>
+              <span>(${label})</span>
+            </div>`}
+      </div>
+    </div>
   </div>`;
 }
 
