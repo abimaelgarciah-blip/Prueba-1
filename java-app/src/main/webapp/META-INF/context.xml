@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+  <!--
+    CONFIGURACIÓN DEL DATASOURCE ORACLE PARA TOMCAT
+    ================================================
+    Coloca este archivo en: $TOMCAT_HOME/conf/Catalina/localhost/chequeo-medico.xml
+    O déjalo aquí en META-INF/context.xml (Tomcat lo detecta automáticamente).
+
+    REEMPLAZA los valores TODO con los datos reales de tu servidor Oracle 11g:
+      - hostname: IP o nombre del servidor Oracle
+      - port:     Puerto Oracle (default 1521)
+      - service:  Nombre del servicio o SID Oracle
+      - username: Usuario de la base de datos
+      - password: Contraseña del usuario
+
+    DRIVER: Coloca ojdbc8.jar en $TOMCAT_HOME/lib/
+    Descarga: https://www.oracle.com/database/technologies/appdev/jdbc-downloads.html
+  -->
+  <Resource name="jdbc/ChequeoDS"
+            auth="Container"
+            type="javax.sql.DataSource"
+            driverClassName="oracle.jdbc.OracleDriver"
+            url="jdbc:oracle:thin:@TODO_HOSTNAME:1521:TODO_SID"
+            username="TODO_USUARIO"
+            password="TODO_PASSWORD"
+            maxTotal="10"
+            maxIdle="5"
+            maxWaitMillis="10000"
+            validationQuery="SELECT 1 FROM DUAL"
+            testOnBorrow="true"
+            removeAbandonedOnBorrow="true"
+            removeAbandonedTimeout="60"/>
+</Context>

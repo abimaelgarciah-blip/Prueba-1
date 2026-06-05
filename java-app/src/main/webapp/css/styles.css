@@ -1,0 +1,312 @@
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #f0f2f5;
+  color: #222;
+}
+
+/* ===== LAYOUT APP ===== */
+#form-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+  height: calc(100vh - 56px);
+}
+
+#main-content {
+  flex: 1;
+  overflow-y: auto;
+  background: #f0f2f5;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== CONTENT SHEET ===== */
+.sheet {
+  flex: 1;
+  min-height: 100%;
+}
+
+.content-sheet {
+  position: relative;
+  background-size: cover;
+  background-position: top center;
+  background-repeat: no-repeat;
+}
+
+.content-sheet-overlay {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.content-sheet-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: var(--section-color, #1a3d80);
+  color: #fff;
+  gap: 12px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+.content-sheet-toolbar strong {
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.content-page-area {
+  padding: 28px 32px 40px;
+  background: rgba(255,255,255,0.92);
+  flex: 1;
+}
+
+/* ===== TYPOGRAPHY ===== */
+.ctt-h1 {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--section-color, #1a3d80);
+  border-bottom: 2px solid var(--section-color-border, rgba(26,61,128,0.32));
+  padding-bottom: 3px;
+  margin: 18px 0 8px;
+}
+.ctt-h2 {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--section-color, #1a3d80);
+  margin: 12px 0 6px;
+}
+.ctt-p {
+  font-size: 0.88rem;
+  line-height: 1.65;
+  color: #222;
+  margin: 4px 0;
+}
+.ctt-sub-line {
+  font-weight: 700;
+  color: var(--section-color, #1a3d80);
+  margin-right: 4px;
+}
+
+/* ===== INLINE INPUTS ===== */
+.ctt-inline {
+  border: none;
+  border-bottom: 1.5px solid var(--section-color-border, rgba(26,61,128,0.4));
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.88rem;
+  color: #222;
+  padding: 1px 3px;
+  min-width: 60px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.ctt-inline:focus {
+  border-bottom-color: var(--section-color, #1a3d80);
+  background: var(--section-color-subtle, rgba(26,61,128,0.05));
+}
+.ctt-inline-sm { min-width: 50px; max-width: 120px; }
+.ctt-inline-md { min-width: 80px; max-width: 220px; }
+
+select.ctt-inline {
+  padding: 2px 4px;
+  cursor: pointer;
+}
+
+/* ===== TEXTAREA ===== */
+.ctt-textarea {
+  width: 100%;
+  border: 1px solid var(--section-color-border, rgba(26,61,128,0.28));
+  border-radius: 5px;
+  background: var(--section-color-subtle, rgba(26,61,128,0.04));
+  font-family: inherit;
+  font-size: 0.87rem;
+  color: #222;
+  padding: 6px 8px;
+  resize: none;
+  overflow: hidden;
+  min-height: 36px;
+  line-height: 1.55;
+  outline: none;
+  transition: border-color 0.15s;
+  display: block;
+  margin-top: 2px;
+}
+.ctt-textarea:focus {
+  border-color: var(--section-color, #1a3d80);
+  background: #fff;
+}
+
+/* ===== MEMBRETE CONTROL ===== */
+.membrete-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.btn-membrete {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.3);
+  padding: 4px 10px;
+  border-radius: 5px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-membrete:hover { background: rgba(255,255,255,0.25); }
+
+.btn-remove {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-remove:hover { background: #fecaca; }
+
+/* ===== FORM SAVE BUTTON ===== */
+.sheet-form-actions {
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid #dce3ec;
+}
+.btn-save {
+  background: #1e4d8c;
+  color: #fff;
+  border: none;
+  padding: 10px 28px;
+  border-radius: 7px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.btn-save:hover { background: #163b6e; }
+
+/* ===== BUTTONS ===== */
+.btn-primary {
+  background: #1e4d8c; color: #fff; border: none;
+  padding: 10px 18px; border-radius: 7px;
+  font-size: 0.88rem; font-weight: 600; cursor: pointer;
+  text-decoration: none; display: inline-block;
+  transition: background 0.18s;
+}
+.btn-primary:hover { background: #163b6e; }
+
+.btn-secondary {
+  background: #f0f2f5; color: #1e4d8c;
+  border: 1.5px solid #dce3ec;
+  padding: 6px 14px; border-radius: 7px;
+  font-size: 0.83rem; font-weight: 600; cursor: pointer;
+  transition: background 0.18s;
+}
+.btn-secondary:hover { background: #dce3ec; }
+
+/* ===== COVER SHEET ===== */
+.cover-wrapper {
+  display: flex; flex-direction: column; flex: 1; min-height: 0;
+}
+.cover-sheet-page {
+  flex: 1; min-height: 400px; position: relative;
+  background: #eee; overflow: hidden; cursor: pointer;
+}
+.cover-page-inner {
+  width: 100%; height: 100%; min-height: 400px;
+  display: flex; align-items: center; justify-content: center;
+}
+.cover-full-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cover-placeholder-big {
+  text-align: center; color: #b0bec5; padding: 40px;
+}
+.cover-placeholder-big p { font-size: 1rem; margin: 12px 0 4px; }
+.cover-placeholder-big span { font-size: 0.8rem; }
+
+/* ===== ATTACHMENT ===== */
+.ctt-attachment {
+  margin-top: 14px;
+  border: 2px dashed var(--section-color-border, rgba(26,61,128,0.3));
+  border-radius: 8px;
+  padding: 14px;
+  background: var(--section-color-subtle, rgba(26,61,128,0.04));
+}
+.ctt-attachment-label {
+  font-size: 0.8rem; font-weight: 600;
+  color: var(--section-color, #1a3d80);
+  margin-bottom: 8px; display: block;
+}
+.ctt-attachment img { max-width: 100%; border-radius: 6px; margin-top: 8px; }
+
+/* ===== CONDITIONAL SEX ===== */
+.ctt-conditional { }
+.ctt-omitted { opacity: 0.4; pointer-events: none; }
+
+/* ===== OMIT TOGGLE ===== */
+.ctt-omit-toggle {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 0.8rem; color: #666; margin: 4px 0 6px;
+  cursor: pointer;
+}
+.ctt-omit-toggle input { cursor: pointer; }
+
+/* ===== FIRMA ===== */
+.ctt-firma-centered { text-align: center; margin-top: 24px; }
+.ctt-firma-centered-display {
+  min-height: 80px; margin: 10px auto;
+  max-width: 360px;
+}
+.ctt-firma-display {
+  border: 1.5px dashed #dce3ec; border-radius: 6px;
+  min-height: 80px; padding: 8px;
+  display: flex; align-items: center; justify-content: center;
+  max-width: 400px; margin: 8px 0;
+}
+.ctt-firma-display img { max-height: 100px; }
+.ctt-firma-placeholder { color: #aaa; font-size: 0.82rem; font-style: italic; }
+.ctt-firma-line {
+  border-top: 1.5px solid #222;
+  width: 280px; margin: 10px auto 4px;
+}
+.ctt-firma-doc-line { font-size: 0.85rem; color: #333; }
+.ctt-firma-edit { text-align: left; max-width: 500px; margin: 0 auto; }
+
+/* ===== SIGNATURE UPLOAD ===== */
+.ctt-firma-area { margin-top: 14px; }
+.ctt-firma-label { font-weight: 600; font-size: 0.85rem; color: #1e4d8c; }
+
+/* ===== TOAST ===== */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: #1e4d8c; color: #fff; padding: 10px 22px;
+  border-radius: 8px; font-size: 0.9rem; font-weight: 600;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s; z-index: 9999;
+}
+.toast.show { opacity: 1; }
+
+/* ===== VIEW HEADER ===== */
+.view-header {
+  display: flex; align-items: flex-start;
+  justify-content: space-between;
+  padding: 24px 28px 12px;
+  flex-shrink: 0; flex-wrap: wrap; gap: 12px;
+}
+.view-header h2 { font-size: 1.4rem; font-weight: 700; color: #1e4d8c; }
+.view-subtitle { color: #888; font-size: 0.85rem; margin-top: 2px; }
