@@ -120,3 +120,7 @@ const CONFIG_PREDETERMINADA = {
     { pagina: 53, nombre: 'Gluten en los Alimentos (2 de 2)' },
   ],
 };
+
+// Exponer en window para que la app integrada (Chequeo Médico) lo encuentre:
+// un `const` de nivel superior no queda como propiedad de window por sí solo.
+if (typeof window !== 'undefined') window.CONFIG_PREDETERMINADA = CONFIG_PREDETERMINADA;
