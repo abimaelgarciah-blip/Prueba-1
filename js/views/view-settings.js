@@ -16,6 +16,8 @@ const COVER_SLOTS = [
   { key: 'cover-14', label: 'Portada Espirometría' },
   { key: 'cover-16', label: 'Portada Estudios de Gabinete' },
   { key: 'cover-18', label: 'Portada Oftalmología' },
+  { key: 'cover-audiometria', label: 'Portada Audiometría' },
+  { key: 'cover-dental', label: 'Portada Evaluación Dental' },
   { key: 'cover-20', label: 'Portada Laboratorio' },
 ];
 
@@ -28,6 +30,8 @@ const MEMBRETE_SLOTS = [
   { key: 'mb-15', label: 'Contenido Espirometría' },
   { key: 'mb-17', label: 'Contenido Estudios de Gabinete' },
   { key: 'mb-19', label: 'Contenido Oftalmología' },
+  { key: 'mb-audiometria', label: 'Contenido Audiometría' },
+  { key: 'mb-dental', label: 'Contenido Evaluación Dental' },
   { key: 'mb-21', label: 'Contenido Laboratorio' },
 ];
 
