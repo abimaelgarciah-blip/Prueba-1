@@ -51,7 +51,10 @@ function loadSettingsView() {
 }
 
 function renderSettingsSlot(slot) {
-  const img = (typeof appDefaults !== 'undefined' && appDefaults[slot.key]) || '';
+  const local   = (typeof appDefaults !== 'undefined' && appDefaults[slot.key]) || '';
+  const bundled = (typeof BUNDLED_DEFAULTS !== 'undefined' && BUNDLED_DEFAULTS[slot.key]) || '';
+  const img = local || bundled;
+  const origen = local ? 'Predeterminada de este navegador' : bundled ? 'Compartida (repositorio)' : '';
   return `
   <div class="settings-slot" id="slot-${slot.key}">
     <div class="settings-thumb" onclick="document.getElementById('def-input-${slot.key}').click()">
@@ -60,11 +63,12 @@ function renderSettingsSlot(slot) {
         : `<span class="settings-thumb-empty">＋ Subir imagen</span>`}
     </div>
     <div class="settings-slot-name">${escapeHtml(slot.label)}</div>
+    ${origen ? `<div class="settings-slot-src">${origen}</div>` : ''}
     <div class="settings-slot-actions">
       <button class="btn-secondary btn-mini" onclick="document.getElementById('def-input-${slot.key}').click()">
         ${img ? 'Cambiar' : 'Subir'}
       </button>
-      ${img ? `<button class="btn-remove btn-mini" onclick="removeDefaultImage('${slot.key}')">Quitar</button>` : ''}
+      ${local ? `<button class="btn-remove btn-mini" onclick="removeDefaultImage('${slot.key}')">Quitar</button>` : ''}
     </div>
     <input type="file" id="def-input-${slot.key}" accept="image/*" style="display:none"
       onchange="setDefaultImage(event, '${slot.key}')" />

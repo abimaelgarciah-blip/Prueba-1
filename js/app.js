@@ -472,7 +472,7 @@ async function exportPDF() {
       }
 
       /* --- 3b. Hoja de contenido: márgenes + membrete por página --- */
-      const membreteImg = sheet.membreteKey ? (appState[sheet.membreteKey] || appDefaults[sheet.membreteKey]) : null;
+      const membreteImg = sheet.membreteKey ? effectiveImage(sheet.membreteKey) : null;
 
       // Precomponer canvas del membrete con velo blanco (para reutilizar en cada página)
       let bgDataUrl = null;
