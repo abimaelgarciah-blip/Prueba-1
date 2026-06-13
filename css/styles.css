@@ -611,6 +611,30 @@ body {
 }
 .btn-action-primary:hover { background: #15803d; }
 
+/* ===== VISTA: AJUSTES ===== */
+.settings-hint {
+  color: #5b6b7e; font-size: 0.9rem; background: #f4f7f9;
+  border: 1px solid #dce3ec; border-radius: 8px; padding: 12px 14px; margin: 0 0 18px;
+}
+.settings-section { margin-bottom: 26px; }
+.settings-section h3 { color: #1e4d8c; margin: 0 0 12px; font-size: 1rem; }
+.settings-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px;
+}
+.settings-slot {
+  background: #fff; border: 1px solid #dce3ec; border-radius: 10px;
+  padding: 10px; box-shadow: 0 1px 6px rgba(31,45,61,.06); text-align: center;
+}
+.settings-thumb {
+  height: 150px; border: 1px dashed #c4cedb; border-radius: 8px; background: #f8fafc;
+  display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden;
+}
+.settings-thumb img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.settings-thumb-empty { color: #8a99ab; font-size: 0.86rem; }
+.settings-slot-name { font-size: 0.84rem; font-weight: 600; margin: 8px 0 6px; color: #1f2d3d; }
+.settings-slot-actions { display: flex; gap: 6px; justify-content: center; }
+.btn-mini { padding: 4px 10px; font-size: 0.78rem; }
+
 /* ===== HOJA: EVALUACIÓN NUTRICIONAL ===== */
 .nutri-panel { max-width: 860px; margin: 0 auto; padding: 8px 4px 40px; }
 .nutri-aviso { color: #5b6b7e; font-size: 0.9rem; margin: 4px 0 18px; }

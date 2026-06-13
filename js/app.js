@@ -27,6 +27,28 @@ function handleLogout() {
 let appState = {};
 const STORAGE_KEY = 'checqueo-medico-v1';
 
+/* ===== DEFAULTS GLOBALES (portadas/membretes predeterminados) =====
+ * Imágenes por defecto que aplican a TODOS los pacientes. Se guardan aparte del
+ * expediente (en el navegador). Cada paciente puede sobreescribirlas con su
+ * propia imagen (appState[clave] tiene prioridad sobre appDefaults[clave]). */
+let appDefaults = {};
+const DEFAULTS_KEY = 'cm-defaults-v1';
+
+function loadDefaults() {
+  try {
+    const raw = localStorage.getItem(DEFAULTS_KEY);
+    if (raw) appDefaults = JSON.parse(raw);
+  } catch (e) { appDefaults = {}; }
+}
+
+function saveDefaults() {
+  try {
+    localStorage.setItem(DEFAULTS_KEY, JSON.stringify(appDefaults));
+  } catch (e) {
+    alert('No se pudieron guardar las imágenes predeterminadas: el almacenamiento del navegador está lleno. Usa imágenes más ligeras.');
+  }
+}
+
 /* ===== SHEETS REGISTRY ===== */
 const sheets = [
   sheet1, sheet2, sheet3, sheet4, sheet5,
@@ -52,6 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initApp() {
   loadFromStorage();
+  loadDefaults();
   buildNav();
   checkConnection();
   showView('patients');
@@ -69,6 +92,7 @@ function showView(view) {
   if (view === 'patients') loadPatientsView();
   if (view === 'doctors')  loadDoctorsView();
   if (view === 'dashboard') loadDashboard();
+  if (view === 'settings')  loadSettingsView();
 }
 
 /* ===== PATIENT FORM NAV ===== */
@@ -448,7 +472,7 @@ async function exportPDF() {
       }
 
       /* --- 3b. Hoja de contenido: márgenes + membrete por página --- */
-      const membreteImg = sheet.membreteKey ? appState[sheet.membreteKey] : null;
+      const membreteImg = sheet.membreteKey ? (appState[sheet.membreteKey] || appDefaults[sheet.membreteKey]) : null;
 
       // Precomponer canvas del membrete con velo blanco (para reutilizar en cada página)
       let bgDataUrl = null;
