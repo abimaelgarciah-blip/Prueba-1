@@ -2,7 +2,7 @@
 
 /* ----- PORTADA (full-page cover) ----- */
 function renderCoverPage(stateKey, label) {
-  const img = appState[stateKey];
+  const img = effectiveImage(stateKey);
   return `
   <div class="sheet cover-sheet-page" id="cover-${stateKey}">
     <div class="cover-page-inner" onclick="document.getElementById('input-${stateKey}').click()">
@@ -58,7 +58,7 @@ function renderMembreteControl(stateKey) {
 }
 
 function renderMembreteBg(stateKey) {
-  const img = appState[stateKey];
+  const img = effectiveImage(stateKey);
   return img ? `<div class="membrete-bg" style="background-image:url('${img}')"></div>` : '';
 }
 
@@ -83,7 +83,7 @@ function removeMembrete(stateKey) {
 
 /* ----- CONTENT SHEET WRAPPER ----- */
 function renderContentWrapper(stateKey, label, innerHTML) {
-  const img = appState[stateKey];
+  const img = effectiveImage(stateKey);
   // Background va en el .content-sheet (el contenedor) con data-attr
   // para que print pueda usar background-attachment:fixed (una vez por página)
   const bgAttr = img ? ` data-bg="${escapeAttr(img)}" style="background-image:url('${img}');"` : '';
@@ -355,7 +355,7 @@ function refreshSexConditionals() {
 
 /* ----- ATTACHMENT (imagen adjunta para estudios) ----- */
 function renderAttachment(stateKey, label='Adjuntar imagen / reporte') {
-  const img = appState[stateKey];
+  const img = effectiveImage(stateKey);
   return `
   <div class="ctt-attachment" id="att-${stateKey}">
     ${img ? `<img src="${img}" class="ctt-attachment-img" />` : ''}

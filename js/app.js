@@ -27,13 +27,37 @@ function handleLogout() {
 let appState = {};
 const STORAGE_KEY = 'checqueo-medico-v1';
 
+/* ===== DEFAULTS GLOBALES (portadas/membretes predeterminados) =====
+ * Imágenes por defecto que aplican a TODOS los pacientes. Se guardan aparte del
+ * expediente (en el navegador). Cada paciente puede sobreescribirlas con su
+ * propia imagen (appState[clave] tiene prioridad sobre appDefaults[clave]). */
+let appDefaults = {};
+const DEFAULTS_KEY = 'cm-defaults-v1';
+
+function loadDefaults() {
+  try {
+    const raw = localStorage.getItem(DEFAULTS_KEY);
+    if (raw) appDefaults = JSON.parse(raw);
+  } catch (e) { appDefaults = {}; }
+}
+
+function saveDefaults() {
+  try {
+    localStorage.setItem(DEFAULTS_KEY, JSON.stringify(appDefaults));
+  } catch (e) {
+    alert('No se pudieron guardar las imágenes predeterminadas: el almacenamiento del navegador está lleno. Usa imágenes más ligeras.');
+  }
+}
+
 /* ===== SHEETS REGISTRY ===== */
 const sheets = [
   sheet1, sheet2, sheet3, sheet4, sheet5,
   sheet6, sheet7, sheet8, sheet9, sheet10,
   sheet11, sheet12, sheet13, sheet14, sheet15,
-  sheet16, sheet17, sheet18, sheet19, sheet20,
-  sheet21
+  sheet16, sheet17, sheet18, sheet19,
+  sheetAudiometriaPortada, sheetAudiometriaContenido,
+  sheetDentalPortada, sheetDentalContenido,
+  sheet20, sheet21, sheetNutricional
 ];
 
 let currentSheetIndex = 0;
@@ -52,6 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initApp() {
   loadFromStorage();
+  loadDefaults();
   buildNav();
   checkConnection();
   showView('patients');
@@ -69,6 +94,7 @@ function showView(view) {
   if (view === 'patients') loadPatientsView();
   if (view === 'doctors')  loadDoctorsView();
   if (view === 'dashboard') loadDashboard();
+  if (view === 'settings')  loadSettingsView();
 }
 
 /* ===== PATIENT FORM NAV ===== */
@@ -354,6 +380,8 @@ async function exportPDF() {
   try {
     for (let si = 0; si < sheets.length; si++) {
       const sheet = sheets[si];
+      // La Evaluación Nutricional no se renderiza como imagen: se anexa luego con pdf-lib.
+      if (sheet.skipHtmlExport) continue;
       progressEl.textContent = `Hoja ${si + 1} / ${sheets.length} — ${sheet.label}`;
 
       /* --- 1. Renderizar hoja en div oculto --- */
@@ -446,7 +474,7 @@ async function exportPDF() {
       }
 
       /* --- 3b. Hoja de contenido: márgenes + membrete por página --- */
-      const membreteImg = sheet.membreteKey ? appState[sheet.membreteKey] : null;
+      const membreteImg = sheet.membreteKey ? effectiveImage(sheet.membreteKey) : null;
 
       // Precomponer canvas del membrete con velo blanco (para reutilizar en cada página)
       let bgDataUrl = null;
@@ -500,8 +528,25 @@ async function exportPDF() {
 
     const nombre = appState['s1-patient'] || appState.patientName || 'paciente';
     const fecha  = new Date().toISOString().split('T')[0];
-    doc.save(`chequeo-${nombre}-${fecha}.pdf`);
-    showToast('PDF descargado correctamente.');
+    const filename = `chequeo-${nombre}-${fecha}.pdf`;
+
+    // Anexar la Evaluación Nutricional al final (si hay selección y pdf-lib disponible).
+    const order = (typeof nutriBuildOrder === 'function') ? nutriBuildOrder() : [];
+    if (window.PDFLib && order.length) {
+      try {
+        progressEl.textContent = 'Anexando Evaluación Nutricional…';
+        const mergedBytes = await mergeNutricional(doc.output('arraybuffer'), order);
+        downloadBytes(mergedBytes, filename);
+        showToast('PDF (chequeo + nutricional) descargado.');
+      } catch (e) {
+        console.error('merge nutricional error:', e);
+        doc.save(filename);
+        showToast('Se descargó el chequeo, pero no se pudo anexar la parte nutricional: ' + e.message);
+      }
+    } else {
+      doc.save(filename);
+      showToast('PDF descargado correctamente.');
+    }
 
   } catch (err) {
     console.error('exportPDF error:', err);
@@ -509,6 +554,53 @@ async function exportPDF() {
   } finally {
     overlay.remove();
   }
+}
+
+/* ===== MERGE EVALUACIÓN NUTRICIONAL (pdf-lib) ===== */
+async function mergeNutricional(medicalBytes, order) {
+  const { PDFDocument, StandardFonts, rgb } = PDFLib;
+  const merged = await PDFDocument.load(medicalBytes);
+  const cfg = window.CONFIG_PREDETERMINADA;
+
+  // Plantilla nutricional (portadas, lista de equivalentes, anexos).
+  let plantilla = null, totalPl = 0;
+  if (order.some(b => b.tipo === 'plantilla')) {
+    const resp = await fetch('nutricional/plantilla/plantilla.pdf');
+    if (!resp.ok) throw new Error('no se pudo cargar la plantilla nutricional');
+    plantilla = await PDFDocument.load(await resp.arrayBuffer());
+    totalPl = plantilla.getPageCount();
+  }
+
+  for (const b of order) {
+    if (b.tipo === 'plantilla') {
+      const idx = b.pages.filter(p => p >= 1 && p <= totalPl).map(p => p - 1);
+      if (!idx.length) continue;
+      const pgs = await merged.copyPages(plantilla, idx);
+      pgs.forEach(p => merged.addPage(p));
+    } else if (b.tipo === 'dieta') {
+      const resp = await fetch('nutricional/dietas/' + b.kcal + '.pdf');
+      if (!resp.ok) throw new Error('no se pudo cargar la dieta de ' + b.kcal + ' kcal');
+      const dietaDoc = await PDFDocument.load(await resp.arrayBuffer());
+      if (b.nombre) {
+        const fuente = await dietaDoc.embedFont(StandardFonts.Helvetica);
+        const pos = cfg.dieta.nombre;
+        dietaDoc.getPage(0).drawText(b.nombre, {
+          x: pos.x, y: pos.y, size: pos.tamano, font: fuente, color: rgb(0, 0, 0)
+        });
+      }
+      const pgs = await merged.copyPages(dietaDoc, dietaDoc.getPageIndices());
+      pgs.forEach(p => merged.addPage(p));
+    }
+  }
+  return merged.save();
+}
+
+function downloadBytes(bytes, filename) {
+  const url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
 }
 
 /* ===== TOAST ===== */
