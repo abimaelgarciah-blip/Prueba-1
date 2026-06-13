@@ -5,6 +5,10 @@
  * al exportar el PDF completo, se anexan al final las páginas de la plantilla
  * nutricional (portadas + hoja de dieta + anexos) mediante pdf-lib.
  */
+// config.js declara CONFIG_PREDETERMINADA con `const`, que NO queda como
+// propiedad de window. Lo exponemos para que el resto del código lo encuentre.
+if (typeof CONFIG_PREDETERMINADA !== 'undefined') window.CONFIG_PREDETERMINADA = CONFIG_PREDETERMINADA;
+
 window.sheetNutricional = {
   id: 'evaluacion-nutricional',
   label: '🥗 Evaluación Nutricional',
