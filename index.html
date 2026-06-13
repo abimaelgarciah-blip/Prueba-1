@@ -22,6 +22,9 @@
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
+  <!-- pdf-lib: para anexar la Evaluación Nutricional al PDF combinado -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+
   <!-- Estilos propios -->
   <link rel="stylesheet" href="css/styles.css" />
 </head>
@@ -112,9 +115,6 @@
                 <button onclick="dbSaveRecord()" class="btn-db btn-db-save">💾 Guardar en BD</button>
               </div>
               <ul id="sheet-nav"></ul>
-              <div id="sidebar-nutricional">
-                <button onclick="openNutricional()" class="btn-action btn-action-nutricional">🥗 Evaluación Nutricional</button>
-              </div>
               <div id="sidebar-actions">
                 <button onclick="exportPDF()" class="btn-action btn-action-primary">📄 Exportar PDF completo</button>
                 <button onclick="printReport()" class="btn-action">🖨 Imprimir hoja actual</button>
@@ -242,6 +242,9 @@
   <script src="js/sheets/sheet19.js"></script>
   <script src="js/sheets/sheet20.js"></script>
   <script src="js/sheets/sheet21.js"></script>
+  <!-- Evaluación Nutricional: config (reutilizado del módulo) + hoja integrada -->
+  <script src="nutricional/js/config.js"></script>
+  <script src="js/sheets/sheet-nutricional.js"></script>
   <!-- VIEWS -->
   <script src="js/supabase-client.js"></script>
   <script src="js/views/view-patients.js"></script>

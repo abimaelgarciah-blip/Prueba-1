@@ -611,15 +611,47 @@ body {
 }
 .btn-action-primary:hover { background: #15803d; }
 
-#sidebar-nutricional {
-  padding: 0 12px 12px;
+/* ===== HOJA: EVALUACIÓN NUTRICIONAL ===== */
+.nutri-panel { max-width: 860px; margin: 0 auto; padding: 8px 4px 40px; }
+.nutri-aviso { color: #5b6b7e; font-size: 0.9rem; margin: 4px 0 18px; }
+.nutri-card {
+  background: #fff; border: 1px solid #dce3ec; border-radius: 10px;
+  padding: 16px 18px; margin-bottom: 16px; box-shadow: 0 1px 6px rgba(31,45,61,.06);
 }
-.btn-action-nutricional {
-  display: block;
-  width: 100%;
-  background: #1f8a5d;
+.nutri-card h3 { margin: 0 0 12px; color: #15663f; font-size: 1rem; }
+.nutri-list { list-style: none; margin: 0; padding: 0; }
+.nutri-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 4px; border-bottom: 1px solid #eef2f6;
 }
-.btn-action-nutricional:hover { background: #15663f; }
+.nutri-row:last-child { border-bottom: none; }
+.nutri-row input[type="checkbox"] { width: 17px; height: 17px; accent-color: #1f8a5d; cursor: pointer; flex-shrink: 0; }
+.nutri-row-name { flex: 1; cursor: pointer; font-size: 0.92rem; }
+.nutri-badge {
+  background: #f4f7f9; border: 1px solid #dce3ec; color: #6b7a8c;
+  border-radius: 999px; font-size: 0.74rem; padding: 2px 10px; white-space: nowrap;
+}
+.nutri-anexos-list { max-height: 360px; overflow-y: auto; border: 1px solid #eef2f6; border-radius: 8px; padding: 0 8px; }
+.nutri-anexos-controls { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+.nutri-anexos-controls input[type="search"],
+.nutri-anexos-row input[type="text"],
+.nutri-extra-label + input,
+#nutri-extra {
+  border: 1px solid #dce3ec; border-radius: 8px; padding: 8px 12px; font-size: 0.9rem;
+}
+#nutri-buscar, #nutri-extra { width: 100%; }
+.nutri-anexos-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.nutri-anexos-row input[type="text"] { flex: 1; min-width: 180px; }
+.nutri-contador { color: #6b7a8c; font-size: 0.82rem; margin-left: auto; }
+.nutri-extra-label { display: block; font-size: 0.88rem; margin-bottom: 6px; font-weight: 500; }
+.nutri-dieta {
+  margin: 8px 0 8px 28px; padding: 10px 12px;
+  background: #e8f5ee; border: 1px dashed #1f8a5d; border-radius: 8px;
+}
+.nutri-dieta-title { font-size: 0.82rem; color: #15663f; margin-bottom: 8px; }
+.nutri-dieta-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.nutri-dieta-row select { border: 1px solid #dce3ec; border-radius: 8px; padding: 8px 10px; font-size: 0.88rem; min-width: 150px; }
+.nutri-dieta-row input { flex: 1; min-width: 220px; border: 1px solid #dce3ec; border-radius: 8px; padding: 8px 10px; font-size: 0.88rem; }
 
 .btn-row {
   display: flex;

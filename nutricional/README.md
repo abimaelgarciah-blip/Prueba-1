@@ -1,13 +1,23 @@
-# Módulo: Evaluación Corporal y Nutricional (Generador de PDF)
+# Evaluación Corporal y Nutricional
 
-Submódulo integrado en la app de Chequeo Médico. Se abre desde el menú lateral
-de un paciente, con el botón **🥗 Evaluación Nutricional** (aparece después de
-la sección *Laboratorio*). El nombre del paciente se pasa automáticamente por la
-URL (`?paciente=...`).
+Integrada en la app de Chequeo Médico como una **hoja más del expediente**:
+*🥗 Evaluación Nutricional*, después de *Laboratorio* en el menú lateral del
+paciente. Las selecciones (secciones, hoja de dieta por kcal y anexos) se guardan
+dentro del expediente (Supabase / localStorage) junto con el resto del paciente.
 
-Arma el PDF de la evaluación a partir de una plantilla de 53 páginas, imprimiendo
-solo las secciones, hoja de dieta y anexos que cada paciente necesita. Todo el
-procesamiento ocurre en el navegador (pdf-lib + pdf.js); no se sube nada a internet.
+Al usar **“Exportar PDF completo”** se genera un único PDF: primero las hojas del
+Chequeo Médico (html2canvas + jsPDF) y al final la Evaluación Nutricional
+(portadas + hoja de dieta + anexos), anexada con **pdf-lib** a partir de los PDF
+de esta carpeta. Todo ocurre en el navegador; no se sube nada a internet.
+
+## Archivos de esta carpeta usados por la app integrada
+- `plantilla/plantilla.pdf` — base de 53 páginas (portadas, lista de equivalentes, anexos).
+- `dietas/<kcal>.pdf` — hojas de dieta por nivel calórico.
+
+La UI integrada vive en `../js/sheets/sheet-nutricional.js` y reutiliza
+`js/config.js` de esta carpeta. Los archivos `index.html`, `css/` y `js/app.js`
+de aquí son la **versión independiente** original (sigue funcionando si se abre
+`nutricional/` directo, pero ya no se enlaza desde la app).
 
 ## Estructura
 
