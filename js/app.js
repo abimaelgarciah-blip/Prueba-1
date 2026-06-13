@@ -318,6 +318,13 @@ function loadData() {
   input.click();
 }
 
+/* ===== EVALUACIÓN NUTRICIONAL (módulo aparte) ===== */
+function openNutricional() {
+  const nombre = appState['s1-patient'] || appState.patientName || '';
+  const url = 'nutricional/index.html' + (nombre ? `?paciente=${encodeURIComponent(nombre)}` : '');
+  window.open(url, '_blank');
+}
+
 /* ===== PRINT (hoja actual) ===== */
 function printReport() {
   document.body.classList.add('print-single');

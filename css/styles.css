@@ -611,6 +611,16 @@ body {
 }
 .btn-action-primary:hover { background: #15803d; }
 
+#sidebar-nutricional {
+  padding: 0 12px 12px;
+}
+.btn-action-nutricional {
+  display: block;
+  width: 100%;
+  background: #1f8a5d;
+}
+.btn-action-nutricional:hover { background: #15663f; }
+
 .btn-row {
   display: flex;
   gap: 10px;

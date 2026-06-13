@@ -851,6 +851,9 @@
   // ---------------------------------------------------------------- Arranque
   cargarEstado();
   conectarEventos();
+  // Si se abrió desde el Chequeo Médico, precargar el nombre del paciente (?paciente=...).
+  const pacienteUrl = new URLSearchParams(location.search).get('paciente');
+  if (pacienteUrl) $('#nombrePaciente').value = pacienteUrl;
   $('#paginasExtra').value = estado.paginasExtra;
   renderizarTodo();
   cargarPlantillaInicial();
