@@ -32,8 +32,10 @@ const sheets = [
   sheet1, sheet2, sheet3, sheet4, sheet5,
   sheet6, sheet7, sheet8, sheet9, sheet10,
   sheet11, sheet12, sheet13, sheet14, sheet15,
-  sheet16, sheet17, sheet18, sheet19, sheet20,
-  sheet21
+  sheet16, sheet17, sheet18, sheet19,
+  sheet23, sheet24,   // Audiometría (portada + contenido)
+  sheet25, sheet26,   // Evaluación Dental (portada + contenido)
+  sheet20, sheet21
 ];
 
 let currentSheetIndex = 0;
@@ -104,6 +106,10 @@ function buildNav() {
     const li = document.createElement('li');
     li.textContent = sheet.label;
     li.dataset.index = i;
+    if (sheet.section && isSectionOmitted(sheet.section)) {
+      li.classList.add('nav-omitted');
+      li.title = 'Sección omitida (no se incluye en el PDF)';
+    }
     li.addEventListener('click', () => navigateTo(i));
     nav.appendChild(li);
   });
@@ -356,6 +362,22 @@ async function exportPDF() {
       const sheet = sheets[si];
       progressEl.textContent = `Hoja ${si + 1} / ${sheets.length} — ${sheet.label}`;
 
+      /* --- 0. Saltar secciones omitidas (portada + contenido) --- */
+      if (sheet.section && isSectionOmitted(sheet.section)) continue;
+
+      /* --- 0b. PDF de reemplazo: incrustar las páginas del PDF cargado --- */
+      if (sheet.pdfKey && appState[sheet.pdfKey]) {
+        try {
+          firstPage = await renderPdfReplaceToDoc(
+            doc, appState[sheet.pdfKey], firstPage,
+            { PAGE_W, PAGE_H, ML, MT, MR, MB }
+          );
+        } catch (e) {
+          console.error('No se pudo incrustar el PDF de', sheet.label, e);
+        }
+        continue;
+      }
+
       /* --- 1. Renderizar hoja en div oculto --- */
       const div = document.createElement('div');
       div.className = 'pdf-rendering';
@@ -509,6 +531,45 @@ async function exportPDF() {
   } finally {
     overlay.remove();
   }
+}
+
+/* ===== Incrustar páginas de un PDF cargado en el documento de exportación ===== */
+async function renderPdfReplaceToDoc(doc, dataUrl, firstPage, opts) {
+  if (!window.pdfjsLib) throw new Error('pdf.js no está disponible');
+  const { PAGE_W, PAGE_H, ML, MT, MR, MB } = opts;
+  const CW = PAGE_W - ML - MR;
+  const CH = PAGE_H - MT - MB;
+
+  // data URL -> bytes
+  const base64 = dataUrl.split(',')[1] || '';
+  const bin = atob(base64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+
+  const pdf = await window.pdfjsLib.getDocument({ data: bytes }).promise;
+
+  for (let n = 1; n <= pdf.numPages; n++) {
+    const page = await pdf.getPage(n);
+    const viewport = page.getViewport({ scale: 2 });
+    const canvas = document.createElement('canvas');
+    canvas.width  = viewport.width;
+    canvas.height = viewport.height;
+    await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+
+    if (!firstPage) doc.addPage();
+    firstPage = false;
+
+    // Ajustar la página del PDF dentro del área útil, conservando proporción
+    const imgRatio = canvas.width / canvas.height;
+    const boxRatio = CW / CH;
+    let w, h;
+    if (imgRatio > boxRatio) { w = CW; h = CW / imgRatio; }
+    else                     { h = CH; w = CH * imgRatio; }
+    const x = ML + (CW - w) / 2;
+    const y = MT + (CH - h) / 2;
+    doc.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', x, y, w, h);
+  }
+  return firstPage;
 }
 
 /* ===== TOAST ===== */

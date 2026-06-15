@@ -1270,6 +1270,58 @@ select.ctt-inline {
   flex-wrap: wrap;
 }
 
+/* ---------- PDF DE REEMPLAZO ---------- */
+.ctt-pdf-replace { margin: 12px 0; }
+.ctt-pdf-control {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.btn-pdf-load {
+  background: #eef4ff;
+  border: 1.5px dashed #6d9eeb;
+  color: #1e4d8c;
+}
+.ctt-pdf-note {
+  background: #fff8e1;
+  border-left: 3px solid #f0ad4e;
+  color: #8a6d3b;
+  padding: 8px 12px;
+  border-radius: 0 6px 6px 0;
+  font-size: 0.82rem;
+  margin: 0 0 8px;
+}
+.ctt-pdf-preview { margin-top: 6px; }
+.ctt-pdf-frame {
+  width: 100%;
+  height: 600px;
+  border: 1px solid #dce3ec;
+  border-radius: 6px;
+  background: #f7faff;
+}
+
+/* ---------- OMITIR SECCIÓN ---------- */
+.ctt-section-omit {
+  margin: 4px 0 12px;
+  padding: 8px 10px;
+  background: #fff7ed;
+  border: 1px dashed #fdba74;
+  border-radius: 8px;
+}
+.ctt-section-omit .ctt-omit { margin: 0; }
+.ctt-section-omit-note {
+  margin: 8px 0 0;
+  font-size: 0.78rem;
+  color: #9a3412;
+  font-weight: 600;
+}
+#sheet-nav li.nav-omitted {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
 /* ---------- FIRMA DOCTOR ---------- */
 .ctt-doctor-select {
   background: #e8f0fe;

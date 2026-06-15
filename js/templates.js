@@ -406,6 +406,91 @@ function toggleOmit(id, checked) {
   if (block) block.classList.toggle('ctt-omitted', checked);
 }
 
+/* ----- PDF DE REEMPLAZO (sustituye el formato editable por un PDF cargado) ----- */
+function renderPdfReplace(stateKey, formatHTML, label = 'Cargar PDF con la información') {
+  const pdf = appState[stateKey];
+  const hasPdf = !!pdf;
+  return `
+  <div class="ctt-pdf-replace" id="pdfrep-${stateKey}">
+    <div class="ctt-pdf-control no-print">
+      <button class="btn-secondary btn-pdf-load" onclick="document.getElementById('pdf-input-${stateKey}').click()">
+        📄 ${hasPdf ? 'Reemplazar PDF cargado' : label}
+      </button>
+      ${hasPdf ? `<button class="btn-remove" onclick="removePdfReplace('${stateKey}')">✕ Quitar PDF (volver al formato)</button>` : ''}
+      <input type="file" id="pdf-input-${stateKey}" style="display:none"
+        accept="application/pdf" onchange="setPdfReplace(event,'${stateKey}')" />
+    </div>
+    ${hasPdf
+      ? `<div class="ctt-pdf-preview">
+           <p class="ctt-pdf-note no-print">📄 Se usará el PDF cargado en lugar del formato. El formato editable queda oculto y el PDF se incrustará en la exportación.</p>
+           <iframe class="ctt-pdf-frame" src="${pdf}" title="PDF cargado"></iframe>
+         </div>`
+      : `<div class="ctt-format-area">${formatHTML}</div>`}
+  </div>`;
+}
+
+function setPdfReplace(event, stateKey) {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (file.type !== 'application/pdf') {
+    alert('Por favor selecciona un archivo PDF.');
+    return;
+  }
+  if (file.size > 6 * 1024 * 1024) {
+    if (!confirm('El PDF pesa más de 6 MB. Es posible que no se pueda guardar localmente. ¿Continuar de todos modos?')) {
+      event.target.value = '';
+      return;
+    }
+  }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    appState[stateKey] = ev.target.result;
+    saveToStorage();
+    // Verificar que realmente se guardó (la cuota de localStorage pudo fallar)
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw || JSON.parse(raw)[stateKey] !== ev.target.result) {
+        alert('El PDF es demasiado grande para guardarse localmente. Se mostrará en esta sesión, pero podría perderse al recargar. Considera un PDF más liviano.');
+      }
+    } catch (e) {}
+    navigateTo(currentSheetIndex);
+  };
+  reader.readAsDataURL(file);
+}
+
+function removePdfReplace(stateKey) {
+  if (!confirm('¿Quitar el PDF y volver a usar el formato editable?')) return;
+  delete appState[stateKey];
+  saveToStorage();
+  navigateTo(currentSheetIndex);
+}
+
+/* ----- OMITIR SECCIÓN COMPLETA (portada + contenido de estudios) ----- */
+function isSectionOmitted(sectionKey) {
+  const v = appState['skip-section-' + sectionKey];
+  return v === true || v === 'true';
+}
+
+function renderSectionOmit(sectionKey, sectionLabel) {
+  const skipped = isSectionOmitted(sectionKey);
+  return `
+  <div class="ctt-section-omit no-print" id="secomit-${sectionKey}">
+    <label class="ctt-omit">
+      <input type="checkbox" ${skipped ? 'checked' : ''}
+        onchange="toggleSectionOmit('${sectionKey}', this.checked)" />
+      <span>Omitir esta sección — no incluir Portada ni Contenido (${sectionLabel}) en el PDF / impresión</span>
+    </label>
+    ${skipped ? `<p class="ctt-section-omit-note">⚠ Esta sección está omitida: su portada y su contenido NO aparecerán en la exportación.</p>` : ''}
+  </div>`;
+}
+
+function toggleSectionOmit(sectionKey, checked) {
+  appState['skip-section-' + sectionKey] = checked;
+  saveToStorage();
+  buildNav();
+  navigateTo(currentSheetIndex);
+}
+
 /* ----- ESTUDIO INDIVIDUAL (línea + omit toggle) ----- */
 function renderStudyLine(id, html) {
   const omitted = appState[`omit-${id}`] === 'true';

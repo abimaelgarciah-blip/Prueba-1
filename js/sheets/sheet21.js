@@ -2,17 +2,23 @@ window.sheet21 = {
   id: 'contenido-laboratorio',
   label: 'Contenido Laboratorio',
   type: 'content',
+  section: 'laboratorio',
   membreteKey: 'mb-21',
+  pdfKey: 'pdf-21',
 
   render() {
-    const inner = `
-      ${h1('LABORATORIO')}
+    const formato = `
       ${p(`<strong class="ctt-sub-line">Fecha de toma:</strong> ${input('c21-fecha','dd/mm/aaaa','sm')}`)}
       ${p(`<strong class="ctt-sub-line">Laboratorio:</strong> ${input('c21-lab','nombre del laboratorio')}`)}
       ${p('Resultados de laboratorio:')}
       ${renderDynamicBlock('c21-resultados','+ Agregar resultado de laboratorio')}
       ${p(`<strong class="ctt-sub-line">Observaciones:</strong> ${textarea('c21-obs','...')}`)}
       ${renderAttachment('c21-img','Adjuntar imagen del reporte')}
+    `;
+    const inner = `
+      ${h1('LABORATORIO')}
+      ${renderSectionOmit(this.section, 'Laboratorio')}
+      ${renderPdfReplace(this.pdfKey, formato)}
     `;
     return renderContentWrapper(this.membreteKey, this.label, inner);
   },

@@ -2,11 +2,12 @@ window.sheet19 = {
   id: 'contenido-oftalmologia',
   label: 'Contenido Oftalmología',
   type: 'content',
+  section: 'oftalmologia',
   membreteKey: 'mb-19',
+  pdfKey: 'pdf-19',
 
   render() {
-    const inner = `
-      ${h1('OFTALMOLOGÍA')}
+    const formato = `
       ${p(`<strong class="ctt-sub-line">Fecha:</strong> ${input('c19-fecha','dd/mm/aaaa','sm')}`)}
       ${p(`<strong class="ctt-sub-line">Agudeza Visual OD:</strong> ${input('c19-avOD','20/20','sm')}`)}
       ${p(`<strong class="ctt-sub-line">Agudeza Visual OI:</strong> ${input('c19-avOI','20/20','sm')}`)}
@@ -17,6 +18,11 @@ window.sheet19 = {
       ${p(`<strong class="ctt-sub-line">Resultado:</strong> ${textarea('c19-resultado','Resumen del resultado...')}`)}
       ${p(`<strong class="ctt-sub-line">Recomendaciones:</strong> ${textarea('c19-reco','...')}`)}
       ${renderAttachment('c19-img','Adjuntar imagen del reporte')}
+    `;
+    const inner = `
+      ${h1('OFTALMOLOGÍA')}
+      ${renderSectionOmit(this.section, 'Oftalmología')}
+      ${renderPdfReplace(this.pdfKey, formato)}
     `;
     return renderContentWrapper(this.membreteKey, this.label, inner);
   },
