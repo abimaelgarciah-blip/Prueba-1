@@ -57,7 +57,8 @@ const sheets = [
   sheet16, sheet17, sheet18, sheet19,
   sheet23, sheet24,   // Audiometría (portada + contenido)
   sheet25, sheet26,   // Evaluación Dental (portada + contenido)
-  sheet20, sheet21
+  sheet20, sheet21,
+  sheetNutricional    // Evaluación Nutricional (se anexa al final del PDF)
 ];
 
 let currentSheetIndex = 0;
@@ -389,6 +390,10 @@ async function exportPDF() {
       /* --- 0. Saltar secciones omitidas (portada + contenido) --- */
       if (sheet.section && isSectionOmitted(sheet.section)) continue;
 
+      /* --- 0a. Hojas que no se renderizan como imagen (ej. Evaluación
+              Nutricional): se anexan aparte con pdf-lib tras el bucle --- */
+      if (sheet.skipHtmlExport) continue;
+
       /* --- 0b. PDF de reemplazo: incrustar las páginas del PDF cargado --- */
       if (sheet.pdfKey && appState[sheet.pdfKey]) {
         try {
@@ -546,8 +551,25 @@ async function exportPDF() {
 
     const nombre = appState['s1-patient'] || appState.patientName || 'paciente';
     const fecha  = new Date().toISOString().split('T')[0];
-    doc.save(`chequeo-${nombre}-${fecha}.pdf`);
-    showToast('PDF descargado correctamente.');
+    const filename = `chequeo-${nombre}-${fecha}.pdf`;
+
+    // Anexar la Evaluación Nutricional al final (si hay selección y pdf-lib disponible).
+    const order = (typeof nutriBuildOrder === 'function') ? nutriBuildOrder() : [];
+    if (window.PDFLib && order.length) {
+      try {
+        progressEl.textContent = 'Anexando Evaluación Nutricional…';
+        const mergedBytes = await mergeNutricional(doc.output('arraybuffer'), order);
+        downloadBytes(mergedBytes, filename);
+        showToast('PDF (chequeo + nutricional) descargado.');
+      } catch (e) {
+        console.error('merge nutricional error:', e);
+        doc.save(filename);
+        showToast('Se descargó el chequeo, pero no se pudo anexar la parte nutricional: ' + e.message);
+      }
+    } else {
+      doc.save(filename);
+      showToast('PDF descargado correctamente.');
+    }
 
   } catch (err) {
     console.error('exportPDF error:', err);
@@ -594,6 +616,53 @@ async function renderPdfReplaceToDoc(doc, dataUrl, firstPage, opts) {
     doc.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', x, y, w, h);
   }
   return firstPage;
+}
+
+/* ===== MERGE EVALUACIÓN NUTRICIONAL (pdf-lib) ===== */
+async function mergeNutricional(medicalBytes, order) {
+  const { PDFDocument, StandardFonts, rgb } = PDFLib;
+  const merged = await PDFDocument.load(medicalBytes);
+  const cfg = window.CONFIG_PREDETERMINADA;
+
+  // Plantilla nutricional (portadas, lista de equivalentes, anexos).
+  let plantilla = null, totalPl = 0;
+  if (order.some(b => b.tipo === 'plantilla')) {
+    const resp = await fetch('nutricional/plantilla/plantilla.pdf');
+    if (!resp.ok) throw new Error('no se pudo cargar la plantilla nutricional');
+    plantilla = await PDFDocument.load(await resp.arrayBuffer());
+    totalPl = plantilla.getPageCount();
+  }
+
+  for (const b of order) {
+    if (b.tipo === 'plantilla') {
+      const idx = b.pages.filter(p => p >= 1 && p <= totalPl).map(p => p - 1);
+      if (!idx.length) continue;
+      const pgs = await merged.copyPages(plantilla, idx);
+      pgs.forEach(p => merged.addPage(p));
+    } else if (b.tipo === 'dieta') {
+      const resp = await fetch('nutricional/dietas/' + b.kcal + '.pdf');
+      if (!resp.ok) throw new Error('no se pudo cargar la dieta de ' + b.kcal + ' kcal');
+      const dietaDoc = await PDFDocument.load(await resp.arrayBuffer());
+      if (b.nombre) {
+        const fuente = await dietaDoc.embedFont(StandardFonts.Helvetica);
+        const pos = cfg.dieta.nombre;
+        dietaDoc.getPage(0).drawText(b.nombre, {
+          x: pos.x, y: pos.y, size: pos.tamano, font: fuente, color: rgb(0, 0, 0)
+        });
+      }
+      const pgs = await merged.copyPages(dietaDoc, dietaDoc.getPageIndices());
+      pgs.forEach(p => merged.addPage(p));
+    }
+  }
+  return merged.save();
+}
+
+function downloadBytes(bytes, filename) {
+  const url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
 }
 
 /* ===== TOAST ===== */
