@@ -353,8 +353,10 @@ function refreshSexConditionals() {
   });
 }
 
-/* ----- ATTACHMENT (imagen adjunta para estudios) ----- */
-function renderAttachment(stateKey, label='Adjuntar imagen / reporte') {
+/* ----- ATTACHMENT (imagen adjunta para estudios) -----
+ * Si se pasa pdfKey, se agrega también un botón para cargar un PDF del reporte
+ * que SUSTITUYE el formato (dispara el input de renderPdfReplace con esa clave). */
+function renderAttachment(stateKey, label='Adjuntar imagen / reporte', pdfKey=null) {
   const img = effectiveImage(stateKey);
   return `
   <div class="ctt-attachment" id="att-${stateKey}">
@@ -364,6 +366,9 @@ function renderAttachment(stateKey, label='Adjuntar imagen / reporte') {
         📎 ${img ? 'Cambiar imagen' : label}
       </button>
       ${img ? `<button class="btn-remove" onclick="removeAttachment('${stateKey}')">✕</button>` : ''}
+      ${pdfKey ? `<button class="btn-secondary btn-pdf-load" onclick="document.getElementById('pdf-input-${pdfKey}').click()">
+        📄 Cargar reporte PDF (sustituye el formato)
+      </button>` : ''}
     </div>
     <input type="file" id="att-input-${stateKey}" style="display:none"
       accept="image/*" onchange="setAttachment(event,'${stateKey}')" />
@@ -406,17 +411,19 @@ function toggleOmit(id, checked) {
   if (block) block.classList.toggle('ctt-omitted', checked);
 }
 
-/* ----- PDF DE REEMPLAZO (sustituye el formato editable por un PDF cargado) ----- */
+/* ----- PDF DE REEMPLAZO (sustituye el formato editable por un PDF cargado) -----
+ * El botón para CARGAR el PDF vive ahora dentro de la zona "Adjuntar imagen del
+ * reporte" (ver renderAttachment con pdfKey). Aquí solo mostramos, cuando ya hay
+ * un PDF cargado, los botones para reemplazarlo o quitarlo (el formato se oculta). */
 function renderPdfReplace(stateKey, formatHTML, label = 'Cargar PDF con la información') {
   const pdf = appState[stateKey];
   const hasPdf = !!pdf;
   return `
   <div class="ctt-pdf-replace" id="pdfrep-${stateKey}">
     <div class="ctt-pdf-control no-print">
-      <button class="btn-secondary btn-pdf-load" onclick="document.getElementById('pdf-input-${stateKey}').click()">
-        📄 ${hasPdf ? 'Reemplazar PDF cargado' : label}
-      </button>
-      ${hasPdf ? `<button class="btn-remove" onclick="removePdfReplace('${stateKey}')">✕ Quitar PDF (volver al formato)</button>` : ''}
+      ${hasPdf ? `
+        <button class="btn-secondary btn-pdf-load" onclick="document.getElementById('pdf-input-${stateKey}').click()">📄 Reemplazar PDF cargado</button>
+        <button class="btn-remove" onclick="removePdfReplace('${stateKey}')">✕ Quitar PDF (volver al formato)</button>` : ''}
       <input type="file" id="pdf-input-${stateKey}" style="display:none"
         accept="application/pdf" onchange="setPdfReplace(event,'${stateKey}')" />
     </div>

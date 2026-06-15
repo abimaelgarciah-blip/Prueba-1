@@ -17,7 +17,7 @@ window.sheet19 = {
       ${p(`<strong class="ctt-sub-line">Segmento Anterior:</strong> ${textarea('c19-segAnt','...')}`)}
       ${p(`<strong class="ctt-sub-line">Resultado:</strong> ${textarea('c19-resultado','Resumen del resultado...')}`)}
       ${p(`<strong class="ctt-sub-line">Recomendaciones:</strong> ${textarea('c19-reco','...')}`)}
-      ${renderAttachment('c19-img','Adjuntar imagen del reporte')}
+      ${renderAttachment('c19-img','Adjuntar imagen del reporte', this.pdfKey)}
     `;
     const inner = `
       ${h1('OFTALMOLOGÍA')}

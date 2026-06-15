@@ -16,7 +16,7 @@ window.sheet24 = {
       ${p(`<strong class="ctt-sub-line">Resultado:</strong> ${textarea('c24-resultado','Resumen del resultado...')}`)}
       ${p(`<strong class="ctt-sub-line">Interpretación:</strong> ${textarea('c24-interp','Interpretación clínica...')}`)}
       ${p(`<strong class="ctt-sub-line">Recomendaciones:</strong> ${textarea('c24-reco','...')}`)}
-      ${renderAttachment('c24-img','Adjuntar imagen del audiograma / reporte')}
+      ${renderAttachment('c24-img','Adjuntar imagen del audiograma / reporte', this.pdfKey)}
     `;
     const inner = `
       ${h1('AUDIOMETRÍA')}

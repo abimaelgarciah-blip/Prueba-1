@@ -13,7 +13,7 @@ window.sheet21 = {
       ${p('Resultados de laboratorio:')}
       ${renderDynamicBlock('c21-resultados','+ Agregar resultado de laboratorio')}
       ${p(`<strong class="ctt-sub-line">Observaciones:</strong> ${textarea('c21-obs','...')}`)}
-      ${renderAttachment('c21-img','Adjuntar imagen del reporte')}
+      ${renderAttachment('c21-img','Adjuntar imagen del reporte', this.pdfKey)}
     `;
     const inner = `
       ${h1('LABORATORIO')}

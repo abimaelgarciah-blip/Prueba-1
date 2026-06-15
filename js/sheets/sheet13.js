@@ -16,7 +16,7 @@ window.sheet13 = {
       ${p(`<strong class="ctt-sub-line">Ritmo:</strong> ${input('c13-ritmo','____')}`)}
       ${p(`<strong class="ctt-sub-line">Resultado:</strong> ${textarea('c13-resultado','Resumen del resultado...')}`)}
       ${p(`<strong class="ctt-sub-line">Interpretación detallada:</strong> ${textarea('c13-interp','Interpretación clínica...')}`)}
-      ${renderAttachment('c13-img','Adjuntar imagen del reporte / ECG')}
+      ${renderAttachment('c13-img','Adjuntar imagen del reporte / ECG', this.pdfKey)}
     `;
     const inner = `
       ${h1('PRUEBA DE ESFUERZO Y ELECTROCARDIOGRAMA')}

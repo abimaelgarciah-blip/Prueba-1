@@ -12,7 +12,7 @@ window.sheet17 = {
       ${renderDynamicBlock('c17-estudios','+ Agregar estudio')}
       ${p('Notas generales:')}
       ${p(textarea('c17-notas','Observaciones generales sobre los estudios de gabinete...'))}
-      ${renderAttachment('c17-img','Adjuntar imagen del estudio principal')}
+      ${renderAttachment('c17-img','Adjuntar imagen del estudio principal', this.pdfKey)}
     `;
     const inner = `
       ${h1('ESTUDIOS DE GABINETE')}

@@ -16,7 +16,7 @@ window.sheet26 = {
       ${p(`<strong class="ctt-sub-line">Hallazgos:</strong> ${textarea('c26-hallazgos','Hallazgos del examen dental...')}`)}
       ${p(`<strong class="ctt-sub-line">Tratamiento sugerido:</strong> ${textarea('c26-tratamiento','...')}`)}
       ${p(`<strong class="ctt-sub-line">Recomendaciones:</strong> ${textarea('c26-reco','...')}`)}
-      ${renderAttachment('c26-img','Adjuntar imagen del reporte / radiografía')}
+      ${renderAttachment('c26-img','Adjuntar imagen del reporte / radiografía', this.pdfKey)}
     `;
     const inner = `
       ${h1('EVALUACIÓN DENTAL')}

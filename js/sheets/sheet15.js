@@ -15,7 +15,7 @@ window.sheet15 = {
       ${p(`<strong class="ctt-sub-line">Patrón:</strong> ${select('c15-patron',['Normal','Obstructivo','Restrictivo','Mixto'])}`)}
       ${p(`<strong class="ctt-sub-line">Resultado:</strong> ${textarea('c15-resultado','Resumen del resultado...')}`)}
       ${p(`<strong class="ctt-sub-line">Interpretación:</strong> ${textarea('c15-interp','Interpretación clínica...')}`)}
-      ${renderAttachment('c15-img','Adjuntar imagen del reporte')}
+      ${renderAttachment('c15-img','Adjuntar imagen del reporte', this.pdfKey)}
     `;
     const inner = `
       ${h1('ESPIROMETRÍA')}
