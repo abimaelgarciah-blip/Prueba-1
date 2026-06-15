@@ -3,6 +3,6 @@ window.sheet18 = {
   label: 'Portada Oftalmología',
   type: 'cover',
   section: 'oftalmologia',
-  render() { return renderCoverPage('cover-18','Portada Oftalmología') + renderSectionOmit(this.section, 'Oftalmología'); },
+  render() { return renderSectionOmit(this.section, 'Oftalmología') + renderCoverPage('cover-18','Portada Oftalmología'); },
   restore() {}
 };

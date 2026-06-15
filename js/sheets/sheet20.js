@@ -3,6 +3,6 @@ window.sheet20 = {
   label: 'Portada Laboratorio',
   type: 'cover',
   section: 'laboratorio',
-  render() { return renderCoverPage('cover-20','Portada Laboratorio') + renderSectionOmit(this.section, 'Laboratorio'); },
+  render() { return renderSectionOmit(this.section, 'Laboratorio') + renderCoverPage('cover-20','Portada Laboratorio'); },
   restore() {}
 };

@@ -3,6 +3,6 @@ window.sheet12 = {
   label: 'Portada Prueba Esfuerzo y ECG',
   type: 'cover',
   section: 'cardio',
-  render() { return renderCoverPage('cover-12','Portada Prueba de Esfuerzo y ECG') + renderSectionOmit(this.section, 'Cardio'); },
+  render() { return renderSectionOmit(this.section, 'Cardio') + renderCoverPage('cover-12','Portada Prueba de Esfuerzo y ECG'); },
   restore() {}
 };

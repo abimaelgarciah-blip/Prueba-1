@@ -3,6 +3,6 @@ window.sheet14 = {
   label: 'Portada Espirometría',
   type: 'cover',
   section: 'espirometria',
-  render() { return renderCoverPage('cover-14','Portada Espirometría') + renderSectionOmit(this.section, 'Espirometría'); },
+  render() { return renderSectionOmit(this.section, 'Espirometría') + renderCoverPage('cover-14','Portada Espirometría'); },
   restore() {}
 };

@@ -3,6 +3,6 @@ window.sheet23 = {
   label: 'Portada Audiometría',
   type: 'cover',
   section: 'audiometria',
-  render() { return renderCoverPage('cover-23','Portada Audiometría') + renderSectionOmit(this.section, 'Audiometría'); },
+  render() { return renderSectionOmit(this.section, 'Audiometría') + renderCoverPage('cover-23','Portada Audiometría'); },
   restore() {}
 };

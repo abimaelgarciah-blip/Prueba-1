@@ -3,6 +3,6 @@ window.sheet16 = {
   label: 'Portada Estudios de Gabinete',
   type: 'cover',
   section: 'gabinete',
-  render() { return renderCoverPage('cover-16','Portada Estudios de Gabinete') + renderSectionOmit(this.section, 'Estudios de Gabinete'); },
+  render() { return renderSectionOmit(this.section, 'Estudios de Gabinete') + renderCoverPage('cover-16','Portada Estudios de Gabinete'); },
   restore() {}
 };

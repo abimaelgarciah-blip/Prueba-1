@@ -3,6 +3,6 @@ window.sheet25 = {
   label: 'Portada Evaluación Dental',
   type: 'cover',
   section: 'dental',
-  render() { return renderCoverPage('cover-25','Portada Evaluación Dental') + renderSectionOmit(this.section, 'Evaluación Dental'); },
+  render() { return renderSectionOmit(this.section, 'Evaluación Dental') + renderCoverPage('cover-25','Portada Evaluación Dental'); },
   restore() {}
 };
