@@ -449,6 +449,15 @@ async function exportPDF() {
         }
       });
 
+      // Datos del doctor en la firma (son <strong>/<span>, no inputs: se rellenan a mano
+      // igual que syncSugerenciaDoctorDisplay, para que el export muestre el doctor seleccionado)
+      [['c11-doc-nombre','c11-doc-nombre-show'],
+       ['c11-doc-cedula','c11-doc-cedula-show'],
+       ['c11-doc-especialidad','c11-doc-especialidad-show']].forEach(([k,id]) => {
+        const el = div.querySelector('#'+id);
+        if (el) el.textContent = appState[k] ? appState[k] : '_____';
+      });
+
       // Ocultar bloques omitidos
       div.querySelectorAll('[id^="block-"]').forEach(el => {
         if (appState['omit-' + el.id.replace('block-','')] === 'true') el.style.display = 'none';
