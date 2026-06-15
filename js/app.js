@@ -492,6 +492,19 @@ async function exportPDF() {
         scale: 2, useCORS: true, allowTaint: true,
         logging: false, backgroundColor: '#ffffff', width: RENDER_W
       });
+
+      // Límites (top/bottom en px CSS relativos al div) de cada bloque, para
+      // cortar las páginas SIN partir un renglón a la mitad.
+      const divTopPx = div.getBoundingClientRect().top;
+      const blockSel = '.ctt-h1,.ctt-h2,.ctt-p,.ctt-study-line,.ctt-fixed,'
+        + '.ctt-dynamic-item,.ctt-numbered-item,.ctt-attachment,'
+        + '.ctt-firma-doc-line,.ctt-firma-centered-display';
+      const blockBounds = [];
+      div.querySelectorAll(blockSel).forEach(el => {
+        const r = el.getBoundingClientRect();
+        if (r.height <= 0) return;
+        blockBounds.push([r.top - divTopPx, r.bottom - divTopPx]);
+      });
       document.body.removeChild(div);
 
       const isCover = sheet.type === 'cover';
@@ -530,31 +543,48 @@ async function exportPDF() {
         bgDataUrl = bgC.toDataURL('image/jpeg', 0.88);
       }
 
-      // Calcular cuántas páginas necesita este contenido
-      const totalMM  = (canvas.height / canvas.width) * CW;
-      const numPages = Math.max(1, Math.ceil(totalMM / CH));
-      const pxPerMM  = canvas.width / CW;
+      // Escalas
+      const pxPerMM  = canvas.width / CW;        // px de canvas por mm
+      const scaleC   = canvas.width / RENDER_W;  // px de canvas por px CSS
+      const CHcanvas = CH * pxPerMM;             // alto útil por página (px de canvas)
 
-      for (let p = 0; p < numPages; p++) {
-        if (p > 0) doc.addPage();
+      // Puntos de corte "limpios" (px de canvas): tope y base de cada bloque
+      const cutSet = new Set();
+      blockBounds.forEach(([t, b]) => {
+        cutSet.add(Math.round(t * scaleC));
+        cutSet.add(Math.round(b * scaleC));
+      });
+      const cuts = [...cutSet].filter(y => y > 0 && y < canvas.height).sort((a, b) => a - b);
 
-        // Membrete de fondo (completo, una vez por página)
-        if (bgDataUrl) {
-          doc.addImage(bgDataUrl, 'JPEG', 0, 0, PAGE_W, PAGE_H);
+      // Paginación: avanzar cortando en el mayor límite de bloque que quepa,
+      // para que ningún renglón quede partido entre dos páginas.
+      let startY = 0, firstSlice = true, safety = 0;
+      while (startY < canvas.height - 1 && safety++ < 600) {
+        const maxY = startY + CHcanvas;
+        let endY;
+        if (maxY >= canvas.height) {
+          endY = canvas.height;
+        } else {
+          endY = -1;
+          for (const c of cuts) { if (c > startY && c <= maxY) endY = c; else if (c > maxY) break; }
+          if (endY <= startY) endY = Math.round(maxY); // bloque más alto que una página: corte forzado
         }
 
-        // Cortar el canvas del contenido para esta página
-        const sliceY_mm = p * CH;
-        const sliceH_mm = Math.min(CH, totalMM - sliceY_mm);
-        const srcY = Math.round(sliceY_mm * pxPerMM);
-        const srcH = Math.max(1, Math.round(sliceH_mm * pxPerMM));
+        if (!firstSlice) doc.addPage();
+        firstSlice = false;
 
+        // Membrete de fondo (completo, una vez por página)
+        if (bgDataUrl) doc.addImage(bgDataUrl, 'JPEG', 0, 0, PAGE_W, PAGE_H);
+
+        const srcH = Math.max(1, endY - startY);
+        const sliceH_mm = srcH / pxPerMM;
         const sliceC = document.createElement('canvas');
         sliceC.width  = canvas.width;
         sliceC.height = srcH;
-        sliceC.getContext('2d').drawImage(canvas, 0, srcY, canvas.width, srcH, 0, 0, canvas.width, srcH);
-
+        sliceC.getContext('2d').drawImage(canvas, 0, startY, canvas.width, srcH, 0, 0, canvas.width, srcH);
         doc.addImage(sliceC.toDataURL('image/jpeg', 0.92), 'JPEG', ML, MT, CW, sliceH_mm);
+
+        startY = endY;
       }
     }
 
@@ -591,9 +621,7 @@ async function exportPDF() {
 /* ===== Incrustar páginas de un PDF cargado en el documento de exportación ===== */
 async function renderPdfReplaceToDoc(doc, dataUrl, firstPage, opts) {
   if (!window.pdfjsLib) throw new Error('pdf.js no está disponible');
-  const { PAGE_W, PAGE_H, ML, MT, MR, MB } = opts;
-  const CW = PAGE_W - ML - MR;
-  const CH = PAGE_H - MT - MB;
+  const { PAGE_W, PAGE_H } = opts;
 
   // data URL -> bytes
   const base64 = dataUrl.split(',')[1] || '';
@@ -614,14 +642,15 @@ async function renderPdfReplaceToDoc(doc, dataUrl, firstPage, opts) {
     if (!firstPage) doc.addPage();
     firstPage = false;
 
-    // Ajustar la página del PDF dentro del área útil, conservando proporción
+    // Ajustar la página del PDF a la HOJA COMPLETA, conservando proporción y
+    // centrando (un reporte carta/A4 llena toda la página, sin márgenes).
     const imgRatio = canvas.width / canvas.height;
-    const boxRatio = CW / CH;
+    const boxRatio = PAGE_W / PAGE_H;
     let w, h;
-    if (imgRatio > boxRatio) { w = CW; h = CW / imgRatio; }
-    else                     { h = CH; w = CH * imgRatio; }
-    const x = ML + (CW - w) / 2;
-    const y = MT + (CH - h) / 2;
+    if (imgRatio > boxRatio) { w = PAGE_W; h = PAGE_W / imgRatio; }
+    else                     { h = PAGE_H; w = PAGE_H * imgRatio; }
+    const x = (PAGE_W - w) / 2;
+    const y = (PAGE_H - h) / 2;
     doc.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', x, y, w, h);
   }
   return firstPage;
