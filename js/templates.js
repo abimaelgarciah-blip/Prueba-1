@@ -660,6 +660,94 @@ function refreshAllQual() {
   });
 }
 
+/* ===== TARJETAS DE PRESENTACIÓN (resumen, antecedentes, signos vitales) ===== */
+function renderInfoCard(title, bodyHtml, opts) {
+  opts = opts || {};
+  const accent = opts.accent ? ` info-card-${opts.accent}` : '';
+  const icon = opts.icon ? `<span class="info-card-icon">${opts.icon}</span>` : '';
+  return `<div class="info-card${accent}">
+    ${title ? `<div class="info-card-head">${icon}<h3 class="info-card-title">${title}</h3></div>` : ''}
+    <div class="info-card-body">${bodyHtml}</div>
+  </div>`;
+}
+
+function renderFieldGrid(cells, cols) {
+  return `<div class="field-grid cols-${cols || 2}">${cells.join('')}</div>`;
+}
+function fieldCell(label, fieldHtml) {
+  return `<div class="field-cell"><span class="field-label">${label}</span>${fieldHtml}</div>`;
+}
+
+function renderMetricCards(metrics) {
+  return `<div class="metric-grid">${metrics.map((m) => `
+    <div class="metric-card">
+      <div class="metric-label">${m.label}</div>
+      <div class="metric-field">${m.field}${m.unit ? `<span class="metric-unit">${m.unit}</span>` : ''}</div>
+    </div>`).join('')}</div>`;
+}
+
+/* ===== RESUMEN POR SISTEMAS (estado + tarjetas con borde de color) ===== */
+function renderSysSummary(systems) {
+  return `<div class="sys-summary" id="sys-summary">
+    <div class="sys-summary-top">
+      <div class="sys-summary-badge" id="sys-summary-count">—</div>
+      <div class="sys-summary-text">
+        <strong>Resumen por sistemas</strong>
+        <span>sistemas evaluados sin alteraciones</span>
+      </div>
+    </div>
+    <div class="sys-summary-grid">
+      ${systems.map((s) => `
+        <div class="sys-chip" id="sys-chip-${s.key}" data-sys="${s.key}">
+          <span class="sys-chip-dot"></span>
+          <span class="sys-chip-name">${s.short}</span>
+          <span class="sys-chip-state" id="sys-chip-state-${s.key}"></span>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderSysHeader(key, title) {
+  const v = appState['sys-status-' + key] || 'normal';
+  return `<div class="sys-head">
+    <h1 class="ctt-h1 sys-head-title">${title}</h1>
+    <select class="sys-status-select ${v}" id="sys-status-${key}" onchange="onSysStatus('${key}')">
+      <option value="normal"${v === 'normal' ? ' selected' : ''}>Sin alteraciones</option>
+      <option value="hallazgo"${v === 'hallazgo' ? ' selected' : ''}>Con hallazgos</option>
+    </select>
+  </div>`;
+}
+
+function onSysStatus(key) {
+  const el = document.getElementById('sys-status-' + key);
+  if (!el) return;
+  appState['sys-status-' + key] = el.value;
+  saveToStorage();
+  el.className = 'sys-status-select ' + el.value;
+  refreshSysSummary();
+}
+
+function refreshSysSummary() {
+  const chips = document.querySelectorAll('[data-sys]');
+  if (!chips.length) return;
+  let normal = 0;
+  chips.forEach((chip) => {
+    const key = chip.dataset.sys;
+    const st = appState['sys-status-' + key] || 'normal';
+    if (st === 'normal') normal++;
+    chip.className = 'sys-chip ' + (st === 'normal' ? 'ok' : 'warn');
+    const lbl = document.getElementById('sys-chip-state-' + key);
+    if (lbl) lbl.textContent = st === 'normal' ? 'Sin alteraciones' : 'Con hallazgos';
+  });
+  document.querySelectorAll('[data-sysblock]').forEach((b) => {
+    const st = appState['sys-status-' + b.dataset.sysblock] || 'normal';
+    b.classList.remove('ok', 'warn');
+    b.classList.add(st === 'normal' ? 'ok' : 'warn');
+  });
+  const c = document.getElementById('sys-summary-count');
+  if (c) c.textContent = `${normal}/${chips.length}`;
+}
+
 /* ----- ESTUDIO INDIVIDUAL (línea + omit toggle) ----- */
 function renderStudyLine(id, html) {
   const omitted = appState[`omit-${id}`] === 'true';

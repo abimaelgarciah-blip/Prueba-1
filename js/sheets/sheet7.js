@@ -20,11 +20,26 @@ window.sheet7 = {
     { id: 'vdrl',  label: 'VDRL' },
   ],
 
+  // Catálogo de sistemas (para el resumen con estado por sistema)
+  systems: [
+    { key: 'resp',  short: 'Respiratorio' },
+    { key: 'card',  short: 'Cardiovascular' },
+    { key: 'gi',    short: 'Gastrointestinal' },
+    { key: 'gu',    short: 'Genito-urinario' },
+    { key: 'nerv',  short: 'Nervioso' },
+    { key: 'endo',  short: 'Endocrino' },
+    { key: 'muscu', short: 'Musculoesquelético' },
+    { key: 'hema',  short: 'Hematopoyético' },
+  ],
+
   render() {
     const inner = `
+      ${h1('REVISIÓN POR SISTEMAS')}
+      ${renderSysSummary(this.systems)}
+
       <!-- RESPIRATORIO -->
-      <div id="block-sis-resp">
-        ${h1('SISTEMA RESPIRATORIO')}
+      <div id="block-sis-resp" class="sys-block" data-sysblock="resp">
+        ${renderSysHeader('resp','SISTEMA RESPIRATORIO')}
         ${renderStudyLine('est-resp-sint', `<strong class="ctt-sub-line">Síntomas respiratorios:</strong> ${textarea('c7-resp-sint')}`)}
         ${renderStudyLine('est-resp-espiro', `<strong class="ctt-sub-line">Espirometría:</strong> ${textarea('c7-resp-espiro')}`)}
         ${renderStudyLine('est-resp-rx', `<strong class="ctt-sub-line">Radiografía de tórax:</strong> ${textarea('c7-resp-rx')}`)}
@@ -32,16 +47,16 @@ window.sheet7 = {
       </div>
 
       <!-- CARDIOVASCULAR -->
-      <div id="block-sis-card">
-        ${h1('SISTEMA CARDIOVASCULAR')}
+      <div id="block-sis-card" class="sys-block" data-sysblock="card">
+        ${renderSysHeader('card','SISTEMA CARDIOVASCULAR')}
         ${renderStudyLine('est-card-pef', `<strong class="ctt-sub-line">Prueba de esfuerzo:</strong> ${textarea('c7-card-pef')}`)}
         ${renderStudyLine('est-card-ecg', `<strong class="ctt-sub-line">Electrocardiograma:</strong> ${textarea('c7-card-ecg')}`)}
         ${renderDynamicBlock('c7-card-extra','+ Agregar campo a Cardiovascular')}
       </div>
 
       <!-- GASTROINTESTINAL -->
-      <div id="block-sis-gi">
-        ${h1('SISTEMA GASTROINTESTINAL')}
+      <div id="block-sis-gi" class="sys-block" data-sysblock="gi">
+        ${renderSysHeader('gi','SISTEMA GASTROINTESTINAL')}
         ${renderStudyLine('est-gi-sint', `<strong class="ctt-sub-line">Sintomatología:</strong> ${textarea('c7-gi-sint')}`)}
         ${renderStudyLine('est-gi-eco', `<strong class="ctt-sub-line">Ultrasonido abdominal:</strong> ${textarea('c7-gi-eco')}`)}
         ${renderStudyLine('est-gi-pfh', `<strong class="ctt-sub-line">Pruebas de función hepática:</strong> ${textarea('c7-gi-pfh')}`)}
@@ -52,8 +67,8 @@ window.sheet7 = {
       </div>
 
       <!-- GENITO-URINARIO -->
-      <div id="block-sis-gu">
-        ${h1('SISTEMA GENITO-URINARIO')}
+      <div id="block-sis-gu" class="sys-block" data-sysblock="gu">
+        ${renderSysHeader('gu','SISTEMA GENITO-URINARIO')}
         ${renderStudyLine('est-gu-sint', `<strong class="ctt-sub-line">Sintomatología:</strong> ${textarea('c7-gu-sint')}`)}
         ${renderStudyLine('est-gu-ecoR', `<strong class="ctt-sub-line">Ecosonograma renal:</strong> ${textarea('c7-gu-ecoR')}`)}
         ${renderIfSex('M', renderStudyLine('est-gu-ecoP', `<strong class="ctt-sub-line">Ecosonograma prostático:</strong> ${textarea('c7-gu-ecoP')}`))}
@@ -68,8 +83,8 @@ window.sheet7 = {
       </div>
 
       <!-- NERVIOSO -->
-      <div id="block-sis-nerv">
-        ${h1('SISTEMA NERVIOSO Y ÓRGANOS DE LOS SENTIDOS')}
+      <div id="block-sis-nerv" class="sys-block" data-sysblock="nerv">
+        ${renderSysHeader('nerv','SISTEMA NERVIOSO Y ÓRGANOS DE LOS SENTIDOS')}
         ${renderStudyLine('est-nerv-sint', `<strong class="ctt-sub-line">Sintomatología:</strong> ${textarea('c7-nerv-sint')}`)}
         ${renderStudyLine('est-nerv-oftal', `<strong class="ctt-sub-line">Valoración oftalmológica:</strong> ${textarea('c7-nerv-oftal')}`)}
         ${renderStudyLine('est-nerv-audio', `<strong class="ctt-sub-line">Audiometría:</strong> ${textarea('c7-nerv-audio')}`)}
@@ -77,8 +92,8 @@ window.sheet7 = {
       </div>
 
       <!-- ENDOCRINO -->
-      <div id="block-sis-endo">
-        ${h1('SISTEMA ENDOCRINO METABÓLICO')}
+      <div id="block-sis-endo" class="sys-block" data-sysblock="endo">
+        ${renderSysHeader('endo','SISTEMA ENDOCRINO METABÓLICO')}
         ${renderStudyLine('est-endo-gluc', `<strong class="ctt-sub-line">Glucosa:</strong> ${textarea('c7-endo-gluc','','sm')}`)}
         ${renderStudyLine('est-endo-au', `<strong class="ctt-sub-line">Ácido úrico:</strong> ${textarea('c7-endo-au','','sm')}`)}
         ${renderStudyLine('est-endo-colT', `<strong class="ctt-sub-line">Colesterol total:</strong> ${textarea('c7-endo-colT','','sm')}`)}
@@ -95,8 +110,8 @@ window.sheet7 = {
       </div>
 
       <!-- MUSCULOESQUELÉTICO -->
-      <div id="block-sis-muscu">
-        ${h1('SISTEMA MUSCULOESQUELÉTICO')}
+      <div id="block-sis-muscu" class="sys-block" data-sysblock="muscu">
+        ${renderSysHeader('muscu','SISTEMA MUSCULOESQUELÉTICO')}
         ${renderStudyLine('est-muscu-sint', `<strong class="ctt-sub-line">Sintomatología:</strong> ${textarea('c7-muscu-sint')}`)}
         ${renderStudyLine('est-muscu-rx', `<strong class="ctt-sub-line">Radiografía de columna lumbar:</strong> ${textarea('c7-muscu-rx')}`)}
         ${renderStudyLine('est-muscu-densi', `<strong class="ctt-sub-line">Densitometría:</strong> ${textarea('c7-muscu-densi')}`)}
@@ -104,8 +119,8 @@ window.sheet7 = {
       </div>
 
       <!-- HEMATOPOYÉTICO -->
-      <div id="block-sis-hema">
-        ${h1('SISTEMA HEMATOPOYÉTICO Y CÉLULAS EN SANGRE')}
+      <div id="block-sis-hema" class="sys-block" data-sysblock="hema">
+        ${renderSysHeader('hema','SISTEMA HEMATOPOYÉTICO Y CÉLULAS EN SANGRE')}
         ${renderStudyLine('est-hema-bh', `<strong class="ctt-sub-line">Biometría hemática:</strong> ${textarea('c7-hema-bh')}`)}
         ${renderLabCard('quimica', 'Química sanguínea y electrolitos', this.quimica)}
         ${renderQualCard('cualit', 'Estudios cualitativos', this.cualitativos)}
@@ -142,5 +157,8 @@ window.sheet7 = {
     // Piloto: calcular badges y barras de la química/electrolitos al cargar.
     refreshAllLabs();
     refreshAllQual();
+
+    // Resumen por sistemas (conteo + colores por estado).
+    refreshSysSummary();
   }
 };
