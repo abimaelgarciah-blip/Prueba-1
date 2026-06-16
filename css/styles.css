@@ -1826,6 +1826,142 @@ body.pdf-export-mode #app { display: none !important; }
   .ctt-firma-centered-display { border: none; background: transparent; }
 }
 
+/* ===== ESTUDIOS DE LABORATORIO ESTRUCTURADOS (piloto) ===== */
+.lab-card {
+  background: #fff;
+  border: 1px solid #e6e9ee;
+  border-radius: 10px;
+  margin: 14px 0 18px;
+  overflow: hidden;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.lab-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px 8px;
+}
+.lab-title {
+  font-size: 12pt;
+  font-weight: 700;
+  color: #1a3d40;
+  margin: 0;
+}
+.lab-legend { display: flex; gap: 14px; }
+.lab-leg {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 8pt;
+  color: #667;
+}
+.lab-leg-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.lab-leg-dot.ok  { background: #1f9d57; }
+.lab-leg-dot.bad { background: #d64545; }
+
+.lab-table { width: 100%; border-collapse: collapse; }
+.lab-table thead th {
+  background: #379b6b;
+  color: #fff;
+  font-size: 7.5pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: left;
+  padding: 9px 12px;
+}
+.lab-table thead th.lab-th-estado { text-align: right; }
+.lab-table tbody td {
+  padding: 9px 12px;
+  border-bottom: 1px solid #eef1f4;
+  font-size: 10pt;
+  color: #233;
+  vertical-align: middle;
+}
+.lab-table tbody tr:last-child td { border-bottom: none; }
+.lab-estudio { font-weight: 600; color: #1a2d40; }
+
+/* Inputs que se leen como texto (sin caja) pero siguen siendo editables */
+.lab-input {
+  border: 1px solid transparent;
+  background: transparent;
+  font: inherit;
+  color: #233;
+  padding: 2px 4px;
+  border-radius: 5px;
+  width: 58px;
+  box-sizing: border-box;
+}
+.lab-input:hover  { background: #f4f8fd; }
+.lab-input:focus  { background: #eaf3ff; border-color: #2e5fa8; outline: none; }
+.lab-input-val    { font-weight: 700; font-size: 11pt; color: #15263a; width: 62px; }
+.lab-input-ref    { width: 50px; color: #6a7686; }
+.lab-unit         { font-size: 7.5pt; color: #8a93a0; margin-left: 2px; }
+.lab-ref          { color: #6a7686; white-space: nowrap; }
+.lab-ref-sep      { color: #aab; margin: 0 1px; }
+
+/* Barra indicadora */
+.lab-bar {
+  position: relative;
+  height: 8px;
+  width: 175px;
+  max-width: 100%;
+  background: #eef1f4;
+  border-radius: 5px;
+}
+.lab-bar-band {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: #bfe3cf;
+  border-radius: 5px;
+}
+.lab-bar-dot {
+  position: absolute;
+  top: 50%;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px solid #fff;
+  box-shadow: 0 0 2px rgba(0,0,0,0.35);
+}
+.lab-bar-dot.ok  { background: #1f9d57; }
+.lab-bar-dot.bad { background: #d64545; }
+
+/* Badge de estado */
+.lab-estado { text-align: right; }
+.lab-badge {
+  display: inline-block;
+  padding: 3px 13px;
+  border-radius: 14px;
+  font-size: 8.5pt;
+  font-weight: 600;
+  min-width: 48px;
+  text-align: center;
+}
+.lab-badge.ok      { background: #e3f5ea; color: #1f7a45; }
+.lab-badge.bad     { background: #fdeaea; color: #c0392b; }
+.lab-badge.neutral { background: #eef1f4; color: #5a6472; }
+
+/* Estudios cualitativos: pastilla editable que cambia de color por contenido */
+.lab-card-qual .lab-table tbody td { padding: 11px 14px; }
+.lab-qual-pill {
+  border: 1px solid transparent;
+  border-radius: 14px;
+  padding: 4px 14px;
+  font-size: 9pt;
+  font-weight: 600;
+  text-align: center;
+  min-width: 70px;
+  font-family: inherit;
+}
+.lab-qual-pill:focus { outline: none; box-shadow: 0 0 0 2px rgba(46,95,168,0.2); }
+.lab-qual-pill.ok      { background: #e3f5ea; color: #1f7a45; }
+.lab-qual-pill.bad     { background: #fdeaea; color: #c0392b; }
+.lab-qual-pill.neutral { background: #eef1f4; color: #4a5462; }
+
 /* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: #f0f2f5; }

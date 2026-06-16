@@ -498,6 +498,168 @@ function toggleSectionOmit(sectionKey, checked) {
   navigateTo(currentSheetIndex);
 }
 
+/* ===== ESTUDIOS DE LABORATORIO ESTRUCTURADOS =====
+ * Cada estudio guarda valor + rango (mín/máx). El badge Normal/Alto/Bajo y la
+ * barra indicadora se calculan solos comparando el valor con el rango. Los
+ * valores viven en appState bajo claves `lab-<grupo>-<id>-val|min|max`. */
+
+function labGet(id, def) {
+  return appState[id] !== undefined ? appState[id] : (def !== undefined ? String(def) : '');
+}
+
+/** Devuelve {status:'normal'|'alto'|'bajo'|'', label, pct, bandLo, bandHi}. */
+function computeLab(value, min, max) {
+  const v = parseFloat(value), lo = parseFloat(min), hi = parseFloat(max);
+  if (isNaN(v) || isNaN(lo) || isNaN(hi) || hi <= lo) {
+    return { status: '', label: '', pct: null, bandLo: null, bandHi: null };
+  }
+  const span = hi - lo;
+  const a = lo - span * 0.6, b = hi + span * 0.6;   // ejes del riel con contexto
+  const clamp = (x) => Math.max(0, Math.min(1, x));
+  const pct    = clamp((v - a) / (b - a)) * 100;
+  const bandLo = clamp((lo - a) / (b - a)) * 100;
+  const bandHi = clamp((hi - a) / (b - a)) * 100;
+  let status = 'normal', label = 'Normal';
+  if (v < lo)      { status = 'bajo'; label = 'Bajo'; }
+  else if (v > hi) { status = 'alto'; label = 'Alto'; }
+  return { status, label, pct, bandLo, bandHi };
+}
+
+function renderLabCard(group, title, studies) {
+  return `
+  <div class="lab-card">
+    <div class="lab-card-head">
+      <h3 class="lab-title">${title}</h3>
+      <div class="lab-legend">
+        <span class="lab-leg"><span class="lab-leg-dot ok"></span>Dentro de rango</span>
+        <span class="lab-leg"><span class="lab-leg-dot bad"></span>Fuera de rango</span>
+      </div>
+    </div>
+    <table class="lab-table">
+      <thead><tr>
+        <th>Estudio</th><th>Resultado</th><th>Referencia</th>
+        <th>Indicador</th><th class="lab-th-estado">Estado</th>
+      </tr></thead>
+      <tbody>${studies.map((s) => renderLabRow(group, s)).join('')}</tbody>
+    </table>
+  </div>`;
+}
+
+function renderLabRow(g, s) {
+  const base = `lab-${g}-${s.id}`;
+  return `
+  <tr class="lab-row" data-lab="${g}:${s.id}">
+    <td class="lab-estudio">${s.label}</td>
+    <td class="lab-result">
+      <input class="lab-input lab-input-val" id="${base}-val" type="text" inputmode="decimal"
+        value="${escapeAttr(labGet(base + '-val', ''))}" oninput="onLabInput('${g}','${s.id}')" />
+      <span class="lab-unit">${s.unit || ''}</span>
+    </td>
+    <td class="lab-ref">
+      <input class="lab-input lab-input-ref" id="${base}-min" type="text" inputmode="decimal"
+        value="${escapeAttr(labGet(base + '-min', s.min))}" oninput="onLabInput('${g}','${s.id}')" />
+      <span class="lab-ref-sep">–</span>
+      <input class="lab-input lab-input-ref" id="${base}-max" type="text" inputmode="decimal"
+        value="${escapeAttr(labGet(base + '-max', s.max))}" oninput="onLabInput('${g}','${s.id}')" />
+      <span class="lab-unit">${s.unit || ''}</span>
+    </td>
+    <td class="lab-ind">
+      <div class="lab-bar" id="labbar-${g}-${s.id}">
+        <div class="lab-bar-band"></div>
+        <div class="lab-bar-dot"></div>
+      </div>
+    </td>
+    <td class="lab-estado"><span class="lab-badge neutral" id="labbadge-${g}-${s.id}">—</span></td>
+  </tr>`;
+}
+
+function onLabInput(g, id) {
+  const base = `lab-${g}-${id}`;
+  ['val', 'min', 'max'].forEach((k) => {
+    const el = document.getElementById(`${base}-${k}`);
+    if (el) appState[`${base}-${k}`] = el.value;
+  });
+  saveToStorage();
+  paintLabRow(g, id);
+}
+
+function paintLabRow(g, id) {
+  const base = `lab-${g}-${id}`;
+  const gv = (k) => { const e = document.getElementById(`${base}-${k}`); return e ? e.value : ''; };
+  const r = computeLab(gv('val'), gv('min'), gv('max'));
+  const bar = document.getElementById(`labbar-${g}-${id}`);
+  if (bar) {
+    const band = bar.querySelector('.lab-bar-band');
+    const dot  = bar.querySelector('.lab-bar-dot');
+    if (r.pct == null) {
+      if (dot)  dot.style.display = 'none';
+      if (band) { band.style.left = '0'; band.style.width = '0'; }
+    } else {
+      if (band) { band.style.left = r.bandLo + '%'; band.style.width = (r.bandHi - r.bandLo) + '%'; }
+      if (dot)  { dot.style.display = ''; dot.style.left = r.pct + '%'; dot.className = 'lab-bar-dot ' + (r.status === 'normal' ? 'ok' : 'bad'); }
+    }
+  }
+  const badge = document.getElementById(`labbadge-${g}-${id}`);
+  if (badge) {
+    badge.textContent = r.label || '—';
+    badge.className = 'lab-badge ' + (!r.label ? 'neutral' : r.status === 'normal' ? 'ok' : 'bad');
+  }
+}
+
+function refreshAllLabs() {
+  document.querySelectorAll('[data-lab]').forEach((el) => {
+    const [g, id] = el.dataset.lab.split(':');
+    paintLabRow(g, id);
+  });
+}
+
+/* ----- ESTUDIOS CUALITATIVOS (valor de texto → pastilla por color) ----- */
+function qualClass(text) {
+  const t = (text || '').toLowerCase();
+  if (/negativ|no reactiv|normal|ausen|sin alterac/.test(t)) return 'ok';
+  if (/positiv|reactiv|anormal|alterad/.test(t)) return 'bad';
+  return 'neutral';
+}
+
+function renderQualCard(group, title, items) {
+  return `
+  <div class="lab-card lab-card-qual">
+    <div class="lab-card-head"><h3 class="lab-title">${title}</h3></div>
+    <table class="lab-table">
+      <tbody>${items.map((it) => renderQualRow(group, it)).join('')}</tbody>
+    </table>
+  </div>`;
+}
+
+function renderQualRow(g, it) {
+  const base = `qual-${g}-${it.id}`;
+  const val  = labGet(base + '-val', '');
+  return `
+  <tr class="lab-qual-row" data-qual="${g}:${it.id}">
+    <td class="lab-estudio">${it.label}</td>
+    <td class="lab-estado">
+      <input class="lab-qual-pill ${qualClass(val)}" id="${base}-val" type="text"
+        value="${escapeAttr(val)}" placeholder="—" oninput="onQualInput('${g}','${it.id}')" />
+    </td>
+  </tr>`;
+}
+
+function onQualInput(g, id) {
+  const el = document.getElementById(`qual-${g}-${id}-val`);
+  if (!el) return;
+  appState[`qual-${g}-${id}-val`] = el.value;
+  saveToStorage();
+  el.className = 'lab-qual-pill ' + qualClass(el.value);
+}
+
+function refreshAllQual() {
+  document.querySelectorAll('[data-qual]').forEach((el) => {
+    const [g, id] = el.dataset.qual.split(':');
+    const inp = document.getElementById(`qual-${g}-${id}-val`);
+    if (inp) inp.className = 'lab-qual-pill ' + qualClass(inp.value);
+  });
+}
+
 /* ----- ESTUDIO INDIVIDUAL (línea + omit toggle) ----- */
 function renderStudyLine(id, html) {
   const omitted = appState[`omit-${id}`] === 'true';

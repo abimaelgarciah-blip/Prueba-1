@@ -498,7 +498,8 @@ async function exportPDF() {
       const divTopPx = div.getBoundingClientRect().top;
       const blockSel = '.ctt-h1,.ctt-h2,.ctt-p,.ctt-study-line,.ctt-fixed,'
         + '.ctt-dynamic-item,.ctt-numbered-item,.ctt-attachment,'
-        + '.ctt-firma-doc-line,.ctt-firma-centered-display';
+        + '.ctt-firma-doc-line,.ctt-firma-centered-display,'
+        + '.lab-card-head,.lab-row,.lab-qual-row';
       const blockBounds = [];
       div.querySelectorAll(blockSel).forEach(el => {
         const r = el.getBoundingClientRect();
