@@ -703,8 +703,10 @@ function renderSysSummary(systems) {
     const txt = st === 'normal' ? 'Sin alteraciones' : 'Con hallazgos';
     return `<div class="sys-chip ${cls}" id="sys-chip-${s.key}" data-sys="${s.key}">
       <span class="sys-chip-dot"></span>
-      <span class="sys-chip-name">${s.short}</span>
-      <span class="sys-chip-state" id="sys-chip-state-${s.key}">${txt}</span>
+      <span class="sys-chip-text">
+        <span class="sys-chip-name">${s.short}</span>
+        <span class="sys-chip-state" id="sys-chip-state-${s.key}">${txt}</span>
+      </span>
     </div>`;
   }).join('');
   return `<div class="sys-summary" id="sys-summary">
