@@ -652,11 +652,29 @@
     const plantilla = await PDFDocument.load(estado.plantillaBytes);
     const cacheExternos = new Map();
 
-    for (const bloque of construirOrden()) {
+    const orden = construirOrden();
+
+    // Copiamos TODAS las páginas de la plantilla en una sola operación: así
+    // pdf-lib reutiliza las fuentes e imágenes compartidas entre secciones
+    // (membrete, portadas, tipografías). Copiarlas con una llamada distinta
+    // por bloque re-incrusta esos recursos en cada sección e infla mucho el
+    // PDF final. Conservamos el orden consumiéndolas con un puntero.
+    const indicesPlantilla = [];
+    for (const bloque of orden) {
       if (bloque.tipo === 'plantilla') {
-        const indices = bloque.paginas.map((n) => n - 1);
-        const paginas = await salida.copyPages(plantilla, indices);
-        paginas.forEach((p) => salida.addPage(p));
+        for (const n of bloque.paginas) indicesPlantilla.push(n - 1);
+      }
+    }
+    const paginasPlantilla = indicesPlantilla.length
+      ? await salida.copyPages(plantilla, indicesPlantilla)
+      : [];
+    let punteroPlantilla = 0;
+
+    for (const bloque of orden) {
+      if (bloque.tipo === 'plantilla') {
+        for (let i = 0; i < bloque.paginas.length; i++) {
+          salida.addPage(paginasPlantilla[punteroPlantilla++]);
+        }
       } else if (bloque.tipo === 'dieta') {
         // Se carga sin caché porque la página se modifica al estampar el nombre.
         const doc = await PDFDocument.load(await obtenerDietaBytes(bloque.kcal));
