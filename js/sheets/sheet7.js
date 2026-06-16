@@ -38,7 +38,7 @@ window.sheet7 = {
       ${renderSysSummary(this.systems)}
 
       <!-- RESPIRATORIO -->
-      <div id="block-sis-resp" class="sys-block" data-sysblock="resp">
+      <div id="block-sis-resp" class="${sysBlockClass('resp')}" data-sysblock="resp">
         ${renderSysHeader('resp','SISTEMA RESPIRATORIO')}
         ${renderStudyLine('est-resp-sint', `<strong class="ctt-sub-line">Síntomas respiratorios:</strong> ${textarea('c7-resp-sint')}`)}
         ${renderStudyLine('est-resp-espiro', `<strong class="ctt-sub-line">Espirometría:</strong> ${textarea('c7-resp-espiro')}`)}
@@ -47,7 +47,7 @@ window.sheet7 = {
       </div>
 
       <!-- CARDIOVASCULAR -->
-      <div id="block-sis-card" class="sys-block" data-sysblock="card">
+      <div id="block-sis-card" class="${sysBlockClass('card')}" data-sysblock="card">
         ${renderSysHeader('card','SISTEMA CARDIOVASCULAR')}
         ${renderStudyLine('est-card-pef', `<strong class="ctt-sub-line">Prueba de esfuerzo:</strong> ${textarea('c7-card-pef')}`)}
         ${renderStudyLine('est-card-ecg', `<strong class="ctt-sub-line">Electrocardiograma:</strong> ${textarea('c7-card-ecg')}`)}
@@ -55,7 +55,7 @@ window.sheet7 = {
       </div>
 
       <!-- GASTROINTESTINAL -->
-      <div id="block-sis-gi" class="sys-block" data-sysblock="gi">
+      <div id="block-sis-gi" class="${sysBlockClass('gi')}" data-sysblock="gi">
         ${renderSysHeader('gi','SISTEMA GASTROINTESTINAL')}
         ${renderStudyLine('est-gi-sint', `<strong class="ctt-sub-line">Sintomatología:</strong> ${textarea('c7-gi-sint')}`)}
         ${renderStudyLine('est-gi-eco', `<strong class="ctt-sub-line">Ultrasonido abdominal:</strong> ${textarea('c7-gi-eco')}`)}
@@ -67,7 +67,7 @@ window.sheet7 = {
       </div>
 
       <!-- GENITO-URINARIO -->
-      <div id="block-sis-gu" class="sys-block" data-sysblock="gu">
+      <div id="block-sis-gu" class="${sysBlockClass('gu')}" data-sysblock="gu">
         ${renderSysHeader('gu','SISTEMA GENITO-URINARIO')}
         ${renderStudyLine('est-gu-sint', `<strong class="ctt-sub-line">Sintomatología:</strong> ${textarea('c7-gu-sint')}`)}
         ${renderStudyLine('est-gu-ecoR', `<strong class="ctt-sub-line">Ecosonograma renal:</strong> ${textarea('c7-gu-ecoR')}`)}
@@ -83,7 +83,7 @@ window.sheet7 = {
       </div>
 
       <!-- NERVIOSO -->
-      <div id="block-sis-nerv" class="sys-block" data-sysblock="nerv">
+      <div id="block-sis-nerv" class="${sysBlockClass('nerv')}" data-sysblock="nerv">
         ${renderSysHeader('nerv','SISTEMA NERVIOSO Y ÓRGANOS DE LOS SENTIDOS')}
         ${renderStudyLine('est-nerv-sint', `<strong class="ctt-sub-line">Sintomatología:</strong> ${textarea('c7-nerv-sint')}`)}
         ${renderStudyLine('est-nerv-oftal', `<strong class="ctt-sub-line">Valoración oftalmológica:</strong> ${textarea('c7-nerv-oftal')}`)}
@@ -92,7 +92,7 @@ window.sheet7 = {
       </div>
 
       <!-- ENDOCRINO -->
-      <div id="block-sis-endo" class="sys-block" data-sysblock="endo">
+      <div id="block-sis-endo" class="${sysBlockClass('endo')}" data-sysblock="endo">
         ${renderSysHeader('endo','SISTEMA ENDOCRINO METABÓLICO')}
         ${renderStudyLine('est-endo-gluc', `<strong class="ctt-sub-line">Glucosa:</strong> ${textarea('c7-endo-gluc','','sm')}`)}
         ${renderStudyLine('est-endo-au', `<strong class="ctt-sub-line">Ácido úrico:</strong> ${textarea('c7-endo-au','','sm')}`)}
@@ -110,7 +110,7 @@ window.sheet7 = {
       </div>
 
       <!-- MUSCULOESQUELÉTICO -->
-      <div id="block-sis-muscu" class="sys-block" data-sysblock="muscu">
+      <div id="block-sis-muscu" class="${sysBlockClass('muscu')}" data-sysblock="muscu">
         ${renderSysHeader('muscu','SISTEMA MUSCULOESQUELÉTICO')}
         ${renderStudyLine('est-muscu-sint', `<strong class="ctt-sub-line">Sintomatología:</strong> ${textarea('c7-muscu-sint')}`)}
         ${renderStudyLine('est-muscu-rx', `<strong class="ctt-sub-line">Radiografía de columna lumbar:</strong> ${textarea('c7-muscu-rx')}`)}
@@ -119,7 +119,7 @@ window.sheet7 = {
       </div>
 
       <!-- HEMATOPOYÉTICO -->
-      <div id="block-sis-hema" class="sys-block" data-sysblock="hema">
+      <div id="block-sis-hema" class="${sysBlockClass('hema')}" data-sysblock="hema">
         ${renderSysHeader('hema','SISTEMA HEMATOPOYÉTICO Y CÉLULAS EN SANGRE')}
         ${renderStudyLine('est-hema-bh', `<strong class="ctt-sub-line">Biometría hemática:</strong> ${textarea('c7-hema-bh')}`)}
         ${renderLabCard('quimica', 'Química sanguínea y electrolitos', this.quimica)}

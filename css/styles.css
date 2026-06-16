@@ -2135,6 +2135,13 @@ body.pdf-export-mode #app { display: none !important; }
 .sys-status-select.normal   { background: #e3f5ea; color: #1f7a45; border-color: #bfe3cf; }
 .sys-status-select.hallazgo { background: #fdf2e2; color: #b9741f; border-color: #f0d9b5; }
 
+/* Pastillas convertidas para el PDF (conservan color de fondo) */
+.pdf-pill {
+  display: inline-block;
+  border: none;
+  vertical-align: middle;
+}
+
 /* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: #f0f2f5; }

@@ -547,6 +547,12 @@ function renderLabCard(group, title, studies) {
 
 function renderLabRow(g, s) {
   const base = `lab-${g}-${s.id}`;
+  // Estado horneado en el HTML (para que el PDF conserve barra y badge sin re-pintar)
+  const r = computeLab(labGet(base + '-val', ''), labGet(base + '-min', s.min), labGet(base + '-max', s.max));
+  const bandStyle = r.pct == null ? 'left:0;width:0' : `left:${r.bandLo}%;width:${r.bandHi - r.bandLo}%`;
+  const dotStyle  = r.pct == null ? 'display:none' : `left:${r.pct}%`;
+  const dotCls    = r.status === 'normal' ? 'ok' : (r.status ? 'bad' : '');
+  const badgeCls  = !r.label ? 'neutral' : (r.status === 'normal' ? 'ok' : 'bad');
   return `
   <tr class="lab-row" data-lab="${g}:${s.id}">
     <td class="lab-estudio">${s.label}</td>
@@ -565,11 +571,11 @@ function renderLabRow(g, s) {
     </td>
     <td class="lab-ind">
       <div class="lab-bar" id="labbar-${g}-${s.id}">
-        <div class="lab-bar-band"></div>
-        <div class="lab-bar-dot"></div>
+        <div class="lab-bar-band" style="${bandStyle}"></div>
+        <div class="lab-bar-dot ${dotCls}" style="${dotStyle}"></div>
       </div>
     </td>
-    <td class="lab-estado"><span class="lab-badge neutral" id="labbadge-${g}-${s.id}">—</span></td>
+    <td class="lab-estado"><span class="lab-badge ${badgeCls}" id="labbadge-${g}-${s.id}">${r.label || '—'}</span></td>
   </tr>`;
 }
 
@@ -688,23 +694,35 @@ function renderMetricCards(metrics) {
 
 /* ===== RESUMEN POR SISTEMAS (estado + tarjetas con borde de color) ===== */
 function renderSysSummary(systems) {
+  // Estado horneado para que el PDF conserve colores y conteo sin re-pintar.
+  let normal = 0;
+  const chips = systems.map((s) => {
+    const st = appState['sys-status-' + s.key] || 'normal';
+    if (st === 'normal') normal++;
+    const cls = st === 'normal' ? 'ok' : 'warn';
+    const txt = st === 'normal' ? 'Sin alteraciones' : 'Con hallazgos';
+    return `<div class="sys-chip ${cls}" id="sys-chip-${s.key}" data-sys="${s.key}">
+      <span class="sys-chip-dot"></span>
+      <span class="sys-chip-name">${s.short}</span>
+      <span class="sys-chip-state" id="sys-chip-state-${s.key}">${txt}</span>
+    </div>`;
+  }).join('');
   return `<div class="sys-summary" id="sys-summary">
     <div class="sys-summary-top">
-      <div class="sys-summary-badge" id="sys-summary-count">—</div>
+      <div class="sys-summary-badge" id="sys-summary-count">${normal}/${systems.length}</div>
       <div class="sys-summary-text">
         <strong>Resumen por sistemas</strong>
         <span>sistemas evaluados sin alteraciones</span>
       </div>
     </div>
-    <div class="sys-summary-grid">
-      ${systems.map((s) => `
-        <div class="sys-chip" id="sys-chip-${s.key}" data-sys="${s.key}">
-          <span class="sys-chip-dot"></span>
-          <span class="sys-chip-name">${s.short}</span>
-          <span class="sys-chip-state" id="sys-chip-state-${s.key}"></span>
-        </div>`).join('')}
-    </div>
+    <div class="sys-summary-grid">${chips}</div>
   </div>`;
+}
+
+// Clase del bloque de sistema con su color de estado horneado (para el PDF).
+function sysBlockClass(key) {
+  const st = appState['sys-status-' + key] || 'normal';
+  return 'sys-block ' + (st === 'normal' ? 'ok' : 'warn');
 }
 
 function renderSysHeader(key, title) {

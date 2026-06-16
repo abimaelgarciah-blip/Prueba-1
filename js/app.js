@@ -410,6 +410,23 @@ async function exportPDF() {
       div.innerHTML = sheet.render();
       document.body.appendChild(div);
 
+      // Pastillas de color: convertir a span CONSERVANDO sus clases (si no, el
+      // PDF pierde el color de los estudios cualitativos y del estado de sistema).
+      div.querySelectorAll('.lab-qual-pill').forEach(el => {
+        const val = (el.id && appState[el.id] !== undefined) ? appState[el.id] : el.value;
+        const span = document.createElement('span');
+        span.className = el.className + ' pdf-pill';
+        span.textContent = val || '—';
+        el.parentNode.replaceChild(span, el);
+      });
+      div.querySelectorAll('.sys-status-select').forEach(el => {
+        const val = (el.id && appState[el.id] !== undefined) ? appState[el.id] : (el.value || 'normal');
+        const span = document.createElement('span');
+        span.className = 'sys-status-select ' + val + ' pdf-pill';
+        span.textContent = val === 'hallazgo' ? 'Con hallazgos' : 'Sin alteraciones';
+        el.parentNode.replaceChild(span, el);
+      });
+
       // Convertir inputs/textareas/selects en spans con su valor (texto plano)
       div.querySelectorAll('input[type="text"], input:not([type])').forEach(el => {
         const val = (el.id && appState[el.id] !== undefined) ? appState[el.id] : el.value;
