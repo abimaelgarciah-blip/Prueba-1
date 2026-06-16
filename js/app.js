@@ -53,11 +53,7 @@ function saveDefaults() {
 const sheets = [
   sheet1, sheet2, sheet3, sheet4, sheet5,
   sheet6, sheet7, sheet8, sheet9, sheet10,
-  sheet11, sheet12, sheet13, sheet14, sheet15,
-  sheet16, sheet17, sheet18, sheet19,
-  sheet23, sheet24,   // Audiometría (portada + contenido)
-  sheet25, sheet26,   // Evaluación Dental (portada + contenido)
-  sheet20, sheet21,
+  sheet11,
   sheetNutricional    // Evaluación Nutricional (se anexa al final del PDF)
 ];
 
