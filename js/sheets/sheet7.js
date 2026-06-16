@@ -20,6 +20,32 @@ window.sheet7 = {
     { id: 'vdrl',  label: 'VDRL' },
   ],
 
+  // Estudios numéricos de laboratorio (rangos estándar editables)
+  endoLab: [
+    { id: 'gluc', label: 'Glucosa',          unit: 'mg/dL', min: 70,  max: 100 },
+    { id: 'au',   label: 'Ácido úrico',      unit: 'mg/dL', min: 3.4, max: 7.0 },
+    { id: 'colT', label: 'Colesterol total', unit: 'mg/dL', min: 125, max: 200 },
+    { id: 'trig', label: 'Triglicéridos',    unit: 'mg/dL', min: 40,  max: 150 },
+    { id: 'hdl',  label: 'HDL',              unit: 'mg/dL', min: 40,  max: 80  },
+    { id: 'ldl',  label: 'LDL',              unit: 'mg/dL', min: 50,  max: 100 },
+  ],
+  endoHormonas: [
+    { id: 'lh',   label: 'LH',           unit: 'mUI/mL', min: 2,   max: 12  },
+    { id: 'fsh',  label: 'FSH',          unit: 'mUI/mL', min: 3,   max: 10  },
+    { id: 'prl',  label: 'Prolactina',   unit: 'ng/mL',  min: 5,   max: 25  },
+    { id: 'prog', label: 'Progesterona', unit: 'ng/mL',  min: 0.1, max: 1.5 },
+    { id: 'est',  label: 'Estradiol',    unit: 'pg/mL',  min: 30,  max: 120 },
+  ],
+  guLab: [
+    { id: 'urea',  label: 'Urea',                          unit: 'mg/dL',  min: 15, max: 45  },
+    { id: 'creat', label: 'Creatinina',                    unit: 'mg/dL',  min: 0.6, max: 1.2 },
+    { id: 'nitro', label: 'Nitrógeno uréico (BUN)',        unit: 'mg/dL',  min: 7,  max: 20  },
+    { id: 'tfg',   label: 'Tasa de filtración glomerular', unit: 'mL/min', min: 90, max: 120 },
+  ],
+  guPsa: [
+    { id: 'psa', label: 'Antígeno prostático (PSA)', unit: 'ng/mL', min: 0, max: 4 },
+  ],
+
   // Catálogo de sistemas (para el resumen con estado por sistema)
   systems: [
     { key: 'resp',  short: 'Respiratorio' },
@@ -74,11 +100,8 @@ window.sheet7 = {
         ${renderIfSex('M', renderStudyLine('est-gu-ecoP', `<strong class="ctt-sub-line">Ecosonograma prostático:</strong> ${textarea('c7-gu-ecoP')}`))}
         ${renderIfSex('F', renderStudyLine('est-gu-ecoPel', `<strong class="ctt-sub-line">Ecosonograma pélvico:</strong> ${textarea('c7-gu-ecoPel')}`))}
         ${renderStudyLine('est-gu-orina', `<strong class="ctt-sub-line">General de orina:</strong> ${textarea('c7-gu-orina')}`)}
-        ${renderStudyLine('est-gu-urea', `<strong class="ctt-sub-line">Urea:</strong> ${textarea('c7-gu-urea','','sm')}`)}
-        ${renderStudyLine('est-gu-creat', `<strong class="ctt-sub-line">Creatinina:</strong> ${textarea('c7-gu-creat','','sm')}`)}
-        ${renderStudyLine('est-gu-nitro', `<strong class="ctt-sub-line">Nitrógeno uréico:</strong> ${textarea('c7-gu-nitro','','sm')}`)}
-        ${renderStudyLine('est-gu-tfg', `<strong class="ctt-sub-line">Tasa de filtración glomerular:</strong> ${textarea('c7-gu-tfg','','sm')}`)}
-        ${renderIfSex('M', renderStudyLine('est-gu-psa', `<strong class="ctt-sub-line">Antígeno prostático:</strong> ${textarea('c7-gu-psa','','sm')}`))}
+        ${renderLabCard('gu','Función renal', this.guLab)}
+        ${renderIfSex('M', renderLabCard('gupsa','Antígeno prostático', this.guPsa))}
         ${renderDynamicBlock('c7-gu-extra','+ Agregar campo a Genito-Urinario')}
       </div>
 
@@ -94,17 +117,8 @@ window.sheet7 = {
       <!-- ENDOCRINO -->
       <div id="block-sis-endo" class="${sysBlockClass('endo')}" data-sysblock="endo">
         ${renderSysHeader('endo','SISTEMA ENDOCRINO METABÓLICO')}
-        ${renderStudyLine('est-endo-gluc', `<strong class="ctt-sub-line">Glucosa:</strong> ${textarea('c7-endo-gluc','','sm')}`)}
-        ${renderStudyLine('est-endo-au', `<strong class="ctt-sub-line">Ácido úrico:</strong> ${textarea('c7-endo-au','','sm')}`)}
-        ${renderStudyLine('est-endo-colT', `<strong class="ctt-sub-line">Colesterol total:</strong> ${textarea('c7-endo-colT','','sm')}`)}
-        ${renderStudyLine('est-endo-trig', `<strong class="ctt-sub-line">Triglicéridos:</strong> ${textarea('c7-endo-trig','','sm')}`)}
-        ${renderStudyLine('est-endo-hdl', `<strong class="ctt-sub-line">HDL:</strong> ${textarea('c7-endo-hdl','','sm')}`)}
-        ${renderStudyLine('est-endo-ldl', `<strong class="ctt-sub-line">LDL:</strong> ${textarea('c7-endo-ldl','','sm')}`)}
-        ${renderIfSex('F', renderStudyLine('est-endo-lh',   `<strong class="ctt-sub-line">LH:</strong> ${textarea('c7-endo-lh','','sm')}`))}
-        ${renderIfSex('F', renderStudyLine('est-endo-fsh',  `<strong class="ctt-sub-line">FSH:</strong> ${textarea('c7-endo-fsh','','sm')}`))}
-        ${renderIfSex('F', renderStudyLine('est-endo-prl',  `<strong class="ctt-sub-line">Prolactina:</strong> ${textarea('c7-endo-prl','','sm')}`))}
-        ${renderIfSex('F', renderStudyLine('est-endo-prog', `<strong class="ctt-sub-line">Progesterona:</strong> ${textarea('c7-endo-prog','','sm')}`))}
-        ${renderIfSex('F', renderStudyLine('est-endo-est',  `<strong class="ctt-sub-line">Estradiol:</strong> ${textarea('c7-endo-est','','sm')}`))}
+        ${renderLabCard('endo','Perfil metabólico y de lípidos', this.endoLab)}
+        ${renderIfSex('F', renderLabCard('endohorm','Perfil hormonal femenino', this.endoHormonas))}
         ${renderStudyLine('est-endo-imc', `<strong class="ctt-sub-line">Índice de masa corporal:</strong> ${textarea('c7-endo-imc','','sm')} <strong class="ctt-sub-line">clasificado como:</strong> ${textarea('c7-endo-imcClass')}`)}
         ${renderDynamicBlock('c7-endo-extra','+ Agregar campo a Endocrino')}
       </div>
@@ -136,10 +150,7 @@ window.sheet7 = {
       'c7-card-pef','c7-card-ecg',
       'c7-gi-sint','c7-gi-eco','c7-gi-pfh','c7-gi-copro','c7-gi-coprop','c7-gi-dental',
       'c7-gu-sint','c7-gu-ecoR','c7-gu-ecoP','c7-gu-ecoPel','c7-gu-orina',
-      'c7-gu-urea','c7-gu-creat','c7-gu-nitro','c7-gu-tfg','c7-gu-psa',
       'c7-nerv-sint','c7-nerv-oftal','c7-nerv-audio',
-      'c7-endo-gluc','c7-endo-au','c7-endo-colT','c7-endo-trig','c7-endo-hdl','c7-endo-ldl',
-      'c7-endo-lh','c7-endo-fsh','c7-endo-prl','c7-endo-prog','c7-endo-est',
       'c7-endo-imc','c7-endo-imcClass',
       'c7-muscu-sint','c7-muscu-rx','c7-muscu-densi',
       'c7-hema-bh'

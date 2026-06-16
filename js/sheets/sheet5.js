@@ -43,6 +43,14 @@ window.sheet5 = {
     { id:'ef-neuro',   text:'Examen neurológico: Orientación normal en 3 esferas, pares craneales normales, meningeos negativos, vestíbulos cerebelosos negativos, reflejos osteotendinosos normales, marcha normal, no tiene problemas de sensibilidad ni motilidad.' }
   ],
 
+  // Signos vitales medibles (rangos estándar editables)
+  signosVitales: [
+    { id:'tas', label:'Tensión arterial sistólica',  unit:'mmHg', min:90, max:120 },
+    { id:'tad', label:'Tensión arterial diastólica', unit:'mmHg', min:60, max:80  },
+    { id:'fc',  label:'Frecuencia cardíaca',         unit:'lpm',  min:60, max:100 },
+    { id:'sat', label:'Saturación de O₂',            unit:'%',    min:95, max:100 },
+  ],
+
   render() {
     const inner = `
       ${h1('RESUMEN MÉDICO')}
@@ -70,12 +78,10 @@ window.sheet5 = {
 
       <!-- EXAMEN FÍSICO -->
       ${h1('EXAMEN FÍSICO')}
-      ${renderInfoCard('Signos vitales', renderMetricCards([
-        { label:'T.A.',       field:input('c5-ef-ta','','sm'),    unit:'mmHg' },
-        { label:'F.C.',       field:input('c5-ef-fc','','sm'),    unit:'lpm'  },
-        { label:'Saturación', field:input('c5-ef-sat','','sm'),   unit:'%'    },
-        { label:'Peso',       field:input('c5-ef-peso','','sm'),  unit:'kg'   },
-        { label:'Talla',      field:input('c5-ef-talla','','sm'), unit:'cm'   },
+      ${renderLabCard('vitales','Signos vitales', this.signosVitales)}
+      ${renderInfoCard('Somatometría', renderMetricCards([
+        { label:'Peso',  field:input('c5-ef-peso','','sm'),  unit:'kg' },
+        { label:'Talla', field:input('c5-ef-talla','','sm'), unit:'cm' },
       ]))}
 
       ${renderInfoCard('Exploración física por aparatos y sistemas',
@@ -89,7 +95,7 @@ window.sheet5 = {
     const ids = ['c5-sexo','c5-edad','c5-ahf','c5-pp-prostata','c5-pp-menarca',
       'c5-pp-gesta','c5-pp-para','c5-pp-aborto','c5-pp-cesareas','c5-pp-lact1',
       'c5-pp-lact2','c5-pp-lact3','c5-pp-fum','c5-pp-otros',
-      'c5-ef-ta','c5-ef-fc','c5-ef-sat','c5-ef-peso','c5-ef-talla'];
+      'c5-ef-peso','c5-ef-talla'];
     this.noPatologicos.forEach(np => ids.push('c5-np-'+np.id));
     this.examenFisico.forEach(ef => ids.push(ef.id));
     restoreFields(ids);
@@ -97,6 +103,9 @@ window.sheet5 = {
 
     // Sincronizar texto fijo desde state
     this.examenFisico.forEach(ef => syncFixedText(ef.id));
+
+    // Signos vitales en formato laboratorio (barras + badges).
+    refreshAllLabs();
 
     // Listener para mostrar/ocultar campos por sexo
     const sexEl = document.getElementById('c5-sexo');
