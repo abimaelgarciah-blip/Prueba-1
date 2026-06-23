@@ -372,7 +372,9 @@ async function exportPDF() {
   const CH = PAGE_H - MT - MB;                 // alto útil por página
   const RENDER_W = 816;                         // px de render (8.5in × 96)
 
-  const doc = new jsPDF({ unit: 'mm', format: 'letter', orientation: 'portrait' });
+  // compress: true → comprime los flujos del PDF para reducir el tamaño del
+  // archivo antes de descargarlo.
+  const doc = new jsPDF({ unit: 'mm', format: 'letter', orientation: 'portrait', compress: true });
   let firstPage = true;
 
   // Overlay de progreso
@@ -596,18 +598,21 @@ async function exportPDF() {
     const order = (typeof nutriBuildOrder === 'function') ? nutriBuildOrder() : [];
     if (window.PDFLib && order.length) {
       try {
-        progressEl.textContent = 'Anexando Evaluación Nutricional…';
+        progressEl.textContent = 'Anexando Evaluación Nutricional y comprimiendo…';
+        // mergeNutricional guarda con object streams (comprime el PDF combinado).
         const mergedBytes = await mergeNutricional(doc.output('arraybuffer'), order);
         downloadBytes(mergedBytes, filename);
-        showToast('PDF (chequeo + nutricional) descargado.');
+        showToast('PDF (chequeo + nutricional) comprimido y descargado.');
       } catch (e) {
         console.error('merge nutricional error:', e);
+        progressEl.textContent = 'Comprimiendo PDF…';
         doc.save(filename);
         showToast('Se descargó el chequeo, pero no se pudo anexar la parte nutricional: ' + e.message);
       }
     } else {
-      doc.save(filename);
-      showToast('PDF descargado correctamente.');
+      progressEl.textContent = 'Comprimiendo PDF…';
+      doc.save(filename); // jsPDF con compress:true
+      showToast('PDF comprimido y descargado correctamente.');
     }
 
   } catch (err) {
@@ -623,13 +628,7 @@ async function renderPdfReplaceToDoc(doc, dataUrl, firstPage, opts) {
   if (!window.pdfjsLib) throw new Error('pdf.js no está disponible');
   const { PAGE_W, PAGE_H } = opts;
 
-  // data URL -> bytes
-  const base64 = dataUrl.split(',')[1] || '';
-  const bin = atob(base64);
-  const bytes = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-
-  const pdf = await window.pdfjsLib.getDocument({ data: bytes }).promise;
+  const pdf = await window.pdfjsLib.getDocument({ data: dataUrlToBytes(dataUrl) }).promise;
 
   for (let n = 1; n <= pdf.numPages; n++) {
     const page = await pdf.getPage(n);
@@ -690,9 +689,28 @@ async function mergeNutricional(medicalBytes, order) {
       }
       const pgs = await merged.copyPages(dietaDoc, dietaDoc.getPageIndices());
       pgs.forEach(p => merged.addPage(p));
+    } else if (b.tipo === 'externo') {
+      try {
+        const extDoc = await PDFDocument.load(dataUrlToBytes(b.data));
+        const pgs = await merged.copyPages(extDoc, extDoc.getPageIndices());
+        pgs.forEach(p => merged.addPage(p));
+      } catch (e) {
+        console.error('No se pudo incrustar el PDF externo', b.nombre || '', e);
+        throw new Error('no se pudo incrustar el PDF externo' + (b.nombre ? ' "' + b.nombre + '"' : '') + ' (¿está protegido o dañado?)');
+      }
     }
   }
-  return merged.save();
+  // Guardar con object streams: comprime la estructura del PDF combinado.
+  return merged.save({ useObjectStreams: true });
+}
+
+/* data URL (base64) -> Uint8Array de bytes */
+function dataUrlToBytes(dataUrl) {
+  const base64 = (dataUrl || '').split(',')[1] || '';
+  const bin = atob(base64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes;
 }
 
 function downloadBytes(bytes, filename) {

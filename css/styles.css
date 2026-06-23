@@ -678,6 +678,21 @@ body {
 .nutri-dieta-row select { border: 1px solid #dce3ec; border-radius: 8px; padding: 8px 10px; font-size: 0.88rem; min-width: 150px; }
 .nutri-dieta-row input { flex: 1; min-width: 220px; border: 1px solid #dce3ec; border-radius: 8px; padding: 8px 10px; font-size: 0.88rem; }
 
+/* ----- Slot de PDF externo (después de una portada) ----- */
+.nutri-externo {
+  margin: 8px 0 8px 28px; padding: 10px 12px;
+  background: #eef4ff; border: 1px dashed #2e5fa8; border-radius: 8px;
+}
+.nutri-externo-title { font-size: 0.82rem; color: #1e4d8c; margin-bottom: 8px; font-weight: 500; }
+.nutri-ext-empty { font-size: 0.8rem; color: #6b7a8c; margin: 0 0 8px; }
+.nutri-ext-list { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.nutri-ext-file {
+  display: flex; align-items: center; gap: 8px;
+  background: #fff; border: 1px solid #d3e0f5; border-radius: 7px; padding: 6px 10px;
+}
+.nutri-ext-name { flex: 1; font-size: 0.85rem; color: #1f2d3d; word-break: break-all; }
+.nutri-externo-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
 .btn-row {
   display: flex;
   gap: 10px;
@@ -1076,6 +1091,25 @@ body {
   color: #2e5fa8;
   font-weight: 600;
   font-size: 10pt;
+}
+
+/* ---------- LÍNEAS "REFIERE" (antecedentes no patológicos) ----------
+   Layout apilado: etiqueta arriba y campo de texto debajo, con espacio
+   generoso entre cada concepto para que no se vea apretado. */
+.ctt-np-line {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  margin: 0 0 18px;
+  line-height: 1.5;
+}
+.ctt-np-label {
+  display: block;
+  margin-bottom: 2px;
+}
+.ctt-np-line .ctt-textarea {
+  margin-top: 0;
+  min-height: 42px;
 }
 
 /* ---------- INPUTS INLINE ---------- */
@@ -1564,6 +1598,13 @@ select.ctt-inline {
 .pdf-rendering .ctt-sub-line {
   color: #1a3d80 !important;
   font-weight: 700;
+}
+.pdf-rendering .ctt-np-line {
+  margin: 0 0 12px !important;
+}
+.pdf-rendering .ctt-np-label {
+  display: block !important;
+  margin-bottom: 2px !important;
 }
 .pdf-rendering .ctt-study-line {
   display: block !important;
