@@ -416,6 +416,44 @@ async function exportPDF() {
       div.innerHTML = sheet.render();
       document.body.appendChild(div);
 
+      // Laboratorio: pintar la barra/badge desde appState (la hoja de export se
+      // renderiza "en limpio" y paintLabRow no corre ahí), e independizarla del
+      // DOM vivo leyendo los valores directamente del estado.
+      div.querySelectorAll('.lab-row[data-lab]').forEach(row => {
+        // Leer del propio campo renderizado (trae el valor de appState o el rango
+        // por defecto), así la barra del PDF coincide siempre con lo que se ve.
+        const valEl = row.querySelector('.lab-input-val');
+        const refEls = row.querySelectorAll('.lab-input-ref');
+        const r = computeLab(
+          valEl ? valEl.value : '',
+          refEls[0] ? refEls[0].value : '',
+          refEls[1] ? refEls[1].value : ''
+        );
+        const band = row.querySelector('.lab-bar-band');
+        const dot  = row.querySelector('.lab-bar-dot');
+        if (r.pct == null) {
+          if (dot)  dot.style.display = 'none';
+          if (band) { band.style.left = '0'; band.style.width = '0'; }
+        } else {
+          if (band) { band.style.left = r.bandLo + '%'; band.style.width = (r.bandHi - r.bandLo) + '%'; }
+          if (dot)  { dot.style.display = ''; dot.style.left = r.pct + '%'; dot.className = 'lab-bar-dot ' + (r.status === 'normal' ? 'ok' : 'bad'); }
+        }
+        const badge = row.querySelector('.lab-badge');
+        if (badge) {
+          badge.textContent = r.label || '—';
+          badge.className = 'lab-badge ' + (!r.label ? 'neutral' : r.status === 'normal' ? 'ok' : 'bad');
+        }
+      });
+      // Pastillas cualitativas: convertir a span CONSERVANDO sus clases de color
+      // (deben procesarse antes de la conversión genérica de inputs a texto).
+      div.querySelectorAll('.lab-qual-pill').forEach(el => {
+        const val = (el.id && appState[el.id] !== undefined) ? appState[el.id] : el.value;
+        const span = document.createElement('span');
+        span.className = el.className + ' pdf-pill';
+        span.textContent = val || '—';
+        el.parentNode.replaceChild(span, el);
+      });
+
       // Convertir inputs/textareas/selects en spans con su valor (texto plano)
       div.querySelectorAll('input[type="text"], input:not([type])').forEach(el => {
         const val = (el.id && appState[el.id] !== undefined) ? appState[el.id] : el.value;
@@ -500,6 +538,7 @@ async function exportPDF() {
       const divTopPx = div.getBoundingClientRect().top;
       const blockSel = '.ctt-h1,.ctt-h2,.ctt-p,.ctt-study-line,.ctt-fixed,'
         + '.ctt-dynamic-item,.ctt-numbered-item,.ctt-attachment,'
+        + '.lab-card-head,.lab-row,.lab-qual-row,'
         + '.ctt-firma-doc-line,.ctt-firma-centered-display';
       const blockBounds = [];
       div.querySelectorAll(blockSel).forEach(el => {

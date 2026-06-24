@@ -4,6 +4,22 @@ window.sheet7 = {
   type: 'content',
   membreteKey: 'mb-7',
 
+  // Química sanguínea y electrolitos — diseño estructurado (valor + rango →
+  // badge Normal/Alto/Bajo y barra indicadora automáticos). Rangos editables.
+  quimica: [
+    { id: 'ca', label: 'Calcio',        unit: 'mg/dL',  min: 8.5, max: 10.5 },
+    { id: 'p',  label: 'Fósforo',       unit: 'mg/dL',  min: 2.5, max: 4.5  },
+    { id: 'na', label: 'Sodio',         unit: 'mmol/L', min: 135, max: 145  },
+    { id: 'k',  label: 'Potasio',       unit: 'mmol/L', min: 3.5, max: 5.1  },
+    { id: 'cl', label: 'Cloro',         unit: 'mmol/L', min: 98,  max: 107  },
+    { id: 'fe', label: 'Hierro sérico', unit: 'µg/dL',  min: 60,  max: 170  },
+  ],
+  cualitativos: [
+    { id: 'grupo', label: 'Grupo sanguíneo' },
+    { id: 'vih',   label: 'Anticuerpos VIH y antígeno p24' },
+    { id: 'vdrl',  label: 'VDRL' },
+  ],
+
   render() {
     const inner = `
       <!-- RESPIRATORIO -->
@@ -91,15 +107,8 @@ window.sheet7 = {
       <div id="block-sis-hema">
         ${h1('SISTEMA HEMATOPOYÉTICO Y CÉLULAS EN SANGRE')}
         ${renderStudyLine('est-hema-bh', `<strong class="ctt-sub-line">Biometría hemática:</strong> ${textarea('c7-hema-bh')}`)}
-        ${renderStudyLine('est-hema-ca', `<strong class="ctt-sub-line">Calcio:</strong> ${textarea('c7-hema-ca','','sm')}`)}
-        ${renderStudyLine('est-hema-p',  `<strong class="ctt-sub-line">Fósforo:</strong> ${textarea('c7-hema-p','','sm')}`)}
-        ${renderStudyLine('est-hema-na', `<strong class="ctt-sub-line">Sodio:</strong> ${textarea('c7-hema-na','','sm')}`)}
-        ${renderStudyLine('est-hema-k',  `<strong class="ctt-sub-line">Potasio:</strong> ${textarea('c7-hema-k','','sm')}`)}
-        ${renderStudyLine('est-hema-cl', `<strong class="ctt-sub-line">Cloro:</strong> ${textarea('c7-hema-cl','','sm')}`)}
-        ${renderStudyLine('est-hema-fe', `<strong class="ctt-sub-line">Hierro sérico:</strong> ${textarea('c7-hema-fe','','sm')}`)}
-        ${renderStudyLine('est-hema-grupo', `<strong class="ctt-sub-line">Grupo sanguíneo:</strong> ${textarea('c7-hema-grupo','','sm')}`)}
-        ${renderStudyLine('est-hema-vih', `<strong class="ctt-sub-line">Anticuerpos contra el virus del SIDA y antígeno p24:</strong> ${textarea('c7-hema-vih')}`)}
-        ${renderStudyLine('est-hema-vdrl', `<strong class="ctt-sub-line">VDRL:</strong> ${textarea('c7-hema-vdrl','','sm')}`)}
+        ${renderLabCard('quimica', 'Química sanguínea y electrolitos', this.quimica)}
+        ${renderQualCard('cualit', 'Estudios cualitativos', this.cualitativos)}
         ${renderDynamicBlock('c7-hema-extra','+ Agregar campo a Hematopoyético')}
       </div>
     `;
@@ -118,8 +127,7 @@ window.sheet7 = {
       'c7-endo-lh','c7-endo-fsh','c7-endo-prl','c7-endo-prog','c7-endo-est',
       'c7-endo-imc','c7-endo-imcClass',
       'c7-muscu-sint','c7-muscu-rx','c7-muscu-densi',
-      'c7-hema-bh','c7-hema-ca','c7-hema-p','c7-hema-na','c7-hema-k','c7-hema-cl',
-      'c7-hema-fe','c7-hema-grupo','c7-hema-vih','c7-hema-vdrl'
+      'c7-hema-bh'
     ];
     restoreFields(ids);
     restoreAutoGrow(ids);
@@ -130,5 +138,9 @@ window.sheet7 = {
 
     document.querySelectorAll('.ctt-dynamic-body').forEach(autoGrow);
     refreshSexConditionals();
+
+    // Pintar la gráfica de laboratorio (química sanguínea) y las pastillas cualitativas
+    refreshAllLabs();
+    refreshAllQual();
   }
 };
