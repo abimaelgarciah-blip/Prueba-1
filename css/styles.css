@@ -2014,3 +2014,7 @@ body.pdf-export-mode #app { display: none !important; }
   border: none;
   vertical-align: middle;
 }
+
+/* Tarjeta de laboratorio omitible (p. ej. Perfil tiroideo) */
+.lab-omit-wrap { position: relative; }
+.lab-omit-toggle { margin: 14px 0 -4px; display: inline-flex; }

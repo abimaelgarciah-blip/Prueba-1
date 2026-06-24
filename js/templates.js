@@ -507,6 +507,19 @@ function labGet(id, def) {
   return appState[id] !== undefined ? appState[id] : (def !== undefined ? String(def) : '');
 }
 
+/* Sexo del paciente (definido en la hoja Antecedentes, c5-sexo). */
+function labSex() { return appState['c5-sexo'] || appState['patientSex'] || ''; }
+
+/* Rango efectivo de un estudio según el sexo: usa minF/maxF si el paciente es
+ * Femenino y el estudio define valores propios; si no, usa min/max. */
+function labRange(s) {
+  const f = labSex() === 'Femenino';
+  return {
+    min: (f && s.minF !== undefined) ? s.minF : s.min,
+    max: (f && s.maxF !== undefined) ? s.maxF : s.max,
+  };
+}
+
 /** Devuelve {status:'normal'|'alto'|'bajo'|'', label, pct, bandLo, bandHi}. */
 function computeLab(value, min, max) {
   const v = parseFloat(value), lo = parseFloat(min), hi = parseFloat(max);
@@ -545,8 +558,25 @@ function renderLabCard(group, title, studies) {
   </div>`;
 }
 
+/* Tarjeta de laboratorio con casilla "Omitir" (para estudios opcionales como el
+ * Perfil tiroideo, que no todos los pacientes llevan). Si se omite, no aparece
+ * en el PDF (la exportación oculta los bloques con id `block-*` marcados). */
+function renderLabCardOmit(id, group, title, studies, omitLabel) {
+  const omitted = appState['omit-' + id] === 'true';
+  return `
+  <div class="lab-omit-wrap${omitted ? ' ctt-omitted' : ''}" id="block-${id}">
+    <label class="ctt-omit ctt-omit-inline no-print lab-omit-toggle">
+      <input type="checkbox" id="omit-chk-${id}" ${omitted ? 'checked' : ''}
+        onchange="toggleOmit('${id}', this.checked)" />
+      <span>${omitLabel || 'Omitir este estudio'}</span>
+    </label>
+    ${renderLabCard(group, title, studies)}
+  </div>`;
+}
+
 function renderLabRow(g, s) {
   const base = `lab-${g}-${s.id}`;
+  const rng = labRange(s);
   return `
   <tr class="lab-row" data-lab="${g}:${s.id}">
     <td class="lab-estudio">${s.label}</td>
@@ -557,10 +587,10 @@ function renderLabRow(g, s) {
     </td>
     <td class="lab-ref">
       <input class="lab-input lab-input-ref" id="${base}-min" type="text" inputmode="decimal"
-        value="${escapeAttr(labGet(base + '-min', s.min))}" oninput="onLabInput('${g}','${s.id}')" />
+        value="${escapeAttr(labGet(base + '-min', rng.min))}" oninput="onLabInput('${g}','${s.id}')" />
       <span class="lab-ref-sep">–</span>
       <input class="lab-input lab-input-ref" id="${base}-max" type="text" inputmode="decimal"
-        value="${escapeAttr(labGet(base + '-max', s.max))}" oninput="onLabInput('${g}','${s.id}')" />
+        value="${escapeAttr(labGet(base + '-max', rng.max))}" oninput="onLabInput('${g}','${s.id}')" />
       <span class="lab-unit">${s.unit || ''}</span>
     </td>
     <td class="lab-ind">
