@@ -7,7 +7,7 @@ window.sheet11 = {
   render() {
     const inner = `
       ${h1('SUGERENCIAS')}
-      ${renderNumberedList('c11-sugs','Escriba la sugerencia...')}
+      ${renderInfoCard('Recomendaciones', renderNumberedList('c11-sugs','Escriba la sugerencia...'))}
 
       <div class="ctt-firma-centered">
         <div class="ctt-doctor-select no-print">

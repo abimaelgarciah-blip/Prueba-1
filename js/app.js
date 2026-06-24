@@ -53,11 +53,7 @@ function saveDefaults() {
 const sheets = [
   sheet1, sheet2, sheet3, sheet4, sheet5,
   sheet6, sheet7, sheet8, sheet9, sheet10,
-  sheet11, sheet12, sheet13, sheet14, sheet15,
-  sheet16, sheet17, sheet18, sheet19,
-  sheet23, sheet24,   // Audiometría (portada + contenido)
-  sheet25, sheet26,   // Evaluación Dental (portada + contenido)
-  sheet20, sheet21,
+  sheet11,
   sheetNutricional    // Evaluación Nutricional (se anexa al final del PDF)
 ];
 
@@ -451,6 +447,16 @@ async function exportPDF() {
         const span = document.createElement('span');
         span.className = el.className + ' pdf-pill';
         span.textContent = val || '—';
+        el.parentNode.replaceChild(span, el);
+      });
+
+      // Estado por sistema (Sin alteraciones / Con hallazgos): conservar el color
+      // del chip en el PDF convirtiéndolo a span con su clase.
+      div.querySelectorAll('.sys-status-select').forEach(el => {
+        const val = (el.id && appState[el.id] !== undefined) ? appState[el.id] : (el.value || 'normal');
+        const span = document.createElement('span');
+        span.className = 'sys-status-select ' + val + ' pdf-pill';
+        span.textContent = val === 'hallazgo' ? 'Con hallazgos' : 'Sin alteraciones';
         el.parentNode.replaceChild(span, el);
       });
 

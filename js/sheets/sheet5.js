@@ -45,29 +45,41 @@ window.sheet5 = {
 
   render() {
     const inner = `
-      <!-- RESUMEN MÉDICO -->
       ${h1('RESUMEN MÉDICO')}
-      ${p(`${select('c5-sexo',['Masculino','Femenino'])} de ${input('c5-edad','edad','sm')} años de edad.`)}
+
+      <!-- RESUMEN MÉDICO -->
+      ${renderInfoCard('Datos del paciente',
+        p(`${select('c5-sexo',['Masculino','Femenino'])} de ${input('c5-edad','edad','sm')} años de edad.`),
+        { accent:'primary' })}
 
       <!-- ANTECEDENTES HEREDO FAMILIARES -->
-      ${h1('ANTECEDENTES HEREDO FAMILIARES')}
-      ${p(`<strong class="ctt-sub-line">Refiere:</strong> ${textarea('c5-ahf')}`)}
+      ${renderInfoCard('Antecedentes heredo familiares',
+        p(`<strong class="ctt-sub-line">Refiere:</strong> ${textarea('c5-ahf')}`))}
 
       <!-- ANTECEDENTES NO PATOLÓGICOS -->
-      ${h1('ANTECEDENTES PERSONALES NO PATOLÓGICOS')}
-      ${this.noPatologicos.map(np => `<p class="ctt-p ctt-np-line"><strong class="ctt-sub-line ctt-np-label">${np.label}</strong>${textarea('c5-np-'+np.id)}</p>`).join('')}
+      ${renderInfoCard('Antecedentes personales no patológicos',
+        renderFieldGrid(this.noPatologicos.map(np =>
+          fieldCell(np.label, textarea('c5-np-'+np.id))), 2))}
 
       <!-- ANTECEDENTES PATOLÓGICOS -->
-      ${h1('ANTECEDENTES PERSONALES PATOLÓGICOS')}
-      ${renderIfSex('M', p(`<strong class="ctt-sub-line">Al interrogatorio de signos y síntomas prostáticos se refiere</strong> ${textarea('c5-pp-prostata')}`))}
-      ${renderIfSex('F', p(`Inicia menstruación a los ${input('c5-pp-menarca','','sm')} años, gesta ${input('c5-pp-gesta','','sm')}, para ${input('c5-pp-para','','sm')}, aborto ${input('c5-pp-aborto','','sm')}, cesáreas ${input('c5-pp-cesareas','','sm')}. Meses promedio de lactancia en el primero ${input('c5-pp-lact1','','sm')} meses, en el segundo ${input('c5-pp-lact2','','sm')} meses, en el tercer ${input('c5-pp-lact3','','sm')} meses. FUM ${input('c5-pp-fum','','sm')}`))}
-      ${p(`<strong class="ctt-sub-line">Otros antecedentes refiere</strong> ${textarea('c5-pp-otros')}`)}
+      ${renderInfoCard('Antecedentes personales patológicos', `
+        ${renderIfSex('M', p(`<strong class="ctt-sub-line">Al interrogatorio de signos y síntomas prostáticos se refiere</strong> ${textarea('c5-pp-prostata')}`))}
+        ${renderIfSex('F', p(`Inicia menstruación a los ${input('c5-pp-menarca','','sm')} años, gesta ${input('c5-pp-gesta','','sm')}, para ${input('c5-pp-para','','sm')}, aborto ${input('c5-pp-aborto','','sm')}, cesáreas ${input('c5-pp-cesareas','','sm')}. Meses promedio de lactancia en el primero ${input('c5-pp-lact1','','sm')} meses, en el segundo ${input('c5-pp-lact2','','sm')} meses, en el tercer ${input('c5-pp-lact3','','sm')} meses. FUM ${input('c5-pp-fum','','sm')}`))}
+        ${p(`<strong class="ctt-sub-line">Otros antecedentes refiere</strong> ${textarea('c5-pp-otros')}`)}
+      `)}
 
       <!-- EXAMEN FÍSICO -->
       ${h1('EXAMEN FÍSICO')}
-      ${p(`<strong class="ctt-sub-line">Signos vitales:</strong> T.A. ${input('c5-ef-ta','','sm')} F.C. ${input('c5-ef-fc','','sm')} Saturación: ${input('c5-ef-sat','','sm')}`)}
-      ${p(`<strong class="ctt-sub-line">Peso:</strong> ${input('c5-ef-peso','','sm')} kilos y <strong class="ctt-sub-line">talla:</strong> ${input('c5-ef-talla','','sm')} cm.`)}
-      ${this.examenFisico.map(ef => renderEditableFixed(ef.id, ef.text)).join('')}
+      ${renderInfoCard('Signos vitales', renderMetricCards([
+        { label:'T.A.',       field:input('c5-ef-ta','','sm'),    unit:'mmHg' },
+        { label:'F.C.',       field:input('c5-ef-fc','','sm'),    unit:'lpm'  },
+        { label:'Saturación', field:input('c5-ef-sat','','sm'),   unit:'%'    },
+        { label:'Peso',       field:input('c5-ef-peso','','sm'),  unit:'kg'   },
+        { label:'Talla',      field:input('c5-ef-talla','','sm'), unit:'cm'   },
+      ]))}
+
+      ${renderInfoCard('Exploración física por aparatos y sistemas',
+        this.examenFisico.map(ef => renderEditableFixed(ef.id, ef.text)).join(''))}
     `;
     return renderContentWrapper(this.membreteKey, this.label, inner);
   },

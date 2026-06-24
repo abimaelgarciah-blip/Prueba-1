@@ -111,11 +111,26 @@ window.sheet7 = {
     { id: 'hpylori', label: 'Antígeno Helicobacter pylori' },
   ],
 
+  // Catálogo de sistemas (para el resumen con estado por sistema)
+  systems: [
+    { key: 'resp',  short: 'Respiratorio' },
+    { key: 'card',  short: 'Cardiovascular' },
+    { key: 'gi',    short: 'Gastrointestinal' },
+    { key: 'gu',    short: 'Genito-urinario' },
+    { key: 'nerv',  short: 'Nervioso' },
+    { key: 'endo',  short: 'Endocrino' },
+    { key: 'muscu', short: 'Musculoesquelético' },
+    { key: 'hema',  short: 'Hematopoyético' },
+  ],
+
   render() {
     const inner = `
+      ${h1('REVISIÓN POR SISTEMAS')}
+      ${renderSysSummary(this.systems)}
+
       <!-- RESPIRATORIO -->
-      <div id="block-sis-resp">
-        ${h1('SISTEMA RESPIRATORIO')}
+      <div id="block-sis-resp" class="${sysBlockClass('resp')}" data-sysblock="resp">
+        ${renderSysHeader('resp','SISTEMA RESPIRATORIO')}
         ${renderStudyLine('est-resp-sint', `<strong class="ctt-sub-line">Síntomas respiratorios:</strong> ${textarea('c7-resp-sint')}`)}
         ${renderStudyLine('est-resp-espiro', `<strong class="ctt-sub-line">Espirometría:</strong> ${textarea('c7-resp-espiro')}`)}
         ${renderStudyLine('est-resp-rx', `<strong class="ctt-sub-line">Radiografía de tórax:</strong> ${textarea('c7-resp-rx')}`)}
@@ -123,8 +138,8 @@ window.sheet7 = {
       </div>
 
       <!-- CARDIOVASCULAR -->
-      <div id="block-sis-card">
-        ${h1('SISTEMA CARDIOVASCULAR')}
+      <div id="block-sis-card" class="${sysBlockClass('card')}" data-sysblock="card">
+        ${renderSysHeader('card','SISTEMA CARDIOVASCULAR')}
         ${renderStudyLine('est-card-pef', `<strong class="ctt-sub-line">Prueba de esfuerzo:</strong> ${textarea('c7-card-pef')}`)}
         ${renderStudyLine('est-card-ecg', `<strong class="ctt-sub-line">Electrocardiograma:</strong> ${textarea('c7-card-ecg')}`)}
         ${renderLabCard('cardio', 'Marcador de riesgo cardiovascular', this.cardio)}
@@ -132,8 +147,8 @@ window.sheet7 = {
       </div>
 
       <!-- GASTROINTESTINAL -->
-      <div id="block-sis-gi">
-        ${h1('SISTEMA GASTROINTESTINAL')}
+      <div id="block-sis-gi" class="${sysBlockClass('gi')}" data-sysblock="gi">
+        ${renderSysHeader('gi','SISTEMA GASTROINTESTINAL')}
         ${renderStudyLine('est-gi-sint', `<strong class="ctt-sub-line">Sintomatología:</strong> ${textarea('c7-gi-sint')}`)}
         ${renderStudyLine('est-gi-eco', `<strong class="ctt-sub-line">Ultrasonido abdominal:</strong> ${textarea('c7-gi-eco')}`)}
         ${renderLabCard('hepatico', 'Perfil hepático (pruebas de función hepática)', this.hepatico)}
@@ -145,8 +160,8 @@ window.sheet7 = {
       </div>
 
       <!-- GENITO-URINARIO -->
-      <div id="block-sis-gu">
-        ${h1('SISTEMA GENITO-URINARIO')}
+      <div id="block-sis-gu" class="${sysBlockClass('gu')}" data-sysblock="gu">
+        ${renderSysHeader('gu','SISTEMA GENITO-URINARIO')}
         ${renderStudyLine('est-gu-sint', `<strong class="ctt-sub-line">Sintomatología:</strong> ${textarea('c7-gu-sint')}`)}
         ${renderStudyLine('est-gu-ecoR', `<strong class="ctt-sub-line">Ecosonograma renal:</strong> ${textarea('c7-gu-ecoR')}`)}
         ${renderIfSex('M', renderStudyLine('est-gu-ecoP', `<strong class="ctt-sub-line">Ecosonograma prostático:</strong> ${textarea('c7-gu-ecoP')}`))}
@@ -158,8 +173,8 @@ window.sheet7 = {
       </div>
 
       <!-- NERVIOSO -->
-      <div id="block-sis-nerv">
-        ${h1('SISTEMA NERVIOSO Y ÓRGANOS DE LOS SENTIDOS')}
+      <div id="block-sis-nerv" class="${sysBlockClass('nerv')}" data-sysblock="nerv">
+        ${renderSysHeader('nerv','SISTEMA NERVIOSO Y ÓRGANOS DE LOS SENTIDOS')}
         ${renderStudyLine('est-nerv-sint', `<strong class="ctt-sub-line">Sintomatología:</strong> ${textarea('c7-nerv-sint')}`)}
         ${renderStudyLine('est-nerv-oftal', `<strong class="ctt-sub-line">Valoración oftalmológica:</strong> ${textarea('c7-nerv-oftal')}`)}
         ${renderStudyLine('est-nerv-audio', `<strong class="ctt-sub-line">Audiometría:</strong> ${textarea('c7-nerv-audio')}`)}
@@ -167,8 +182,8 @@ window.sheet7 = {
       </div>
 
       <!-- ENDOCRINO -->
-      <div id="block-sis-endo">
-        ${h1('SISTEMA ENDOCRINO METABÓLICO')}
+      <div id="block-sis-endo" class="${sysBlockClass('endo')}" data-sysblock="endo">
+        ${renderSysHeader('endo','SISTEMA ENDOCRINO METABÓLICO')}
         ${renderLabCard('metabolico', 'Perfil metabólico y de lípidos', this.metabolico)}
         ${renderIfSex('F', renderLabCard('hormonalF', 'Perfil hormonal femenino', this.hormonalF))}
         ${renderStudyLine('est-endo-imc', `<strong class="ctt-sub-line">Índice de masa corporal:</strong> ${textarea('c7-endo-imc','','sm')} <strong class="ctt-sub-line">clasificado como:</strong> ${textarea('c7-endo-imcClass')}`)}
@@ -177,8 +192,8 @@ window.sheet7 = {
       </div>
 
       <!-- MUSCULOESQUELÉTICO -->
-      <div id="block-sis-muscu">
-        ${h1('SISTEMA MUSCULOESQUELÉTICO')}
+      <div id="block-sis-muscu" class="${sysBlockClass('muscu')}" data-sysblock="muscu">
+        ${renderSysHeader('muscu','SISTEMA MUSCULOESQUELÉTICO')}
         ${renderStudyLine('est-muscu-sint', `<strong class="ctt-sub-line">Sintomatología:</strong> ${textarea('c7-muscu-sint')}`)}
         ${renderStudyLine('est-muscu-rx', `<strong class="ctt-sub-line">Radiografía de columna lumbar:</strong> ${textarea('c7-muscu-rx')}`)}
         ${renderStudyLine('est-muscu-densi', `<strong class="ctt-sub-line">Densitometría:</strong> ${textarea('c7-muscu-densi')}`)}
@@ -186,8 +201,8 @@ window.sheet7 = {
       </div>
 
       <!-- HEMATOPOYÉTICO -->
-      <div id="block-sis-hema">
-        ${h1('SISTEMA HEMATOPOYÉTICO Y CÉLULAS EN SANGRE')}
+      <div id="block-sis-hema" class="${sysBlockClass('hema')}" data-sysblock="hema">
+        ${renderSysHeader('hema','SISTEMA HEMATOPOYÉTICO Y CÉLULAS EN SANGRE')}
         ${renderLabCard('biometria', 'Biometría hemática', this.biometria)}
         ${renderLabCard('quimica', 'Química sanguínea y electrolitos', this.quimica)}
         ${renderQualCard('cualit', 'Serología y grupo sanguíneo', this.cualitativos)}
@@ -220,5 +235,8 @@ window.sheet7 = {
     // Pintar todas las gráficas de laboratorio y las pastillas cualitativas
     refreshAllLabs();
     refreshAllQual();
+
+    // Resumen por sistemas (conteo + colores por estado)
+    refreshSysSummary();
   }
 };

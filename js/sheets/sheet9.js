@@ -18,12 +18,14 @@ window.sheet9 = {
   render() {
     const inner = `
       ${h1('CONCLUSIONES')}
-      ${p('Paciente que presenta las siguientes alteraciones:')}
-      ${this.systems.map(s => p(`<strong class="ctt-sub-line">${s.label}:</strong> ${textarea('c9-'+s.id, '...')}`)).join('')}
-      <div id="block-dental">
-        ${renderOmitToggle('dental','Omitir odontológico')}
-        ${p(`<strong class="ctt-sub-line">Odontológico:</strong> ${textarea('c9-dental','...')}`)}
-      </div>
+      ${renderInfoCard('Alteraciones por sistema', `
+        ${p('Paciente que presenta las siguientes alteraciones:')}
+        ${this.systems.map(s => p(`<strong class="ctt-sub-line">${s.label}:</strong> ${textarea('c9-'+s.id, '...')}`)).join('')}
+        <div id="block-dental">
+          ${renderOmitToggle('dental','Omitir odontológico')}
+          ${p(`<strong class="ctt-sub-line">Odontológico:</strong> ${textarea('c9-dental','...')}`)}
+        </div>
+      `)}
       ${renderDynamicBlock('c9-extra','+ Agregar otra conclusión')}
     `;
     return renderContentWrapper(this.membreteKey, this.label, inner);

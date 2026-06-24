@@ -2018,3 +2018,178 @@ body.pdf-export-mode #app { display: none !important; }
 /* Tarjeta de laboratorio omitible (p. ej. Perfil tiroideo) */
 .lab-omit-wrap { position: relative; }
 .lab-omit-toggle { margin: 14px 0 -4px; display: inline-flex; }
+
+/* ===================== DISEÑO DE TARJETAS / CÁPSULAS ===================== */
+/* ===== TARJETAS DE PRESENTACIÓN (info-card) ===== */
+.info-card {
+  background: #fff;
+  border: 1px solid #e6e9ee;
+  border-radius: 10px;
+  margin: 14px 0 18px;
+  overflow: hidden;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.info-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 16px;
+  background: #f4f7fb;
+  border-bottom: 1px solid #e9edf3;
+}
+.info-card-title {
+  font-size: 11pt;
+  font-weight: 700;
+  color: #1a3d80;
+  margin: 0;
+}
+.info-card-icon { font-size: 12pt; line-height: 1; }
+.info-card-body { padding: 12px 16px; }
+.info-card-body .ctt-p { margin: 4px 0; }
+/* Variante destacada (datos del paciente) */
+.info-card-primary { border-color: #cfe0f7; }
+.info-card-primary > .info-card-head { background: #eaf2ff; }
+
+/* Grid de campos label + valor */
+.field-grid { display: grid; gap: 6px 22px; }
+.field-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+.field-cell {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 0;
+  border-bottom: 1px dashed #eef1f4;
+  min-width: 0;
+}
+.field-label {
+  font-size: 9pt;
+  font-weight: 600;
+  color: #44597a;
+  white-space: nowrap;
+}
+.field-cell .ctt-textarea {
+  margin-top: 0;
+  flex: 1;
+  min-height: 30px;
+  min-width: 0;
+  padding: 4px 8px;
+}
+
+/* Tarjetas métricas (signos vitales) */
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: 10px;
+}
+.metric-card {
+  background: #f7faff;
+  border: 1px solid #e3ebf6;
+  border-radius: 9px;
+  padding: 10px 8px;
+  text-align: center;
+}
+.metric-label {
+  font-size: 7.5pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #5a6f90;
+  margin-bottom: 4px;
+}
+.metric-field {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 3px;
+}
+.metric-card .ctt-inline {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  font-size: 14pt;
+  font-weight: 700;
+  color: #15263a;
+  padding: 2px 2px;
+  text-align: center;
+  min-width: 40px;
+}
+.metric-card .ctt-inline:focus { background: #eaf3ff; box-shadow: none; }
+.metric-unit { font-size: 8pt; color: #8a93a0; font-weight: 600; }
+
+/* ===== RESUMEN POR SISTEMAS ===== */
+.sys-summary {
+  background: #fff;
+  border: 1px solid #e6e9ee;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin: 6px 0 20px;
+}
+.sys-summary-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.sys-summary-badge {
+  background: #1f9d57;
+  color: #fff;
+  font-size: 13pt;
+  font-weight: 800;
+  border-radius: 9px;
+  padding: 8px 14px;
+  min-width: 56px;
+  text-align: center;
+}
+.sys-summary-text { display: flex; flex-direction: column; line-height: 1.3; }
+.sys-summary-text strong { font-size: 11pt; color: #1a3d80; }
+.sys-summary-text span { font-size: 8.5pt; color: #76808f; }
+.sys-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 8px;
+}
+.sys-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 11px;
+  border-radius: 8px;
+  border: 1px solid #e3ebf6;
+  border-left: 4px solid #cdd6e2;
+  background: #fafbfd;
+}
+.sys-chip-dot { width: 9px; height: 9px; border-radius: 50%; background: #cdd6e2; flex: none; }
+.sys-chip-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+.sys-chip-name { font-size: 8.5pt; font-weight: 600; color: #2a3851; }
+.sys-chip-state { font-size: 6.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; color: #9aa5b4; white-space: nowrap; }
+.sys-chip.ok   { border-left-color: #1f9d57; background: #f3faf6; }
+.sys-chip.ok   .sys-chip-dot { background: #1f9d57; }
+.sys-chip.ok   .sys-chip-state { color: #1f7a45; }
+.sys-chip.warn { border-left-color: #e0922f; background: #fdf8f0; }
+.sys-chip.warn .sys-chip-dot { background: #e0922f; }
+.sys-chip.warn .sys-chip-state { color: #b9741f; }
+
+/* Bloque de sistema con borde de color por estado */
+.sys-block {
+  border-left: 4px solid #e3ebf6;
+  border-radius: 0 8px 8px 0;
+  padding: 2px 0 2px 14px;
+  margin: 16px 0;
+}
+.sys-block.ok   { border-left-color: #1f9d57; }
+.sys-block.warn { border-left-color: #e0922f; }
+.sys-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.sys-head-title { text-align: left !important; flex: 1; margin: 12px 0 8px !important; }
+.sys-status-select {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8.5pt;
+  font-weight: 700;
+  border-radius: 14px;
+  border: 1px solid #d6dde8;
+  padding: 4px 10px;
+  cursor: pointer;
+  outline: none;
+}
+.sys-status-select.normal   { background: #e3f5ea; color: #1f7a45; border-color: #bfe3cf; }
+.sys-status-select.hallazgo { background: #fdf2e2; color: #b9741f; border-color: #f0d9b5; }
