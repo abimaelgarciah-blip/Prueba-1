@@ -701,8 +701,8 @@ function renderInfoCard(title, bodyHtml, opts) {
   </div>`;
 }
 
-function renderFieldGrid(cells, cols) {
-  return `<div class="field-grid cols-${cols || 2}">${cells.join('')}</div>`;
+function renderFieldGrid(cells, cols, extraClass) {
+  return `<div class="field-grid cols-${cols || 2}${extraClass ? ' ' + extraClass : ''}">${cells.join('')}</div>`;
 }
 function fieldCell(label, fieldHtml) {
   return `<div class="field-cell"><span class="field-label">${label}</span>${fieldHtml}</div>`;

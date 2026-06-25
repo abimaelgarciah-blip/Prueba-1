@@ -59,7 +59,7 @@ window.sheet5 = {
       <!-- ANTECEDENTES NO PATOLÓGICOS -->
       ${renderInfoCard('Antecedentes personales no patológicos',
         renderFieldGrid(this.noPatologicos.map(np =>
-          fieldCell(np.label, textarea('c5-np-'+np.id))), 2))}
+          fieldCell(np.label, textarea('c5-np-'+np.id))), 2, 'stacked'))}
 
       <!-- ANTECEDENTES PATOLÓGICOS -->
       ${renderInfoCard('Antecedentes personales patológicos', `

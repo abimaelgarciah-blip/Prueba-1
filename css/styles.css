@@ -2075,6 +2075,20 @@ body.pdf-export-mode #app { display: none !important; }
   padding: 4px 8px;
 }
 
+/* Variante apilada: etiqueta arriba y caja de texto a todo el ancho debajo */
+.field-grid.stacked .field-cell {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 3px;
+}
+.field-grid.stacked .field-label {
+  white-space: normal;
+}
+.field-grid.stacked .field-cell .ctt-textarea {
+  flex: none;
+  width: 100%;
+}
+
 /* Tarjetas métricas (signos vitales) */
 .metric-grid {
   display: grid;
