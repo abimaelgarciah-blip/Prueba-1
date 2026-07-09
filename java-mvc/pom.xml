@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.gruporio</groupId>
+  <artifactId>chequeo-medico</artifactId>
+  <version>1.0.0</version>
+  <packaging>war</packaging>
+
+  <name>Chequeo Medico - MVC Java/JSP</name>
+
+  <properties>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- Ajustar a la version del driver disponible para tu Oracle 11g -->
+    <ojdbc.version>11.2.0.4</ojdbc.version>
+    <pdfbox.version>2.0.30</pdfbox.version>
+    <gson.version>2.10.1</gson.version>
+  </properties>
+
+  <dependencies>
+    <!-- Servlet / JSP / JSTL: provisto por Tomcat, se necesita solo en compile -->
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>4.0.1</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet.jsp.jstl</groupId>
+      <artifactId>javax.servlet.jsp.jstl-api</artifactId>
+      <version>1.2.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.web</groupId>
+      <artifactId>javax.servlet.jsp.jstl</artifactId>
+      <version>1.2.5</version>
+    </dependency>
+
+    <!-- Driver Oracle 11g (ojdbc6.jar / ojdbc8.jar): NO se declara como
+         dependencia Maven porque Oracle no lo publica en Maven Central y el
+         codigo de este proyecto solo usa java.sql.* (nunca clases
+         oracle.jdbc.*), asi que no hace falta en tiempo de compilacion.
+         Para desplegar en Tomcat, copia el jar del driver directamente a
+         $CATALINA_HOME/lib/ (recomendado, para que lo usen todos los
+         contextos vía JNDI) o a src/main/webapp/WEB-INF/lib/ de este WAR.
+         Si prefieres declararlo como dependencia Maven igualmente:
+           mvn install:install-file -Dfile=ojdbc6.jar -DgroupId=com.oracle.database.jdbc \
+             -DartifactId=ojdbc6 -Dversion=${ojdbc.version} -Dpackaging=jar -->
+
+    <!-- Generacion de PDF -->
+    <dependency>
+      <groupId>org.apache.pdfbox</groupId>
+      <artifactId>pdfbox</artifactId>
+      <version>${pdfbox.version}</version>
+    </dependency>
+
+    <!-- JSON para el campo CLOB "data" (equivalente al jsonb de Supabase) -->
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>${gson.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <finalName>chequeo-medico</finalName>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>3.4.0</version>
+        <configuration>
+          <failOnMissingWebXml>false</failOnMissingWebXml>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.11.0</version>
+        <configuration>
+          <release>11</release>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
