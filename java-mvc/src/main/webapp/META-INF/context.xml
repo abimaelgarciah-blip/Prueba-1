@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Configuracion del contexto para Tomcat. Define el pool de conexiones JNDI
+  contra Oracle 11g (equivalente a la URL/API-key de Supabase en
+  js/supabase-client.js). Ajusta host/puerto/SID/usuario/password a tu
+  instancia real. El driver (ojdbc6.jar u ojdbc8.jar) debe estar en
+  $CATALINA_HOME/lib/ para que Tomcat pueda cargar la clase del driver.
+-->
+<Context>
+    <Resource name="jdbc/ChequeoMedicoDS"
+              auth="Container"
+              type="javax.sql.DataSource"
+              driverClassName="oracle.jdbc.OracleDriver"
+              url="jdbc:oracle:thin:@//ORACLE_HOST:1521/ORACLE_SERVICE_NAME"
+              username="CHEQUEO_MEDICO_USER"
+              password="CAMBIAR_ESTA_CONTRASEÑA"
+              maxTotal="20"
+              maxIdle="10"
+              minIdle="2"
+              maxWaitMillis="10000"
+              validationQuery="SELECT 1 FROM DUAL"
+              testOnBorrow="true" />
+</Context>

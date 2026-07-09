@@ -1,0 +1,18 @@
+<header id="top-nav">
+  <div id="nav-brand">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7ec8e3" stroke-width="2">
+      <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+    </svg>
+    <span>Chequeo Médico</span>
+  </div>
+  <nav id="nav-links">
+    <a class="nav-btn" href="${pageContext.request.contextPath}/patients">👥 Pacientes</a>
+    <a class="nav-btn" href="${pageContext.request.contextPath}/doctors">👨‍⚕️ Doctores</a>
+    <a class="nav-btn" href="${pageContext.request.contextPath}/dashboard">📊 Dashboard</a>
+    <a class="nav-btn" href="${pageContext.request.contextPath}/settings">⚙️ Ajustes</a>
+    <a class="nav-btn" href="${pageContext.request.contextPath}/field-catalog">🗂 Campos del PDF</a>
+  </nav>
+  <div id="nav-right">
+    <a class="btn-logout" href="${pageContext.request.contextPath}/logout">Cerrar sesión</a>
+  </div>
+</header>
